@@ -12,6 +12,52 @@ let currentTab = 'arc'; // 'arc' or 'other'
 // Arc-related keywords for filtering - focus on Arc-enabled services
 const arcKeywords = ['arc-enabled', 'arc enabled', 'update manager', 'inventory', 'change tracking', 'guest configuration', 'best practice', 'compliance', 'connected machine', 'hybrid benefit'];
 
+// Show savings calculation breakdown
+function showSavingsBreakdown() {
+    const benefits = currentDataSource === 'azure' ? azureBenefitsData : allBenefits;
+    const inactiveBenefits = benefits.filter(b => !b.isActive);
+    
+    if (inactiveBenefits.length === 0) {
+        alert('Great job! All benefits are currently active. No potential savings to calculate.');
+        return;
+    }
+    
+    let breakdown = '💰 POTENTIAL SAVINGS CALCULATION\n';
+    breakdown += '='.repeat(60) + '\n\n';
+    breakdown += 'Based on unconfigured servers for each benefit:\n\n';
+    
+    const perServerRates = {
+        'arc-001': 400,  // Update Manager
+        'arc-002': 300,  // Change Tracking
+        'arc-003': 350,  // Guest Configuration
+        'arc-004': 250,  // Best Practice Assessment
+        'arc-006': 200,  // Monitoring
+        'arc-007': 450,  // Defender
+        'arc-008': 275   // Automated Config
+    };
+    
+    let total = 0;
+    inactiveBenefits.forEach(benefit => {
+        const value = benefit.estimatedValue || 0;
+        const rate = perServerRates[benefit.id] || 0;
+        const unconfigured = benefit.unconfiguredServers?.length || 0;
+        
+        if (value > 0) {
+            breakdown += `${benefit.name}\n`;
+            breakdown += `  ${unconfigured} unconfigured servers × $${rate}/server/year\n`;
+            breakdown += `  = $${value.toLocaleString()}\n\n`;
+            total += value;
+        }
+    });
+    
+    breakdown += '='.repeat(60) + '\n';
+    breakdown += `TOTAL POTENTIAL ANNUAL SAVINGS: $${total.toLocaleString()}\n\n`;
+    breakdown += 'Note: Values represent estimated annual cost savings or risk\n';
+    breakdown += 'reduction per server when these features are enabled.';
+    
+    alert(breakdown);
+}
+
 // Check for pre-configured Azure settings
 const preConfigured = window.AZURE_CONFIG && window.AZURE_CONFIG.CLIENT_ID && window.AZURE_CONFIG.TENANT_ID;
 let azureClientId = preConfigured ? window.AZURE_CONFIG.CLIENT_ID : (localStorage.getItem('azureClientId') || '');
