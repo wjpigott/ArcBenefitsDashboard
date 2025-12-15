@@ -40,7 +40,10 @@ function showSavingsBreakdown() {
         'arc-004': 250,  // Best Practice Assessment
         'arc-006': 200,  // Monitoring
         'arc-007': 450,  // Defender
-        'arc-008': 275   // Automated Config
+        'arc-008': 275,  // Automated Config
+        'arc-009': 150,  // Tagging
+        'arc-010': 125,  // Windows Admin Center
+        'arc-011': 225   // Hotpatching
     };
     
     let html = '<div class="savings-breakdown-intro">Based on unconfigured servers for each benefit. Update Manager savings represent estimated annual labor costs for manual patching (tracking updates, testing, deploying patches, reboots, verification). Other values represent security risks, compliance costs, and operational inefficiencies.</div>';

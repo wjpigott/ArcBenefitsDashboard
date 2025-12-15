@@ -75,5 +75,38 @@
     "estimatedValue": 5500,
     "details": "Automate configuration management, script execution, and desired state configuration (DSC) for Arc-enabled servers using Azure Automation.",
     "activationSteps": "Create Automation Account and link Arc-enabled servers for configuration management."
+  },
+  {
+    "id": "arc-009",
+    "name": "Arc-enabled Servers - Resource Tagging",
+    "description": "Organize and manage Arc-enabled servers using Azure tags for cost allocation, governance, and automation.",
+    "category": "deployment",
+    "isFree": true,
+    "isActive": false,
+    "estimatedValue": 3000,
+    "details": "Tags enable organization-wide governance, automated workflows, and cost tracking. Servers without tags are harder to manage and track.",
+    "activationSteps": "Apply tags to Arc-enabled servers via Azure Portal, CLI, or Azure Policy for automated tagging enforcement."
+  },
+  {
+    "id": "arc-010",
+    "name": "Arc-enabled Servers - Windows Admin Center",
+    "description": "Manage Arc-enabled Windows Servers through Windows Admin Center extension for remote administration.",
+    "category": "deployment",
+    "isFree": true,
+    "isActive": false,
+    "estimatedValue": 2500,
+    "details": "Windows Admin Center provides browser-based server management with role management, event viewer, registry editor, and performance monitoring.",
+    "activationSteps": "Install AdminCenter extension on Arc-enabled Windows Servers from Azure Portal Extensions blade."
+  },
+  {
+    "id": "arc-011",
+    "name": "Arc-enabled Servers - Hotpatching (WS2025)",
+    "description": "Enable hotpatching on Windows Server 2025 Arc-enabled servers for security updates without reboots.",
+    "category": "free",
+    "isFree": true,
+    "isActive": false,
+    "estimatedValue": 4500,
+    "details": "Hotpatching applies critical security updates without requiring server reboots, improving uptime and reducing maintenance windows for Windows Server 2025.",
+    "activationSteps": "Enable hotpatching in Update Manager settings for Windows Server 2025 Arc-enabled servers."
   }
 ]

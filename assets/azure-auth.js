@@ -283,22 +283,29 @@ class AzureService {
             | extend 
                 updateManagerEnabled = isnotnull(properties.osProfile.windowsConfiguration.patchSettings.assessmentMode) or isnotnull(properties.osProfile.linuxConfiguration.patchSettings.assessmentMode),
                 monitoringEnabled = isnotnull(properties.extensions) and array_length(properties.extensions) > 0,
-                guestConfigEnabled = tobool(properties.guestConfiguration.enabled)
+                guestConfigEnabled = tobool(properties.guestConfiguration.enabled),
+                hasHotpatch = tobool(properties.osProfile.windowsConfiguration.patchSettings.enableHotpatching),
+                osVersion = tostring(properties.osVersion),
+                tagCount = array_length(todynamic(tostring(tags)))
             | project 
                 id,
                 name,
                 resourceGroup,
                 location,
                 osType = tostring(properties.osType),
+                osVersion,
                 status = tostring(properties.status),
                 provisioningState = tostring(properties.provisioningState),
                 updateManagerEnabled,
                 monitoringEnabled,
                 guestConfigEnabled,
+                hasHotpatch,
+                tagCount,
+                tags,
                 extensions = properties.extensions,
                 lastSeenTime = properties.lastStatusChange
             | order by name asc
-        `;
+`;
         
         return await this.queryResourceGraph(query, subscriptionIds);
     }
@@ -415,6 +422,24 @@ class AzureService {
                     disabled: 0,
                     enabledServers: [],
                     disabledServers: []
+                },
+                tagging: {
+                    enabled: 0,
+                    disabled: 0,
+                    enabledServers: [],
+                    disabledServers: []
+                },
+                windowsAdminCenter: {
+                    enabled: 0,
+                    disabled: 0,
+                    enabledServers: [],
+                    disabledServers: []
+                },
+                hotpatching: {
+                    enabled: 0,
+                    disabled: 0,
+                    enabledServers: [],
+                    disabledServers: []
                 }
             };
             
@@ -512,6 +537,42 @@ class AzureService {
                     analysis.bestPracticeAssessment.disabled++;
                     analysis.bestPracticeAssessment.disabledServers.push(server.name);
                 }
+                
+                // Check Resource Tagging
+                // Servers should have at least one tag for governance and organization
+                if (server.tagCount > 0) {
+                    analysis.tagging.enabled++;
+                    analysis.tagging.enabledServers.push(server.name);
+                } else {
+                    analysis.tagging.disabled++;
+                    analysis.tagging.disabledServers.push(server.name);
+                }
+                
+                // Check Windows Admin Center extension
+                const hasAdminCenter = serverExtensions.some(ext => 
+                    ext.extensionType?.toLowerCase().includes('admincenter') ||
+                    ext.extensionName?.toLowerCase().includes('admincenter')
+                );
+                if (hasAdminCenter) {
+                    analysis.windowsAdminCenter.enabled++;
+                    analysis.windowsAdminCenter.enabledServers.push(server.name);
+                } else {
+                    analysis.windowsAdminCenter.disabled++;
+                    analysis.windowsAdminCenter.disabledServers.push(server.name);
+                }
+                
+                // Check Hotpatching (Windows Server 2025 only)
+                const isWS2025 = server.osVersion?.includes('2025') || server.osVersion?.includes('10.0.26100');
+                if (isWS2025) {
+                    if (server.hasHotpatch) {
+                        analysis.hotpatching.enabled++;
+                        analysis.hotpatching.enabledServers.push(server.name);
+                    } else {
+                        analysis.hotpatching.disabled++;
+                        analysis.hotpatching.disabledServers.push(server.name);
+                    }
+                }
+                // Note: Non-WS2025 servers are not counted for hotpatching
             });
             
             return analysis;
@@ -689,6 +750,66 @@ class AzureService {
                 unconfiguredServers: arc.bestPracticeAssessment.disabledServers,
                 configuredServers: arc.bestPracticeAssessment.enabledServers
             });
+            
+            // Resource Tagging
+            benefits.push({
+                id: 'arc-009',
+                name: 'Arc-enabled Servers - Resource Tagging',
+                description: `${arc.tagging.disabled} of ${arc.totalServers} servers have no tags`,
+                category: 'deployment',
+                isFree: true,
+                isActive: arc.tagging.enabled > 0,
+                estimatedValue: arc.tagging.disabled * 150,
+                details: `${arc.tagging.enabled} servers have tags applied. ${arc.tagging.disabled} servers need tags for governance and cost tracking.`,
+                usage: {
+                    active: arc.tagging.enabled,
+                    total: arc.totalServers,
+                    percentage: arc.totalServers > 0 ? Math.round((arc.tagging.enabled / arc.totalServers) * 100) : 0
+                },
+                unconfiguredServers: arc.tagging.disabledServers,
+                configuredServers: arc.tagging.enabledServers
+            });
+            
+            // Windows Admin Center
+            benefits.push({
+                id: 'arc-010',
+                name: 'Arc-enabled Servers - Windows Admin Center',
+                description: `${arc.windowsAdminCenter.disabled} of ${arc.totalServers} servers without Admin Center`,
+                category: 'deployment',
+                isFree: true,
+                isActive: arc.windowsAdminCenter.enabled > 0,
+                estimatedValue: arc.windowsAdminCenter.disabled * 125,
+                details: `${arc.windowsAdminCenter.enabled} servers have Windows Admin Center extension. ${arc.windowsAdminCenter.disabled} servers need the extension for remote management.`,
+                usage: {
+                    active: arc.windowsAdminCenter.enabled,
+                    total: arc.totalServers,
+                    percentage: arc.totalServers > 0 ? Math.round((arc.windowsAdminCenter.enabled / arc.totalServers) * 100) : 0
+                },
+                unconfiguredServers: arc.windowsAdminCenter.disabledServers,
+                configuredServers: arc.windowsAdminCenter.enabledServers
+            });
+            
+            // Hotpatching (WS2025 only)
+            const ws2025Total = arc.hotpatching.enabled + arc.hotpatching.disabled;
+            if (ws2025Total > 0) {
+                benefits.push({
+                    id: 'arc-011',
+                    name: 'Arc-enabled Servers - Hotpatching (WS2025)',
+                    description: `${arc.hotpatching.disabled} of ${ws2025Total} Windows Server 2025 servers not using hotpatching`,
+                    category: 'free',
+                    isFree: true,
+                    isActive: arc.hotpatching.enabled > 0,
+                    estimatedValue: arc.hotpatching.disabled * 225,
+                    details: `${arc.hotpatching.enabled} WS2025 servers have hotpatching enabled. ${arc.hotpatching.disabled} WS2025 servers need hotpatching for rebootless security updates.`,
+                    usage: {
+                        active: arc.hotpatching.enabled,
+                        total: ws2025Total,
+                        percentage: ws2025Total > 0 ? Math.round((arc.hotpatching.enabled / ws2025Total) * 100) : 0
+                    },
+                    unconfiguredServers: arc.hotpatching.disabledServers,
+                    configuredServers: arc.hotpatching.enabledServers
+                });
+            }
         }
 
         // Process licenses
