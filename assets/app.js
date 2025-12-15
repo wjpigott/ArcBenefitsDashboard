@@ -32,7 +32,8 @@ function showSavingsBreakdown() {
         return;
     }
     
-    const perServerRates = {
+    // Default per-server rates
+    const defaultRates = {
         'arc-001': 400,  // Update Manager
         'arc-002': 300,  // Change Tracking
         'arc-003': 350,  // Guest Configuration
@@ -44,6 +45,9 @@ function showSavingsBreakdown() {
         'arc-010': 125,  // Windows Admin Center
         'arc-011': 225   // Hotpatching
     };
+    
+    // Load custom rates from localStorage or use defaults
+    const perServerRates = loadCustomRates(defaultRates);
     
     let html = '<div class="savings-breakdown-intro">Based on unconfigured servers for each benefit. Update Manager savings represent estimated annual labor costs for manual patching (tracking updates, testing, deploying patches, reboots, verification). Other values represent security risks, compliance costs, and operational inefficiencies.</div>';
     
@@ -80,11 +84,16 @@ function showSavingsBreakdown() {
             <strong>💡 Note:</strong>
             These values represent estimated annual cost savings or risk reduction per server when these features are enabled.
             <br><br>
-            <strong>Update Manager ($400/server/year):</strong> Estimated labor cost for manual patching - tracking updates, testing, deploying, rebooting, and verification without automation.
+            <strong>Update Manager ($${perServerRates['arc-001']}/server/year):</strong> Estimated labor cost for manual patching - tracking updates, testing, deploying, rebooting, and verification without automation.
             <br><br>
             <strong>Other Services:</strong> Values represent security risks, compliance costs, operational inefficiencies, and troubleshooting time saved.
             <br><br>
             Actual savings may vary based on your organization's specific configuration and usage patterns.
+        </div>
+        <div class="savings-customize-button">
+            <button onclick="openCostCustomizer()" class="btn-customize-costs">
+                ⚙️ Customize Cost Values
+            </button>
         </div>
     `;
     
@@ -96,6 +105,128 @@ function showSavingsBreakdown() {
 function closeSavingsModal(event) {
     if (!event || event.target.id === 'savingsModal') {
         document.getElementById('savingsModal').style.display = 'none';
+    }
+}
+
+// Load custom rates from localStorage
+function loadCustomRates(defaults) {
+    const customRates = localStorage.getItem('customCostRates');
+    if (customRates) {
+        try {
+            return { ...defaults, ...JSON.parse(customRates) };
+        } catch (e) {
+            console.error('Failed to parse custom rates:', e);
+            return defaults;
+        }
+    }
+    return defaults;
+}
+
+// Save custom rates to localStorage
+function saveCustomRates(rates) {
+    localStorage.setItem('customCostRates', JSON.stringify(rates));
+}
+
+// Open cost customizer modal
+function openCostCustomizer() {
+    const defaultRates = {
+        'arc-001': 400,
+        'arc-002': 300,
+        'arc-003': 350,
+        'arc-004': 250,
+        'arc-006': 200,
+        'arc-007': 450,
+        'arc-008': 275,
+        'arc-009': 150,
+        'arc-010': 125,
+        'arc-011': 225
+    };
+    
+    const currentRates = loadCustomRates(defaultRates);
+    
+    const benefitNames = {
+        'arc-001': 'Update Manager',
+        'arc-002': 'Inventory & Change Tracking',
+        'arc-003': 'Guest Configuration',
+        'arc-004': 'Best Practice Assessment',
+        'arc-006': 'Monitoring & Insights',
+        'arc-007': 'Microsoft Defender for Cloud',
+        'arc-008': 'Automated Machine Configuration',
+        'arc-009': 'Resource Tagging',
+        'arc-010': 'Windows Admin Center',
+        'arc-011': 'Hotpatching (WS2025)'
+    };
+    
+    let html = '<div class="cost-customizer-intro">Customize the estimated annual cost or risk value per server for each service. These values are used to calculate potential savings.</div>';
+    
+    Object.keys(currentRates).forEach(key => {
+        html += `
+            <div class="cost-input-row">
+                <label class="cost-label">${benefitNames[key]}</label>
+                <div class="cost-input-wrapper">
+                    <span class="cost-currency">$</span>
+                    <input type="number" 
+                           id="rate-${key}" 
+                           value="${currentRates[key]}" 
+                           min="0" 
+                           step="25"
+                           class="cost-input" />
+                    <span class="cost-suffix">/server/year</span>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += `
+        <div class="cost-customizer-actions">
+            <button onclick="resetToDefaultCosts()" class="btn-secondary">Reset to Defaults</button>
+            <button onclick="saveCustomCosts()" class="btn-primary">Save Custom Costs</button>
+        </div>
+    `;
+    
+    document.getElementById('costCustomizerContent').innerHTML = html;
+    document.getElementById('costCustomizerModal').style.display = 'block';
+}
+
+// Close cost customizer modal
+function closeCostCustomizer(event) {
+    if (!event || event.target.id === 'costCustomizerModal') {
+        document.getElementById('costCustomizerModal').style.display = 'none';
+    }
+}
+
+// Save custom costs
+function saveCustomCosts() {
+    const rates = {
+        'arc-001': parseInt(document.getElementById('rate-arc-001').value) || 400,
+        'arc-002': parseInt(document.getElementById('rate-arc-002').value) || 300,
+        'arc-003': parseInt(document.getElementById('rate-arc-003').value) || 350,
+        'arc-004': parseInt(document.getElementById('rate-arc-004').value) || 250,
+        'arc-006': parseInt(document.getElementById('rate-arc-006').value) || 200,
+        'arc-007': parseInt(document.getElementById('rate-arc-007').value) || 450,
+        'arc-008': parseInt(document.getElementById('rate-arc-008').value) || 275,
+        'arc-009': parseInt(document.getElementById('rate-arc-009').value) || 150,
+        'arc-010': parseInt(document.getElementById('rate-arc-010').value) || 125,
+        'arc-011': parseInt(document.getElementById('rate-arc-011').value) || 225
+    };
+    
+    saveCustomRates(rates);
+    closeCostCustomizer();
+    
+    // Refresh the dashboard to show updated savings
+    updateDashboard();
+    
+    // Show confirmation
+    alert('✅ Custom cost values saved successfully!');
+}
+
+// Reset to default costs
+function resetToDefaultCosts() {
+    if (confirm('Reset all cost values to defaults? This will remove your custom settings.')) {
+        localStorage.removeItem('customCostRates');
+        closeCostCustomizer();
+        updateDashboard();
+        alert('✅ Cost values reset to defaults!');
     }
 }
 

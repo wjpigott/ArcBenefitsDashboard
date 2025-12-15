@@ -157,6 +157,19 @@
         </div>
     </div>
 
+    <!-- Cost Customizer Modal -->
+    <div id="costCustomizerModal" class="modal" onclick="closeCostCustomizer(event)">
+        <div class="modal-content cost-customizer-modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>⚙️ Customize Cost Values</h2>
+                <span class="close" onclick="closeCostCustomizer()">&times;</span>
+            </div>
+            <div class="modal-body" id="costCustomizerContent">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
     <script src="config.js"></script>
     <script src="assets/azure-auth.js"></script>
     <script src="assets/app.js"></script>

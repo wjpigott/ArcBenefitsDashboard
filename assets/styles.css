@@ -1126,6 +1126,142 @@ header h1 {
     font-size: 1rem;
 }
 
+.savings-customize-button {
+    padding: 20px 25px;
+    border-top: 1px solid #e9ecef;
+    text-align: center;
+}
+
+.btn-customize-costs {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-customize-costs:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* Cost Customizer Modal */
+.cost-customizer-modal {
+    max-width: 700px;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.cost-customizer-intro {
+    padding: 15px 25px;
+    background: #e3f2fd;
+    border-left: 4px solid #2196f3;
+    color: #1565c0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.cost-input-row {
+    padding: 15px 25px;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.cost-input-row:hover {
+    background-color: #f8f9fa;
+}
+
+.cost-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    flex: 1;
+}
+
+.cost-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cost-currency {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.cost-input {
+    width: 100px;
+    padding: 8px 12px;
+    font-size: 1rem;
+    border: 2px solid #ced4da;
+    border-radius: 6px;
+    text-align: right;
+    transition: border-color 0.3s;
+}
+
+.cost-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.cost-suffix {
+    font-size: 0.9rem;
+    color: #6c757d;
+    white-space: nowrap;
+}
+
+.cost-customizer-actions {
+    padding: 25px;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    border-top: 2px solid #e9ecef;
+}
+
+.btn-primary, .btn-secondary {
+    flex: 1;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: #f8f9fa;
+    color: #495057;
+    border: 2px solid #dee2e6;
+}
+
+.btn-secondary:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
 @media (max-width: 768px) {
     .details-table {
         font-size: 0.85rem;

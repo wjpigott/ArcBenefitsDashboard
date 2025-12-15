@@ -1,6 +1,33 @@
 // Azure Authentication and Data Service
 // Handles Azure AD login and data retrieval
 
+// Global function to get custom cost rates
+function getCustomCostRates() {
+    const defaultRates = {
+        'arc-001': 400,
+        'arc-002': 300,
+        'arc-003': 350,
+        'arc-004': 250,
+        'arc-006': 200,
+        'arc-007': 450,
+        'arc-008': 275,
+        'arc-009': 150,
+        'arc-010': 125,
+        'arc-011': 225
+    };
+    
+    const customRates = localStorage.getItem('customCostRates');
+    if (customRates) {
+        try {
+            return { ...defaultRates, ...JSON.parse(customRates) };
+        } catch (e) {
+            console.error('Failed to parse custom rates:', e);
+            return defaultRates;
+        }
+    }
+    return defaultRates;
+}
+
 class AzureService {
     constructor() {
         this.msalConfig = {
@@ -613,6 +640,9 @@ class AzureService {
     // Map Azure data to benefits format
     mapAzureDataToBenefits(azureData) {
         const benefits = [];
+        
+        // Get custom cost rates
+        const rates = getCustomCostRates();
 
         // Arc-enabled Services Status
         if (azureData.arcServices) {
@@ -626,7 +656,7 @@ class AzureService {
                 category: 'security',
                 isFree: true,
                 isActive: arc.updateManager.enabled > 0,
-                estimatedValue: arc.updateManager.disabled * 400,
+                estimatedValue: arc.updateManager.disabled * rates['arc-001'],
                 details: `${arc.updateManager.enabled} servers have Update Manager enabled. ${arc.updateManager.disabled} servers need configuration.`,
                 usage: {
                     active: arc.updateManager.enabled,
@@ -645,7 +675,7 @@ class AzureService {
                 category: 'security',
                 isFree: true,
                 isActive: arc.changeTracking.enabled > 0,
-                estimatedValue: arc.changeTracking.disabled * 300,
+                estimatedValue: arc.changeTracking.disabled * rates['arc-002'],
                 details: `${arc.changeTracking.enabled} servers have Change Tracking enabled. ${arc.changeTracking.disabled} servers need configuration.`,
                 usage: {
                     active: arc.changeTracking.enabled,
@@ -664,7 +694,7 @@ class AzureService {
                 category: 'free',
                 isFree: true,
                 isActive: arc.monitoring.enabled > 0,
-                estimatedValue: arc.monitoring.disabled * 200,
+                estimatedValue: arc.monitoring.disabled * rates['arc-006'],
                 details: `${arc.monitoring.enabled} servers have Azure Monitor enabled. ${arc.monitoring.disabled} servers need configuration.`,
                 usage: {
                     active: arc.monitoring.enabled,
@@ -683,7 +713,7 @@ class AzureService {
                 category: 'security',
                 isFree: true,
                 isActive: arc.guestConfiguration.enabled > 0,
-                estimatedValue: arc.guestConfiguration.disabled * 350,
+                estimatedValue: arc.guestConfiguration.disabled * rates['arc-003'],
                 details: `${arc.guestConfiguration.enabled} servers have Guest Configuration enabled. ${arc.guestConfiguration.disabled} servers need configuration.`,
                 usage: {
                     active: arc.guestConfiguration.enabled,
@@ -702,7 +732,7 @@ class AzureService {
                 category: 'security',
                 isFree: false,
                 isActive: arc.defender.enabled > 0,
-                estimatedValue: arc.defender.disabled * 450,
+                estimatedValue: arc.defender.disabled * rates['arc-007'],
                 details: `${arc.defender.enabled} servers have Defender for Cloud enabled. ${arc.defender.disabled} servers need configuration.`,
                 usage: {
                     active: arc.defender.enabled,
@@ -721,7 +751,7 @@ class AzureService {
                 category: 'deployment',
                 isFree: true,
                 isActive: arc.automatedConfig.enabled > 0,
-                estimatedValue: arc.automatedConfig.disabled * 275,
+                estimatedValue: arc.automatedConfig.disabled * rates['arc-008'],
                 details: `${arc.automatedConfig.enabled} servers have Automated Configuration enabled. ${arc.automatedConfig.disabled} servers need configuration.`,
                 usage: {
                     active: arc.automatedConfig.enabled,
@@ -740,7 +770,7 @@ class AzureService {
                 category: 'free',
                 isFree: true,
                 isActive: arc.bestPracticeAssessment.enabled > 0,
-                estimatedValue: arc.bestPracticeAssessment.disabled * 250,
+                estimatedValue: arc.bestPracticeAssessment.disabled * rates['arc-004'],
                 details: `${arc.bestPracticeAssessment.enabled} servers have SQL Best Practice Assessment enabled. ${arc.bestPracticeAssessment.disabled} servers need configuration.`,
                 usage: {
                     active: arc.bestPracticeAssessment.enabled,
@@ -759,7 +789,7 @@ class AzureService {
                 category: 'deployment',
                 isFree: true,
                 isActive: arc.tagging.enabled > 0,
-                estimatedValue: arc.tagging.disabled * 150,
+                estimatedValue: arc.tagging.disabled * rates['arc-009'],
                 details: `${arc.tagging.enabled} servers have tags applied. ${arc.tagging.disabled} servers need tags for governance and cost tracking.`,
                 usage: {
                     active: arc.tagging.enabled,
@@ -778,7 +808,7 @@ class AzureService {
                 category: 'deployment',
                 isFree: true,
                 isActive: arc.windowsAdminCenter.enabled > 0,
-                estimatedValue: arc.windowsAdminCenter.disabled * 125,
+                estimatedValue: arc.windowsAdminCenter.disabled * rates['arc-010'],
                 details: `${arc.windowsAdminCenter.enabled} servers have Windows Admin Center extension. ${arc.windowsAdminCenter.disabled} servers need the extension for remote management.`,
                 usage: {
                     active: arc.windowsAdminCenter.enabled,
@@ -799,7 +829,7 @@ class AzureService {
                     category: 'free',
                     isFree: true,
                     isActive: arc.hotpatching.enabled > 0,
-                    estimatedValue: arc.hotpatching.disabled * 225,
+                    estimatedValue: arc.hotpatching.disabled * rates['arc-011'],
                     details: `${arc.hotpatching.enabled} WS2025 servers have hotpatching enabled. ${arc.hotpatching.disabled} WS2025 servers need hotpatching for rebootless security updates.`,
                     usage: {
                         active: arc.hotpatching.enabled,
