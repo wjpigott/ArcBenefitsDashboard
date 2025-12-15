@@ -6,7 +6,6 @@ let filteredData = [];
 let azureBenefitsData = [];
 let allSubscriptions = [];
 let selectedSubscriptions = ['all'];
-let currentDataSource = 'azure'; // 'sample' or 'azure'
 let currentTab = 'arc'; // 'arc' or 'other'
 
 // Arc-related keywords for filtering - focus on Arc-enabled services
@@ -14,7 +13,7 @@ const arcKeywords = ['arc-enabled', 'arc enabled', 'update manager', 'inventory'
 
 // Show savings calculation breakdown
 function showSavingsBreakdown() {
-    const benefits = currentDataSource === 'azure' ? azureBenefitsData : allBenefits;
+    const benefits = azureBenefitsData;
     // Show all benefits that have unconfigured servers
     const inactiveBenefits = benefits.filter(b => (b.estimatedValue || 0) > 0);
     
@@ -118,37 +117,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Now check authentication status
     if (window.azureService.isAuthenticated()) {
-        console.log('User already authenticated - switching to Azure data');
-        await switchDataSource('azure');
-    } else if (preConfigured && window.AZURE_CONFIG.AUTO_INIT) {
-        // Load sample data initially while user decides to sign in
-        console.log('Not authenticated but auto-init enabled - loading sample data');
-        loadBenefitsData();
-        setTimeout(() => {
-            if (confirm('Sign in to Azure to view live benefits data?')) {
-                handleAuth();
-            }
-        }, 500);
-    } else {
-        // Not authenticated, load sample data
-        console.log('User not authenticated - loading sample data');
-        currentDataSource = 'sample';
-        loadBenefitsData();
-    }
-});
-
-// Load benefits data from JSON file
-async function loadBenefitsData() {
-    try {
-        const response = await fetch('data/benefits.json');
-        benefitsData = await response.json();
+        console.log('User already authenticated - loading Azure data');
+        await loadAzureBenefitsData();
+        benefitsData = [...azureBenefitsData];
         filteredData = [...benefitsData];
         updateDashboard();
-    } catch (error) {
-        console.error('Error loading benefits data:', error);
-        showError('Unable to load benefits data. Please check the data file.');
+    } else {
+        console.log('User not authenticated - awaiting authentication');
+        // Show empty state or prompt to connect
+        benefitsData = [];
+        updateDashboard();
     }
-}
+});
 
 // Setup event listeners
 function setupEventListeners() {
@@ -445,24 +425,17 @@ function exportReport() {
 
 // Refresh data
 async function refreshData() {
-    if (currentDataSource === 'azure') {
-        // Refresh Azure data
-        const isAuth = await window.azureService.isAuthenticated();
-        if (isAuth) {
-            try {
-                await loadAzureBenefitsData();
-                alert('✅ Azure data refreshed successfully!');
-            } catch (error) {
-                console.error('Error refreshing Azure data:', error);
-                alert('❌ Failed to refresh Azure data: ' + error.message);
-            }
-        } else {
-            alert('⚠️ Not authenticated. Please sign in to Azure first.');
+    const isAuth = await window.azureService.isAuthenticated();
+    if (isAuth) {
+        try {
+            await loadAzureBenefitsData();
+            alert('✅ Azure data refreshed successfully!');
+        } catch (error) {
+            console.error('Error refreshing Azure data:', error);
+            alert('❌ Failed to refresh Azure data: ' + error.message);
         }
     } else {
-        // Refresh sample data
-        await loadBenefitsData();
-        alert('✅ Sample data refreshed successfully!');
+        alert('⚠️ Not authenticated. Please sign in to Azure first.');
     }
 }
 
@@ -550,47 +523,6 @@ function updateAuthUI(isAuthenticated) {
         authButton.textContent = '🔑 Connect to Azure';
         authButton.className = 'auth-btn';
     }
-}
-
-// Switch data source
-async function switchDataSource(source) {
-    console.log('switchDataSource called with:', source);
-    currentDataSource = source;
-    
-    if (source === 'azure') {
-        console.log('Checking if authenticated...');
-        if (!window.azureService.isAuthenticated()) {
-            console.log('Not authenticated - cannot switch to Azure data');
-            alert('Please sign in to Azure first');
-            currentDataSource = 'sample';
-            return;
-        }
-        
-        console.log('Authenticated - loading Azure data');
-        try {
-            showLoading(true);
-            await loadAzureBenefitsData();
-            benefitsData = [...azureBenefitsData];
-            filteredData = [...benefitsData];
-            updateDashboard();
-            showLoading(false);
-        } catch (error) {
-            console.error('Failed to load Azure data:', error);
-            alert('Failed to load Azure data. Switching back to sample data.');
-            currentDataSource = 'sample';
-            await loadBenefitsData();
-            showLoading(false);
-        }
-    } else {
-        console.log('Loading sample data');
-        await loadBenefitsData();
-    }
-}
-
-// Switch to sample data from link
-function switchToSampleData() {
-    currentDataSource = 'sample';
-    loadBenefitsData();
 }
 
 // Toggle details view
