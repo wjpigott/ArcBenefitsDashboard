@@ -458,8 +458,14 @@ class AzureService {
                     analysis.monitoring.disabledServers.push(server.name);
                 }
                 
-                // Check Guest Configuration
-                if (server.guestConfigEnabled) {
+                // Check Guest Configuration (via extension presence)
+                // Guest Configuration requires the GC extension to be installed
+                const hasGuestConfig = serverExtensions.some(ext => 
+                    (ext.publisher === 'Microsoft.GuestConfiguration' && 
+                     (ext.extensionType === 'ConfigurationForWindows' || ext.extensionType === 'ConfigurationForLinux')) ||
+                    ext.extensionName?.toLowerCase().includes('azurepolicyfor')
+                );
+                if (hasGuestConfig) {
                     analysis.guestConfiguration.enabled++;
                     analysis.guestConfiguration.enabledServers.push(server.name);
                 } else {
