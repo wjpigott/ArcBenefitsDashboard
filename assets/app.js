@@ -238,15 +238,15 @@ function createBenefitCard(benefit) {
         const percentage = benefit.usage.percentage || 0;
         const active = benefit.usage.active || 0;
         
-        // Green if high percentage configured, red if low/none
-        if (percentage >= 80 || (active > 0 && percentage >= 50)) {
-            statusIcon = '\u25cf';
+        // Green only if 100% configured, yellow if some configured, red if none
+        if (percentage === 100) {
+            statusIcon = '●';
             statusClass = 'status-enabled';
         } else if (active > 0) {
-            statusIcon = '\u25cf';
+            statusIcon = '●';
             statusClass = 'status-partial';
         } else {
-            statusIcon = '\u25cf';
+            statusIcon = '●';
             statusClass = 'status-disabled';
         }
         configuredCount = active > 0 ? 'Yes' : 'No';
