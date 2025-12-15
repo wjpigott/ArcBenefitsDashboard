@@ -381,6 +381,12 @@ class AzureService {
                     disabled: 0,
                     enabledServers: [],
                     disabledServers: []
+                },
+                bestPracticeAssessment: {
+                    enabled: 0,
+                    disabled: 0,
+                    enabledServers: [],
+                    disabledServers: []
                 }
             };
             
@@ -445,11 +451,11 @@ class AzureService {
                     analysis.defender.disabledServers.push(server.name);
                 }
                 
-                // Check Automated Machine Configuration (DSC, Automanage, or Automation)
+                // Check Automated Machine Configuration (Guest Configuration Policy Assignments)
+                // Machine Configuration is enabled via Azure Policy assignments
                 const hasAutomation = serverExtensions.some(ext => 
-                    ext.extensionType?.includes('DSC') ||
-                    ext.extensionType?.includes('Automanage') ||
-                    ext.extensionType?.includes('AzureAutomation')
+                    ext.publisher?.includes('Microsoft.GuestConfiguration') ||
+                    ext.extensionType?.toLowerCase().includes('azurepolicyforguestconfiguration')
                 );
                 if (hasAutomation) {
                     analysis.automatedConfig.enabled++;
@@ -457,6 +463,20 @@ class AzureService {
                 } else {
                     analysis.automatedConfig.disabled++;
                     analysis.automatedConfig.disabledServers.push(server.name);
+                }
+                
+                // Check Best Practice Assessment (SQL Server Assessment)
+                const hasBestPractice = serverExtensions.some(ext => 
+                    ext.extensionType?.includes('SqlAssessment') ||
+                    ext.extensionType?.includes('WindowsAgent.SqlServer') ||
+                    ext.extensionName?.toLowerCase().includes('sqlassessment')
+                );
+                if (hasBestPractice) {
+                    analysis.bestPracticeAssessment.enabled++;
+                    analysis.bestPracticeAssessment.enabledServers.push(server.name);
+                } else {
+                    analysis.bestPracticeAssessment.disabled++;
+                    analysis.bestPracticeAssessment.disabledServers.push(server.name);
                 }
             });
             
@@ -615,6 +635,25 @@ class AzureService {
                 },
                 unconfiguredServers: arc.automatedConfig.disabledServers,
                 configuredServers: arc.automatedConfig.enabledServers
+            });
+            
+            // Best Practice Assessment
+            benefits.push({
+                id: 'arc-004',
+                name: 'Arc-enabled Servers - Best Practice Assessment',
+                description: `${arc.bestPracticeAssessment.disabled} of ${arc.totalServers} servers not configured for SQL Assessment`,
+                category: 'free',
+                isFree: true,
+                isActive: arc.bestPracticeAssessment.enabled > 0,
+                estimatedValue: arc.bestPracticeAssessment.disabled * 250,
+                details: `${arc.bestPracticeAssessment.enabled} servers have SQL Best Practice Assessment enabled. ${arc.bestPracticeAssessment.disabled} servers need configuration.`,
+                usage: {
+                    active: arc.bestPracticeAssessment.enabled,
+                    total: arc.totalServers,
+                    percentage: arc.totalServers > 0 ? Math.round((arc.bestPracticeAssessment.enabled / arc.totalServers) * 100) : 0
+                },
+                unconfiguredServers: arc.bestPracticeAssessment.disabledServers,
+                configuredServers: arc.bestPracticeAssessment.enabledServers
             });
         }
 

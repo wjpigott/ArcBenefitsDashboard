@@ -44,17 +44,6 @@
     "activationSteps": "Enable Azure Advisor recommendations for Arc-enabled servers and review assessment reports in Azure Portal."
   },
   {
-    "id": "arc-005",
-    "name": "Azure Hybrid Benefit for Arc Servers",
-    "description": "Use existing Windows Server licenses with Software Assurance on Arc-enabled servers to reduce costs.",
-    "category": "deployment",
-    "isFree": true,
-    "isActive": false,
-    "estimatedValue": 12000,
-    "details": "Apply Azure Hybrid Benefit to Arc-enabled Windows Servers running in non-Azure environments to maximize license value and reduce operational costs.",
-    "activationSteps": "Configure Hybrid Benefit settings in Azure Portal for each Arc-enabled Windows Server."
-  },
-  {
     "id": "arc-006",
     "name": "Arc-enabled Servers - Monitoring & Insights",
     "description": "Enable Azure Monitor and VM Insights for Arc-enabled servers to track performance and health.",
