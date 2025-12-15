@@ -332,7 +332,7 @@ class AzureService {
             guestconfigurationresources
             | where type == "microsoft.guestconfiguration/guestconfigurationassignments"
             | extend 
-                machineName = tostring(split(id, '/')[8])
+                machineName = tolower(tostring(split(id, '/')[8]))
             | project 
                 machineName,
                 assignmentName = name,
@@ -420,6 +420,7 @@ class AzureService {
             
             servers.forEach(server => {
                 const serverExtensions = extensionsByMachine.get(server.name) || [];
+                const serverNameLower = server.name.toLowerCase();
                 
                 // Check Update Manager (patch settings)
                 if (server.updateManagerEnabled) {
@@ -481,7 +482,7 @@ class AzureService {
                 
                 // Check Automated Machine Configuration (Machine Configuration Assignments)
                 // Machine Configuration is enabled when there are configuration assignments (policies, manual, or system-assigned)
-                const machineConfig = configsByMachine.get(server.name);
+                const machineConfig = configsByMachine.get(serverNameLower);
                 const hasAutomation = machineConfig && machineConfig.assignmentCount > 0;
                 
                 if (hasAutomation) {
