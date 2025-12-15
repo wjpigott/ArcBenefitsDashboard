@@ -349,32 +349,38 @@ class AzureService {
                 updateManager: {
                     enabled: 0,
                     disabled: 0,
-                    servers: []
+                    enabledServers: [],
+                    disabledServers: []
                 },
                 changeTracking: {
                     enabled: 0,
                     disabled: 0,
-                    servers: []
+                    enabledServers: [],
+                    disabledServers: []
                 },
                 monitoring: {
                     enabled: 0,
                     disabled: 0,
-                    servers: []
+                    enabledServers: [],
+                    disabledServers: []
                 },
                 guestConfiguration: {
                     enabled: 0,
                     disabled: 0,
-                    servers: []
+                    enabledServers: [],
+                    disabledServers: []
                 },
                 defender: {
                     enabled: 0,
                     disabled: 0,
-                    servers: []
+                    enabledServers: [],
+                    disabledServers: []
                 },
                 automatedConfig: {
                     enabled: 0,
                     disabled: 0,
-                    servers: []
+                    enabledServers: [],
+                    disabledServers: []
                 }
             };
             
@@ -384,9 +390,10 @@ class AzureService {
                 // Check Update Manager (patch settings)
                 if (server.updateManagerEnabled) {
                     analysis.updateManager.enabled++;
+                    analysis.updateManager.enabledServers.push(server.name);
                 } else {
                     analysis.updateManager.disabled++;
-                    analysis.updateManager.servers.push(server.name);
+                    analysis.updateManager.disabledServers.push(server.name);
                 }
                 
                 // Check Change Tracking & Inventory
@@ -396,9 +403,10 @@ class AzureService {
                 );
                 if (hasChangeTracking) {
                     analysis.changeTracking.enabled++;
+                    analysis.changeTracking.enabledServers.push(server.name);
                 } else {
                     analysis.changeTracking.disabled++;
-                    analysis.changeTracking.servers.push(server.name);
+                    analysis.changeTracking.disabledServers.push(server.name);
                 }
                 
                 // Check Monitoring (Azure Monitor Agent or Log Analytics)
@@ -409,17 +417,19 @@ class AzureService {
                 );
                 if (hasMonitoring) {
                     analysis.monitoring.enabled++;
+                    analysis.monitoring.enabledServers.push(server.name);
                 } else {
                     analysis.monitoring.disabled++;
-                    analysis.monitoring.servers.push(server.name);
+                    analysis.monitoring.disabledServers.push(server.name);
                 }
                 
                 // Check Guest Configuration
                 if (server.guestConfigEnabled) {
                     analysis.guestConfiguration.enabled++;
+                    analysis.guestConfiguration.enabledServers.push(server.name);
                 } else {
                     analysis.guestConfiguration.disabled++;
-                    analysis.guestConfiguration.servers.push(server.name);
+                    analysis.guestConfiguration.disabledServers.push(server.name);
                 }
                 
                 // Check Defender for Cloud
@@ -429,9 +439,10 @@ class AzureService {
                 );
                 if (hasDefender) {
                     analysis.defender.enabled++;
+                    analysis.defender.enabledServers.push(server.name);
                 } else {
                     analysis.defender.disabled++;
-                    analysis.defender.servers.push(server.name);
+                    analysis.defender.disabledServers.push(server.name);
                 }
                 
                 // Check Automated Machine Configuration (DSC, Automanage, or Automation)
@@ -442,9 +453,10 @@ class AzureService {
                 );
                 if (hasAutomation) {
                     analysis.automatedConfig.enabled++;
+                    analysis.automatedConfig.enabledServers.push(server.name);
                 } else {
                     analysis.automatedConfig.disabled++;
-                    analysis.automatedConfig.servers.push(server.name);
+                    analysis.automatedConfig.disabledServers.push(server.name);
                 }
             });
             
@@ -506,7 +518,8 @@ class AzureService {
                     total: arc.totalServers,
                     percentage: arc.totalServers > 0 ? Math.round((arc.updateManager.enabled / arc.totalServers) * 100) : 0
                 },
-                unconfiguredServers: arc.updateManager.servers
+                unconfiguredServers: arc.updateManager.disabledServers,
+                configuredServers: arc.updateManager.enabledServers
             });
             
             // Change Tracking & Inventory
@@ -524,7 +537,8 @@ class AzureService {
                     total: arc.totalServers,
                     percentage: arc.totalServers > 0 ? Math.round((arc.changeTracking.enabled / arc.totalServers) * 100) : 0
                 },
-                unconfiguredServers: arc.changeTracking.servers
+                unconfiguredServers: arc.changeTracking.disabledServers,
+                configuredServers: arc.changeTracking.enabledServers
             });
             
             // Monitoring
@@ -542,7 +556,8 @@ class AzureService {
                     total: arc.totalServers,
                     percentage: arc.totalServers > 0 ? Math.round((arc.monitoring.enabled / arc.totalServers) * 100) : 0
                 },
-                unconfiguredServers: arc.monitoring.servers
+                unconfiguredServers: arc.monitoring.disabledServers,
+                configuredServers: arc.monitoring.enabledServers
             });
             
             // Guest Configuration
@@ -560,7 +575,8 @@ class AzureService {
                     total: arc.totalServers,
                     percentage: arc.totalServers > 0 ? Math.round((arc.guestConfiguration.enabled / arc.totalServers) * 100) : 0
                 },
-                unconfiguredServers: arc.guestConfiguration.servers
+                unconfiguredServers: arc.guestConfiguration.disabledServers,
+                configuredServers: arc.guestConfiguration.enabledServers
             });
             
             // Defender for Cloud
@@ -578,7 +594,8 @@ class AzureService {
                     total: arc.totalServers,
                     percentage: arc.totalServers > 0 ? Math.round((arc.defender.enabled / arc.totalServers) * 100) : 0
                 },
-                unconfiguredServers: arc.defender.servers
+                unconfiguredServers: arc.defender.disabledServers,
+                configuredServers: arc.defender.enabledServers
             });
             
             // Automated Machine Configuration
@@ -596,7 +613,8 @@ class AzureService {
                     total: arc.totalServers,
                     percentage: arc.totalServers > 0 ? Math.round((arc.automatedConfig.enabled / arc.totalServers) * 100) : 0
                 },
-                unconfiguredServers: arc.automatedConfig.servers
+                unconfiguredServers: arc.automatedConfig.disabledServers,
+                configuredServers: arc.automatedConfig.enabledServers
             });
         }
 

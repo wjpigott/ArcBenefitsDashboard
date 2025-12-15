@@ -536,15 +536,24 @@ function toggleDetails(event, benefitId) {
                     <tbody>
         `;
         
-        // List all servers with their configuration status
-        const configuredServers = benefit.usage.active || 0;
-        const totalServers = benefit.usage.total || 0;
+        const subscription = allSubscriptions.length > 0 ? allSubscriptions[0].displayName : 'N/A';
+        const subscriptionId = allSubscriptions.length > 0 ? allSubscriptions[0].subscriptionId : '';
+        const configuredServers = benefit.configuredServers || [];
         const unconfiguredServers = benefit.unconfiguredServers || [];
+        
+        // Show configured servers first
+        configuredServers.forEach(serverName => {
+            html += `
+                <tr>
+                    <td>${serverName}</td>
+                    <td class="status-yes">Yes</td>
+                    <td title="${subscriptionId}">${subscription}</td>
+                </tr>
+            `;
+        });
         
         // Show unconfigured servers
         unconfiguredServers.forEach(serverName => {
-            const subscription = allSubscriptions.length > 0 ? allSubscriptions[0].displayName : 'N/A';
-            const subscriptionId = allSubscriptions.length > 0 ? allSubscriptions[0].subscriptionId : '';
             html += `
                 <tr>
                     <td>${serverName}</td>
@@ -554,26 +563,12 @@ function toggleDetails(event, benefitId) {
             `;
         });
         
-        // If there are configured servers (calculated from total - unconfigured)
-        const configuredCount = totalServers - unconfiguredServers.length;
-        if (configuredCount > 0) {
-            const subscription = allSubscriptions.length > 0 ? allSubscriptions[0].displayName : 'N/A';
-            const subscriptionId = allSubscriptions.length > 0 ? allSubscriptions[0].subscriptionId : '';
-            html += `
-                <tr class="configured-row">
-                    <td colspan="3" class="configured-summary">
-                        <strong>${configuredCount} server(s) configured</strong> in ${subscription} (${subscriptionId})
-                    </td>
-                </tr>
-            `;
-        }
-        
         html += `
                     </tbody>
                 </table>
                 <div class="details-summary">
-                    <strong>Total:</strong> ${totalServers} servers | 
-                    <strong>Configured:</strong> ${configuredServers} | 
+                    <strong>Total:</strong> ${benefit.usage.total} servers | 
+                    <strong>Configured:</strong> ${benefit.usage.active} | 
                     <strong>Not Configured:</strong> ${unconfiguredServers.length}
                 </div>
             </div>
