@@ -494,91 +494,97 @@ function toggleDetails(event, benefitId) {
     const benefit = benefitsData.find(b => b.id === benefitId);
     if (!benefit) return;
     
-    showDetailsModal(benefit);
-}
-
-// Show details modal
-function showDetailsModal(benefit) {
-    const modal = document.getElementById('detailsModal');
-    const title = document.getElementById('detailsTitle');
-    const content = document.getElementById('detailsContent');
+    const row = event.target.closest('.benefit-row');
+    const existingDetails = row.nextElementSibling;
+    const expandBtn = event.target;
     
-    title.textContent = benefit.name;
+    // If details already shown, collapse it
+    if (existingDetails && existingDetails.classList.contains('details-row')) {
+        existingDetails.remove();
+        expandBtn.textContent = '▶';
+        expandBtn.classList.remove('expanded');
+        return;
+    }
+    
+    // Collapse any other open details
+    document.querySelectorAll('.details-row').forEach(dr => dr.remove());
+    document.querySelectorAll('.expand-btn').forEach(btn => {
+        btn.textContent = '▶';
+        btn.classList.remove('expanded');
+    });
+    
+    // Create and show details row
+    const detailsRow = document.createElement('div');
+    detailsRow.className = 'benefit-row details-row';
     
     let html = `
-        <div class="detail-section">
-            <h3>Overview</h3>
-            <p><strong>Description:</strong> ${benefit.description || 'No description available'}</p>
-            <p><strong>Category:</strong> ${benefit.category || 'N/A'}</p>
-            <p><strong>Free Benefit:</strong> ${benefit.isFree ? 'Yes' : 'No'}</p>
-        </div>
+        <div class="details-content-inline">
+            <div class="details-grid">
+                <div class="detail-column">
+                    <h3>Overview</h3>
+                    <p><strong>Description:</strong> ${benefit.description || 'No description available'}</p>
+                    <p><strong>Category:</strong> ${benefit.category || 'N/A'}</p>
+                    <p><strong>Free Benefit:</strong> ${benefit.isFree ? 'Yes' : 'No'}</p>
     `;
     
     // Add usage information if available
     if (benefit.usage) {
         html += `
-            <div class="detail-section">
-                <h3>Usage Statistics</h3>
-                <p><strong>Configured:</strong> ${benefit.usage.active} of ${benefit.usage.total} servers (${benefit.usage.percentage}%)</p>
-                <p><strong>Status:</strong> ${benefit.usage.active > 0 ? 'Active' : 'Not Configured'}</p>
-            </div>
+                    <h3 style="margin-top: 20px;">Usage Statistics</h3>
+                    <p><strong>Configured:</strong> ${benefit.usage.active} of ${benefit.usage.total} servers (${benefit.usage.percentage}%)</p>
+                    <p><strong>Status:</strong> ${benefit.usage.active > 0 ? 'Active' : 'Not Configured'}</p>
         `;
     }
+    
+    html += `
+                </div>
+                <div class="detail-column">
+    `;
     
     // Add unconfigured servers list if available
     if (benefit.unconfiguredServers && benefit.unconfiguredServers.length > 0) {
         html += `
-            <div class="detail-section">
-                <h3>Unconfigured Servers (${benefit.unconfiguredServers.length})</h3>
-                <div class="server-list-detail">
-                    ${benefit.unconfiguredServers.map(server => `<div class="server-item">• ${server}</div>`).join('')}
-                </div>
-            </div>
+                    <h3>Unconfigured Servers (${benefit.unconfiguredServers.length})</h3>
+                    <div class="server-list-detail">
+                        ${benefit.unconfiguredServers.map(server => `<div class="server-item">• ${server}</div>`).join('')}
+                    </div>
         `;
     }
     
     // Add subscription info if available
     if (allSubscriptions && allSubscriptions.length > 0) {
         html += `
-            <div class="detail-section">
-                <h3>Subscriptions</h3>
-                ${allSubscriptions.map(sub => `
-                    <div class="subscription-item">
-                        <strong>${sub.displayName}</strong><br>
-                        <span style="font-size: 0.9em; color: #666;">ID: ${sub.subscriptionId}</span>
-                    </div>
-                `).join('')}
-            </div>
+                    <h3 style="margin-top: 20px;">Subscriptions</h3>
+                    ${allSubscriptions.map(sub => `
+                        <div class="subscription-item">
+                            <strong>${sub.displayName}</strong><br>
+                            <span style="font-size: 0.9em; color: #666;">ID: ${sub.subscriptionId}</span>
+                        </div>
+                    `).join('')}
         `;
     }
     
     // Add activation steps if available
     if (benefit.activationSteps) {
         html += `
-            <div class="detail-section">
-                <h3>How to Enable</h3>
-                <p>${benefit.activationSteps}</p>
-            </div>
+                    <h3 style="margin-top: 20px;">How to Enable</h3>
+                    <p>${benefit.activationSteps}</p>
         `;
     }
     
-    content.innerHTML = html;
-    modal.style.display = 'block';
+    html += `
+                </div>
+            </div>
+        </div>
+    `;
+    
+    detailsRow.innerHTML = html;
+    row.parentNode.insertBefore(detailsRow, row.nextSibling);
+    
+    // Update button state
+    expandBtn.textContent = '▼';
+    expandBtn.classList.add('expanded');
 }
-
-// Close details modal
-function closeDetailsModal() {
-    const modal = document.getElementById('detailsModal');
-    modal.style.display = 'none';
-}
-
-// Close modal when clicking outside
-window.onclick = function(event) {
-    const modal = document.getElementById('detailsModal');
-    if (event.target === modal) {
-        closeDetailsModal();
-    }
-};
 
 // Load benefits data from Azure
 async function loadAzureBenefitsData() {
