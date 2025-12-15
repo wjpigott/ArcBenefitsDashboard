@@ -15,7 +15,8 @@ const arcKeywords = ['arc-enabled', 'arc enabled', 'update manager', 'inventory'
 // Show savings calculation breakdown
 function showSavingsBreakdown() {
     const benefits = currentDataSource === 'azure' ? azureBenefitsData : allBenefits;
-    const inactiveBenefits = benefits.filter(b => !b.isActive);
+    // Show all benefits that have unconfigured servers
+    const inactiveBenefits = benefits.filter(b => (b.estimatedValue || 0) > 0);
     
     if (inactiveBenefits.length === 0) {
         const modal = document.getElementById('savingsModal');
@@ -42,7 +43,7 @@ function showSavingsBreakdown() {
         'arc-008': 275   // Automated Config
     };
     
-    let html = '<div class="savings-breakdown-intro">Based on unconfigured servers for each benefit:</div>';
+    let html = '<div class="savings-breakdown-intro">Based on unconfigured servers for each benefit. Update Manager savings represent estimated annual labor costs for manual patching (tracking updates, testing, deploying patches, reboots, verification). Other values represent security risks, compliance costs, and operational inefficiencies.</div>';
     
     let total = 0;
     inactiveBenefits.forEach(benefit => {
@@ -75,7 +76,12 @@ function showSavingsBreakdown() {
         </div>
         <div class="savings-note">
             <strong>💡 Note:</strong>
-            These values represent estimated annual cost savings or risk reduction per server when these features are enabled. 
+            These values represent estimated annual cost savings or risk reduction per server when these features are enabled.
+            <br><br>
+            <strong>Update Manager ($400/server/year):</strong> Estimated labor cost for manual patching - tracking updates, testing, deploying, rebooting, and verification without automation.
+            <br><br>
+            <strong>Other Services:</strong> Values represent security risks, compliance costs, operational inefficiencies, and troubleshooting time saved.
+            <br><br>
             Actual savings may vary based on your organization's specific configuration and usage patterns.
         </div>
     `;
@@ -165,8 +171,8 @@ function updateStats() {
     const total = tabFilteredData.length;
     const unused = tabFilteredData.filter(b => !b.isActive).length;
     const active = tabFilteredData.filter(b => b.isActive).length;
+    // Calculate savings from ALL unconfigured servers (even if benefit is partially active)
     const savings = tabFilteredData
-        .filter(b => !b.isActive)
         .reduce((sum, b) => sum + (b.estimatedValue || 0), 0);
 
     document.getElementById('totalBenefits').textContent = total;
