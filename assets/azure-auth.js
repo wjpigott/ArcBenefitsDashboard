@@ -286,7 +286,7 @@ class AzureService {
                 guestConfigEnabled = tobool(properties.guestConfiguration.enabled),
                 hasHotpatch = tobool(properties.osProfile.windowsConfiguration.patchSettings.enableHotpatching),
                 osVersion = tostring(properties.osVersion),
-                tagCount = array_length(todynamic(tostring(tags)))
+                hasTags = isnotnull(tags) and tostring(tags) != "{}"
             | project 
                 id,
                 name,
@@ -300,7 +300,7 @@ class AzureService {
                 monitoringEnabled,
                 guestConfigEnabled,
                 hasHotpatch,
-                tagCount,
+                hasTags,
                 tags,
                 extensions = properties.extensions,
                 lastSeenTime = properties.lastStatusChange
@@ -540,7 +540,7 @@ class AzureService {
                 
                 // Check Resource Tagging
                 // Servers should have at least one tag for governance and organization
-                if (server.tagCount > 0) {
+                if (server.hasTags) {
                     analysis.tagging.enabled++;
                     analysis.tagging.enabledServers.push(server.name);
                 } else {
