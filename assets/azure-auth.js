@@ -326,12 +326,34 @@ class AzureService {
         return await this.queryResourceGraph(query, subscriptionIds);
     }
 
+    // Get Machine Configuration assignments for Arc servers
+    async getMachineConfigAssignments(subscriptionIds) {
+        const query = `
+            guestconfigurationresources
+            | where type == "microsoft.guestconfiguration/guestconfigurationassignments"
+            | extend 
+                machineName = tostring(split(id, '/')[8])
+            | project 
+                machineName,
+                assignmentName = name,
+                complianceStatus = tostring(properties.complianceStatus),
+                assignmentType = tostring(properties.assignmentType)
+            | summarize 
+                assignmentCount = count(),
+                assignments = make_list(assignmentName)
+                by machineName
+        `;
+        
+        return await this.queryResourceGraph(query, subscriptionIds);
+    }
+
     // Analyze Arc servers for service usage
     async analyzeArcServices(subscriptionIds) {
         try {
-            const [servers, extensions] = await Promise.all([
+            const [servers, extensions, machineConfigAssignments] = await Promise.all([
                 this.getArcServersStatus(subscriptionIds),
-                this.getArcServerExtensions(subscriptionIds)
+                this.getArcServerExtensions(subscriptionIds),
+                this.getMachineConfigAssignments(subscriptionIds)
             ]);
             
             // Group extensions by machine
@@ -341,6 +363,12 @@ class AzureService {
                     extensionsByMachine.set(ext.machineName, []);
                 }
                 extensionsByMachine.get(ext.machineName).push(ext);
+            });
+            
+            // Group machine config assignments by machine
+            const configsByMachine = new Map();
+            machineConfigAssignments.forEach(config => {
+                configsByMachine.set(config.machineName, config);
             });
             
             // Analyze service usage
@@ -451,12 +479,11 @@ class AzureService {
                     analysis.defender.disabledServers.push(server.name);
                 }
                 
-                // Check Automated Machine Configuration (Guest Configuration Policy Assignments)
-                // Machine Configuration is enabled via Azure Policy assignments
-                const hasAutomation = serverExtensions.some(ext => 
-                    ext.publisher?.includes('Microsoft.GuestConfiguration') ||
-                    ext.extensionType?.toLowerCase().includes('azurepolicyforguestconfiguration')
-                );
+                // Check Automated Machine Configuration (Machine Configuration Assignments)
+                // Machine Configuration is enabled when there are configuration assignments (policies, manual, or system-assigned)
+                const machineConfig = configsByMachine.get(server.name);
+                const hasAutomation = machineConfig && machineConfig.assignmentCount > 0;
+                
                 if (hasAutomation) {
                     analysis.automatedConfig.enabled++;
                     analysis.automatedConfig.enabledServers.push(server.name);
