@@ -106,6 +106,7 @@ function renderBenefits() {
     header.className = 'table-header';
     header.innerHTML = `
         <div class="table-row header-row">
+            <div class="col-expand"></div>
             <div class="col-count-num">Configured</div>
             <div class="col-service">Service</div>
             <div class="col-status">Status</div>
@@ -179,7 +180,10 @@ function createBenefitCard(benefit) {
     }
 
     card.innerHTML = `
-        <div class="table-row">
+        <div class="table-row" data-benefit-id="${benefit.id}">
+            <div class="col-expand">
+                <button class="expand-btn" onclick="toggleDetails(event, '${benefit.id}')" title="View details">▶</button>
+            </div>
             <div class="col-count-num">${configuredCount}</div>
             <div class="col-service">${benefit.name}</div>
             <div class="col-status">
@@ -483,6 +487,98 @@ function switchToSampleData() {
     currentDataSource = 'sample';
     loadBenefitsData();
 }
+
+// Toggle details view
+function toggleDetails(event, benefitId) {
+    event.stopPropagation();
+    const benefit = benefitsData.find(b => b.id === benefitId);
+    if (!benefit) return;
+    
+    showDetailsModal(benefit);
+}
+
+// Show details modal
+function showDetailsModal(benefit) {
+    const modal = document.getElementById('detailsModal');
+    const title = document.getElementById('detailsTitle');
+    const content = document.getElementById('detailsContent');
+    
+    title.textContent = benefit.name;
+    
+    let html = `
+        <div class="detail-section">
+            <h3>Overview</h3>
+            <p><strong>Description:</strong> ${benefit.description || 'No description available'}</p>
+            <p><strong>Category:</strong> ${benefit.category || 'N/A'}</p>
+            <p><strong>Free Benefit:</strong> ${benefit.isFree ? 'Yes' : 'No'}</p>
+        </div>
+    `;
+    
+    // Add usage information if available
+    if (benefit.usage) {
+        html += `
+            <div class="detail-section">
+                <h3>Usage Statistics</h3>
+                <p><strong>Configured:</strong> ${benefit.usage.active} of ${benefit.usage.total} servers (${benefit.usage.percentage}%)</p>
+                <p><strong>Status:</strong> ${benefit.usage.active > 0 ? 'Active' : 'Not Configured'}</p>
+            </div>
+        `;
+    }
+    
+    // Add unconfigured servers list if available
+    if (benefit.unconfiguredServers && benefit.unconfiguredServers.length > 0) {
+        html += `
+            <div class="detail-section">
+                <h3>Unconfigured Servers (${benefit.unconfiguredServers.length})</h3>
+                <div class="server-list-detail">
+                    ${benefit.unconfiguredServers.map(server => `<div class="server-item">• ${server}</div>`).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    // Add subscription info if available
+    if (allSubscriptions && allSubscriptions.length > 0) {
+        html += `
+            <div class="detail-section">
+                <h3>Subscriptions</h3>
+                ${allSubscriptions.map(sub => `
+                    <div class="subscription-item">
+                        <strong>${sub.displayName}</strong><br>
+                        <span style="font-size: 0.9em; color: #666;">ID: ${sub.subscriptionId}</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    // Add activation steps if available
+    if (benefit.activationSteps) {
+        html += `
+            <div class="detail-section">
+                <h3>How to Enable</h3>
+                <p>${benefit.activationSteps}</p>
+            </div>
+        `;
+    }
+    
+    content.innerHTML = html;
+    modal.style.display = 'block';
+}
+
+// Close details modal
+function closeDetailsModal() {
+    const modal = document.getElementById('detailsModal');
+    modal.style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('detailsModal');
+    if (event.target === modal) {
+        closeDetailsModal();
+    }
+};
 
 // Load benefits data from Azure
 async function loadAzureBenefitsData() {

@@ -68,10 +68,9 @@
             <label for="categoryFilter">Filter by Category:</label>
             <select id="categoryFilter">
                 <option value="all">All Categories</option>
-                <option value="free">Free Items</option>
-                <option value="training">Training & Support</option>
-                <option value="deployment">Deployment Rights</option>
                 <option value="security">Security & Compliance</option>
+                <option value="deployment">Deployment & Management</option>
+                <option value="free">Free Benefits</option>
             </select>
             
             <label for="statusFilter">Filter by Status:</label>
@@ -87,6 +86,17 @@
                 <h2>Your Software Assurance Benefits</h2>
                 <div id="benefitsList" class="benefits-list">
                     <!-- Benefits will be dynamically loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Modal -->
+        <div id="detailsModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeDetailsModal()">&times;</span>
+                <h2 id="detailsTitle">Service Details</h2>
+                <div id="detailsContent" class="details-content">
+                    <!-- Details will be loaded here -->
                 </div>
             </div>
         </div>

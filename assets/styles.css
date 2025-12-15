@@ -241,7 +241,7 @@ header h1 {
 
 .table-row {
     display: grid;
-    grid-template-columns: 140px minmax(auto, 650px) 100px 100px;
+    grid-template-columns: 50px 140px minmax(auto, 650px) 100px 100px;
     align-items: center;
     padding: 12px 16px;
     gap: 12px;
@@ -294,6 +294,28 @@ header h1 {
     color: var(--text-primary);
     font-weight: 400;
     text-align: center;
+}
+
+.col-expand {
+    text-align: center;
+    border-right: 1px solid #b3d7f2;
+    padding-right: 12px;
+}
+
+.expand-btn {
+    background: transparent;
+    border: none;
+    color: var(--primary-color);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.expand-btn:hover {
+    background: var(--primary-color);
+    color: white;
 }
 
 .server-list {
@@ -888,4 +910,89 @@ header h1 {
     .status-dot {
         font-size: 1.5rem;
     }
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: var(--card-background);
+    margin: 5% auto;
+    padding: 30px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    width: 80%;
+    max-width: 900px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.close {
+    color: var(--text-secondary);
+    float: right;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 20px;
+}
+
+.close:hover,
+.close:focus {
+    color: var(--primary-color);
+}
+
+.details-content {
+    margin-top: 20px;
+}
+
+.detail-section {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.detail-section:last-child {
+    border-bottom: none;
+}
+
+.detail-section h3 {
+    color: var(--primary-color);
+    margin-bottom: 12px;
+    font-size: 1.2rem;
+}
+
+.detail-section p {
+    margin: 8px 0;
+    line-height: 1.6;
+}
+
+.server-list-detail {
+    max-height: 300px;
+    overflow-y: auto;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 10px;
+}
+
+.server-item {
+    padding: 6px 0;
+    color: var(--text-primary);
+    font-family: 'Segoe UI', monospace;
+}
+
+.subscription-item {
+    padding: 10px;
+    background: #f5f5f5;
+    border-radius: 6px;
+    margin-bottom: 10px;
 }
