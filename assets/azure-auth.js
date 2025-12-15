@@ -224,9 +224,8 @@ class AzureService {
 
     // Get Windows 365 usage
     async getWindows365Usage() {
-        const token = await this.getAccessToken(['Directory.Read.All']);
-        
         try {
+            const token = await this.getAccessToken(['Directory.Read.All']);
             const response = await fetch('https://graph.microsoft.com/v1.0/deviceManagement/virtualEndpoint/cloudPCs', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -237,9 +236,11 @@ class AzureService {
             if (response.ok) {
                 const data = await response.json();
                 return data.value || [];
+            } else if (response.status === 403) {
+                console.info('Windows 365 data requires CloudPC.Read.All permission - skipping');
             }
         } catch (error) {
-            console.warn('Windows 365 data not available:', error);
+            console.info('Windows 365 data not available - skipping');
         }
         
         return [];
@@ -369,6 +370,11 @@ class AzureService {
                     enabled: 0,
                     disabled: 0,
                     servers: []
+                },
+                automatedConfig: {
+                    enabled: 0,
+                    disabled: 0,
+                    servers: []
                 }
             };
             
@@ -427,6 +433,19 @@ class AzureService {
                     analysis.defender.disabled++;
                     analysis.defender.servers.push(server.name);
                 }
+                
+                // Check Automated Machine Configuration (DSC, Automanage, or Automation)
+                const hasAutomation = serverExtensions.some(ext => 
+                    ext.extensionType?.includes('DSC') ||
+                    ext.extensionType?.includes('Automanage') ||
+                    ext.extensionType?.includes('AzureAutomation')
+                );
+                if (hasAutomation) {
+                    analysis.automatedConfig.enabled++;
+                } else {
+                    analysis.automatedConfig.disabled++;
+                    analysis.automatedConfig.servers.push(server.name);
+                }
             });
             
             return analysis;
@@ -444,30 +463,18 @@ class AzureService {
                 this.getLicenses()
             ]);
 
-            let ahbData = null;
-            let windows365Data = [];
             let arcAnalysis = null;
 
             if (subscriptions.length > 0) {
                 const subscriptionIds = subscriptions.map(s => s.subscriptionId);
                 
-                // Get all data in parallel
-                const results = await Promise.allSettled([
-                    this.getAzureHybridBenefitUsage(subscriptions[0].subscriptionId),
-                    this.getWindows365Usage(),
-                    this.analyzeArcServices(subscriptionIds)
-                ]);
-                
-                if (results[0].status === 'fulfilled') ahbData = results[0].value;
-                if (results[1].status === 'fulfilled') windows365Data = results[1].value;
-                if (results[2].status === 'fulfilled') arcAnalysis = results[2].value;
+                // Get Arc services data
+                arcAnalysis = await this.analyzeArcServices(subscriptionIds);
             }
 
             return {
                 subscriptions,
                 licenses,
-                azureHybridBenefit: ahbData,
-                windows365: windows365Data,
                 arcServices: arcAnalysis
             };
         } catch (error) {
@@ -573,43 +580,23 @@ class AzureService {
                 },
                 unconfiguredServers: arc.defender.servers
             });
-        }
-
-        // Azure Hybrid Benefit
-        if (azureData.azureHybridBenefit) {
-            const ahb = azureData.azureHybridBenefit;
+            
+            // Automated Machine Configuration
             benefits.push({
-                id: 'azure-ahb',
-                name: 'Azure Hybrid Benefit',
-                description: `${ahb.usingAHB} of ${ahb.total} VMs using Azure Hybrid Benefit`,
+                id: 'arc-008',
+                name: 'Arc-enabled Servers - Automated Machine Configuration',
+                description: `${arc.automatedConfig.disabled} of ${arc.totalServers} servers not configured for Automation`,
                 category: 'deployment',
                 isFree: true,
-                isActive: ahb.usingAHB > 0,
-                estimatedValue: Math.round(ahb.potentialSavings * 12000), // Estimated annual savings
-                details: `You have ${ahb.total} VMs in Azure. ${ahb.usingAHB} are using Azure Hybrid Benefit, saving up to 85% on compute costs.`,
+                isActive: arc.automatedConfig.enabled > 0,
+                estimatedValue: arc.automatedConfig.disabled * 275,
+                details: `${arc.automatedConfig.enabled} servers have Automated Configuration enabled. ${arc.automatedConfig.disabled} servers need configuration.`,
                 usage: {
-                    active: ahb.usingAHB,
-                    total: ahb.total,
-                    percentage: ahb.total > 0 ? Math.round((ahb.usingAHB / ahb.total) * 100) : 0
-                }
-            });
-        }
-
-        // Windows 365
-        if (azureData.windows365) {
-            benefits.push({
-                id: 'azure-w365',
-                name: 'Windows 365 Cloud PC',
-                description: `${azureData.windows365.length} Cloud PCs deployed`,
-                category: 'free',
-                isFree: true,
-                isActive: azureData.windows365.length > 0,
-                estimatedValue: azureData.windows365.length * 1000,
-                details: `Windows 365 provides cloud-based Windows desktops. You have ${azureData.windows365.length} Cloud PCs currently provisioned.`,
-                usage: {
-                    active: azureData.windows365.length,
-                    total: azureData.windows365.length
-                }
+                    active: arc.automatedConfig.enabled,
+                    total: arc.totalServers,
+                    percentage: arc.totalServers > 0 ? Math.round((arc.automatedConfig.enabled / arc.totalServers) * 100) : 0
+                },
+                unconfiguredServers: arc.automatedConfig.servers
             });
         }
 

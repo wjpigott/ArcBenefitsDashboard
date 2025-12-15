@@ -6,7 +6,7 @@ let filteredData = [];
 let azureBenefitsData = [];
 let allSubscriptions = [];
 let selectedSubscriptions = ['all'];
-let currentDataSource = 'sample'; // 'sample' or 'azure'
+let currentDataSource = 'azure'; // 'sample' or 'azure'
 let currentTab = 'arc'; // 'arc' or 'other'
 
 // Arc-related keywords for filtering - focus on Arc-enabled services
@@ -21,19 +21,31 @@ let azureTenantId = preConfigured ? window.AZURE_CONFIG.TENANT_ID : (localStorag
 window.azureService = new AzureService();
 
 // Initialize the dashboard
-document.addEventListener('DOMContentLoaded', () => {
-    loadBenefitsData();
+document.addEventListener('DOMContentLoaded', async () => {
     setupEventListeners();
-    initializeAzure();
     updateRedirectUri();
     
-    // If pre-configured and AUTO_INIT is true, show sign-in prompt
-    if (preConfigured && window.AZURE_CONFIG.AUTO_INIT && !window.azureService.isAuthenticated()) {
+    // Initialize Azure and wait for it to complete
+    await initializeAzure();
+    
+    // Now check authentication status
+    if (window.azureService.isAuthenticated()) {
+        console.log('User already authenticated - switching to Azure data');
+        await switchDataSource('azure');
+    } else if (preConfigured && window.AZURE_CONFIG.AUTO_INIT) {
+        // Load sample data initially while user decides to sign in
+        console.log('Not authenticated but auto-init enabled - loading sample data');
+        loadBenefitsData();
         setTimeout(() => {
             if (confirm('Sign in to Azure to view live benefits data?')) {
                 handleAuth();
             }
         }, 500);
+    } else {
+        // Not authenticated, load sample data
+        console.log('User not authenticated - loading sample data');
+        currentDataSource = 'sample';
+        loadBenefitsData();
     }
 });
 
@@ -55,13 +67,6 @@ function setupEventListeners() {
     document.getElementById('subscriptionFilter').addEventListener('change', handleSubscriptionChange);
     document.getElementById('categoryFilter').addEventListener('change', applyFilters);
     document.getElementById('statusFilter').addEventListener('change', applyFilters);
-    
-    // Data source toggle
-    document.querySelectorAll('input[name="dataSource"]').forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            switchDataSource(e.target.value);
-        });
-    });
 }
 
 // Update the entire dashboard
@@ -151,17 +156,20 @@ function createBenefitCard(benefit) {
     let statusIcon, statusClass, configuredCount, totalCount;
     if (benefit.usage) {
         const percentage = benefit.usage.percentage || 0;
-        if (percentage >= 80) {
+        const active = benefit.usage.active || 0;
+        
+        // Green if high percentage configured, red if low/none
+        if (percentage >= 80 || (active > 0 && percentage >= 50)) {
             statusIcon = '\u25cf';
             statusClass = 'status-enabled';
-        } else if (percentage >= 50) {
+        } else if (active > 0) {
             statusIcon = '\u25cf';
             statusClass = 'status-partial';
         } else {
             statusIcon = '\u25cf';
             statusClass = 'status-disabled';
         }
-        configuredCount = benefit.usage.active > 0 ? 'Yes' : 'No';
+        configuredCount = active > 0 ? 'Yes' : 'No';
         totalCount = benefit.usage.total;
     } else {
         statusIcon = '\u25cf';
@@ -407,7 +415,6 @@ async function handleAuth() {
             updateAuthUI(true);
             
             // Automatically switch to Azure data
-            document.getElementById('azureDataRadio').checked = true;
             await switchDataSource('azure');
         } catch (error) {
             console.error('Sign in failed:', error);
@@ -438,16 +445,19 @@ function updateAuthUI(isAuthenticated) {
 
 // Switch data source
 async function switchDataSource(source) {
+    console.log('switchDataSource called with:', source);
     currentDataSource = source;
     
     if (source === 'azure') {
+        console.log('Checking if authenticated...');
         if (!window.azureService.isAuthenticated()) {
+            console.log('Not authenticated - cannot switch to Azure data');
             alert('Please sign in to Azure first');
-            document.getElementById('sampleDataRadio').checked = true;
             currentDataSource = 'sample';
             return;
         }
         
+        console.log('Authenticated - loading Azure data');
         try {
             showLoading(true);
             await loadAzureBenefitsData();
@@ -458,27 +468,60 @@ async function switchDataSource(source) {
         } catch (error) {
             console.error('Failed to load Azure data:', error);
             alert('Failed to load Azure data. Switching back to sample data.');
-            document.getElementById('sampleDataRadio').checked = true;
             currentDataSource = 'sample';
             await loadBenefitsData();
             showLoading(false);
         }
     } else {
+        console.log('Loading sample data');
         await loadBenefitsData();
     }
+}
+
+// Switch to sample data from link
+function switchToSampleData() {
+    currentDataSource = 'sample';
+    loadBenefitsData();
 }
 
 // Load benefits data from Azure
 async function loadAzureBenefitsData() {
     try {
+        console.log('Loading Azure benefits data...');
         const azureData = await window.azureService.getAzureBenefitsData();
+        console.log('Azure data received:', azureData);
+        console.log('Arc services data:', azureData.arcServices);
         
         // Store subscriptions
         allSubscriptions = azureData.subscriptions || [];
         populateSubscriptionFilter();
         
-        // Get benefits for selected subscriptions
-        await updateAzureBenefitsForSubscriptions();
+        // Map Arc services data to benefits
+        if (azureData.arcServices) {
+            console.log('Mapping Arc services to benefits...');
+            azureBenefitsData = window.azureService.mapAzureDataToBenefits(azureData);
+            console.log('Mapped benefits:', azureBenefitsData);
+        } else {
+            console.warn('No Arc services data returned from Azure!');
+            // Fallback to sample data if no Arc data
+            azureBenefitsData = [];
+        }
+        
+        // Load sample data to merge non-Arc benefits
+        const sampleResponse = await fetch('data/benefits.json');
+        const sampleData = await sampleResponse.json();
+        
+        // Get IDs from Azure mapped data
+        const azureMappedIds = azureBenefitsData.map(b => b.id);
+        
+        // Only add benefits from sample data that weren't provided by Azure
+        const additionalBenefits = sampleData.filter(b => !azureMappedIds.includes(b.id));
+        
+        // Azure data takes precedence
+        azureBenefitsData = [...azureBenefitsData, ...additionalBenefits];
+        
+        console.log('Final benefits data:', azureBenefitsData.length, 'benefits');
+        console.log('Azure mapped:', azureMappedIds.length, 'Sample added:', additionalBenefits.length);
     } catch (error) {
         console.error('Error loading Azure benefits data:', error);
         throw error;
@@ -507,96 +550,11 @@ async function handleSubscriptionChange(e) {
     selectedSubscriptions = value === 'all' ? allSubscriptions.map(s => s.subscriptionId) : [value];
     
     showLoading(true);
-    await updateAzureBenefitsForSubscriptions();
+    await loadAzureBenefitsData();
     benefitsData = [...azureBenefitsData];
     filteredData = [...benefitsData];
     updateDashboard();
     showLoading(false);
-}
-
-// Update Azure benefits for selected subscriptions
-async function updateAzureBenefitsForSubscriptions() {
-    try {
-        const benefitsMap = new Map();
-        
-        // Get data from selected subscriptions
-        for (const subscriptionId of selectedSubscriptions) {
-            const ahbData = await window.azureService.getAzureHybridBenefitUsage(subscriptionId);
-            const windows365Data = await window.azureService.getWindows365Usage();
-            
-            // Aggregate Azure Hybrid Benefit data
-            if (ahbData) {
-                const existingAHB = benefitsMap.get('azure-ahb');
-                if (existingAHB) {
-                    existingAHB.usage.total += ahbData.total;
-                    existingAHB.usage.active += ahbData.usingAHB;
-                    existingAHB.estimatedValue += Math.round(ahbData.potentialSavings * 12000);
-                } else {
-                    benefitsMap.set('azure-ahb', {
-                        id: 'azure-ahb',
-                        name: 'Azure Hybrid Benefit',
-                        description: `${ahbData.usingAHB} of ${ahbData.total} VMs using Azure Hybrid Benefit`,
-                        category: 'deployment',
-                        isFree: true,
-                        isActive: ahbData.usingAHB > 0,
-                        estimatedValue: Math.round(ahbData.potentialSavings * 12000),
-                        details: `Across selected subscriptions: ${ahbData.total} VMs total, ${ahbData.usingAHB} using AHB.`,
-                        usage: {
-                            active: ahbData.usingAHB,
-                            total: ahbData.total,
-                            percentage: ahbData.total > 0 ? Math.round((ahbData.usingAHB / ahbData.total) * 100) : 0
-                        }
-                    });
-                }
-            }
-            
-            // Aggregate Windows 365
-            if (windows365Data.length > 0) {
-                const existingW365 = benefitsMap.get('azure-w365');
-                if (existingW365) {
-                    existingW365.usage.active += windows365Data.length;
-                    existingW365.usage.total += windows365Data.length;
-                } else {
-                    benefitsMap.set('azure-w365', {
-                        id: 'azure-w365',
-                        name: 'Windows 365 Cloud PC',
-                        description: `${windows365Data.length} Cloud PCs deployed`,
-                        category: 'free',
-                        isFree: true,
-                        isActive: windows365Data.length > 0,
-                        estimatedValue: windows365Data.length * 1000,
-                        details: `Windows 365 provides cloud-based Windows desktops. You have ${windows365Data.length} Cloud PCs currently provisioned.`,
-                        usage: {
-                            active: windows365Data.length,
-                            total: windows365Data.length
-                        }
-                    });
-                }
-            }
-        }
-        
-        azureBenefitsData = Array.from(benefitsMap.values());
-        
-        // Update percentages for aggregated data
-        azureBenefitsData.forEach(benefit => {
-            if (benefit.usage && benefit.usage.total > 0) {
-                benefit.usage.percentage = Math.round((benefit.usage.active / benefit.usage.total) * 100);
-                benefit.description = `${benefit.usage.active} of ${benefit.usage.total} ${benefit.id.includes('ahb') ? 'VMs' : 'Cloud PCs'}`;
-            }
-        });
-        
-        // Merge with sample data for benefits not yet pulled from Azure
-        const sampleResponse = await fetch('data/benefits.json');
-        const sampleData = await sampleResponse.json();
-        
-        const azureIds = azureBenefitsData.map(b => b.id);
-        const additionalBenefits = sampleData.filter(b => !azureIds.includes(b.id));
-        
-        azureBenefitsData = [...azureBenefitsData, ...additionalBenefits];
-    } catch (error) {
-        console.error('Error updating Azure benefits:', error);
-        throw error;
-    }
 }
 
 // Show/hide loading indicator

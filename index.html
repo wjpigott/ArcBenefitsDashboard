@@ -22,6 +22,9 @@
                     <button id="authButton" class="auth-btn" onclick="handleAuth()">
                         🔑 Connect to Azure
                     </button>
+                    <div class="data-source-link" style="margin-left: 15px;">
+                        <a href="#" id="sampleDataLink" onclick="event.preventDefault(); switchToSampleData();" style="color: var(--primary-color); text-decoration: underline; font-size: 0.9rem;">Use Sample Data</a>
+                    </div>
                 </div>
             </div>
         </header>
@@ -55,17 +58,6 @@
                 </button>
             </div>
             
-            <div class="data-source-toggle">
-                <label>
-                    <input type="radio" name="dataSource" value="sample" id="sampleDataRadio" checked>
-                    Sample Data
-                </label>
-                <label>
-                    <input type="radio" name="dataSource" value="azure" id="azureDataRadio">
-                    Live Azure Data
-                </label>
-            </div>
-
             <div class="subscription-selector" id="subscriptionSelector" style="display: none;">
                 <label for="subscriptionFilter">Subscription:</label>
                 <select id="subscriptionFilter">
