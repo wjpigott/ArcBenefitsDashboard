@@ -877,28 +877,90 @@ header h1 {
     width: 100%;
 }
 
-.details-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
+.details-table-container {
+    width: 100%;
 }
 
-.detail-column {
-    min-width: 0;
+.details-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
 }
 
-.detail-column h3 {
-    color: var(--primary-color);
-    margin-bottom: 12px;
-    font-size: 1.1rem;
+.details-table thead {
+    background: #e6f2ff;
     border-bottom: 2px solid var(--primary-color);
-    padding-bottom: 5px;
 }
 
-.detail-column p {
+.details-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.details-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.details-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.details-table tbody tr:hover {
+    background: #f5f9ff;
+}
+
+.details-table td {
+    padding: 12px 16px;
+    font-size: 1rem;
+}
+
+.status-no {
+    color: var(--danger-color);
+    font-weight: 600;
+}
+
+.status-yes {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+.configured-row {
+    background: #e8f5e9;
+}
+
+.configured-summary {
+    color: var(--success-color);
+    font-style: italic;
+}
+
+.details-summary {
+    margin-top: 15px;
+    padding: 12px;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+.details-info {
+    padding: 15px;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.details-info p {
     margin: 8px 0;
     line-height: 1.6;
-    font-size: 0.95rem;
 }
 
 .expand-btn.expanded {
@@ -906,33 +968,13 @@ header h1 {
     color: white;
 }
 
-.server-list-detail {
-    max-height: 300px;
-    overflow-y: auto;
-    background: #ffffff;
-    padding: 15px;
-    border-radius: 6px;
-    margin-top: 10px;
-    border: 1px solid var(--border-color);
-}
-
-.server-item {
-    padding: 6px 0;
-    color: var(--text-primary);
-    font-family: 'Segoe UI', monospace;
-    font-size: 0.9rem;
-}
-
-.subscription-item {
-    padding: 12px;
-    background: #ffffff;
-    border-radius: 6px;
-    margin-bottom: 10px;
-    border: 1px solid var(--border-color);
-}
-
 @media (max-width: 768px) {
-    .details-grid {
-        grid-template-columns: 1fr;
+    .details-table {
+        font-size: 0.85rem;
+    }
+    
+    .details-table th,
+    .details-table td {
+        padding: 8px 10px;
     }
 }

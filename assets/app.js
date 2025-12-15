@@ -519,62 +519,81 @@ function toggleDetails(event, benefitId) {
     
     let html = `
         <div class="details-content-inline">
-            <div class="details-grid">
-                <div class="detail-column">
-                    <h3>Overview</h3>
-                    <p><strong>Description:</strong> ${benefit.description || 'No description available'}</p>
-                    <p><strong>Category:</strong> ${benefit.category || 'N/A'}</p>
-                    <p><strong>Free Benefit:</strong> ${benefit.isFree ? 'Yes' : 'No'}</p>
     `;
     
-    // Add usage information if available
-    if (benefit.usage) {
+    // Create server details table if usage data is available
+    if (benefit.usage && benefit.usage.total > 0) {
         html += `
-                    <h3 style="margin-top: 20px;">Usage Statistics</h3>
-                    <p><strong>Configured:</strong> ${benefit.usage.active} of ${benefit.usage.total} servers (${benefit.usage.percentage}%)</p>
-                    <p><strong>Status:</strong> ${benefit.usage.active > 0 ? 'Active' : 'Not Configured'}</p>
+            <div class="details-table-container">
+                <table class="details-table">
+                    <thead>
+                        <tr>
+                            <th>Server Name</th>
+                            <th>Configured</th>
+                            <th>Subscription</th>
+                        </tr>
+                    </thead>
+                    <tbody>
         `;
-    }
-    
-    html += `
-                </div>
-                <div class="detail-column">
-    `;
-    
-    // Add unconfigured servers list if available
-    if (benefit.unconfiguredServers && benefit.unconfiguredServers.length > 0) {
+        
+        // List all servers with their configuration status
+        const configuredServers = benefit.usage.active || 0;
+        const totalServers = benefit.usage.total || 0;
+        const unconfiguredServers = benefit.unconfiguredServers || [];
+        
+        // Show unconfigured servers
+        unconfiguredServers.forEach(serverName => {
+            const subscription = allSubscriptions.length > 0 ? allSubscriptions[0].displayName : 'N/A';
+            const subscriptionId = allSubscriptions.length > 0 ? allSubscriptions[0].subscriptionId : '';
+            html += `
+                <tr>
+                    <td>${serverName}</td>
+                    <td class="status-no">No</td>
+                    <td title="${subscriptionId}">${subscription}</td>
+                </tr>
+            `;
+        });
+        
+        // If there are configured servers (calculated from total - unconfigured)
+        const configuredCount = totalServers - unconfiguredServers.length;
+        if (configuredCount > 0) {
+            const subscription = allSubscriptions.length > 0 ? allSubscriptions[0].displayName : 'N/A';
+            const subscriptionId = allSubscriptions.length > 0 ? allSubscriptions[0].subscriptionId : '';
+            html += `
+                <tr class="configured-row">
+                    <td colspan="3" class="configured-summary">
+                        <strong>${configuredCount} server(s) configured</strong> in ${subscription} (${subscriptionId})
+                    </td>
+                </tr>
+            `;
+        }
+        
         html += `
-                    <h3>Unconfigured Servers (${benefit.unconfiguredServers.length})</h3>
-                    <div class="server-list-detail">
-                        ${benefit.unconfiguredServers.map(server => `<div class="server-item">• ${server}</div>`).join('')}
-                    </div>
-        `;
-    }
-    
-    // Add subscription info if available
-    if (allSubscriptions && allSubscriptions.length > 0) {
-        html += `
-                    <h3 style="margin-top: 20px;">Subscriptions</h3>
-                    ${allSubscriptions.map(sub => `
-                        <div class="subscription-item">
-                            <strong>${sub.displayName}</strong><br>
-                            <span style="font-size: 0.9em; color: #666;">ID: ${sub.subscriptionId}</span>
-                        </div>
-                    `).join('')}
-        `;
-    }
-    
-    // Add activation steps if available
-    if (benefit.activationSteps) {
-        html += `
-                    <h3 style="margin-top: 20px;">How to Enable</h3>
-                    <p>${benefit.activationSteps}</p>
-        `;
-    }
-    
-    html += `
+                    </tbody>
+                </table>
+                <div class="details-summary">
+                    <strong>Total:</strong> ${totalServers} servers | 
+                    <strong>Configured:</strong> ${configuredServers} | 
+                    <strong>Not Configured:</strong> ${unconfiguredServers.length}
                 </div>
             </div>
+        `;
+    } else {
+        // Fallback for items without usage data
+        html += `
+            <div class="details-info">
+                <p><strong>Description:</strong> ${benefit.description || 'No description available'}</p>
+                <p><strong>Status:</strong> ${benefit.isActive ? 'Active' : 'Not Configured'}</p>
+        `;
+        
+        if (allSubscriptions && allSubscriptions.length > 0) {
+            html += `<p><strong>Subscription:</strong> ${allSubscriptions[0].displayName} (${allSubscriptions[0].subscriptionId})</p>`;
+        }
+        
+        html += `</div>`;
+    }
+    
+    html += `
         </div>
     `;
     
