@@ -752,6 +752,8 @@ async function loadAzureBenefitsData() {
 // Populate subscription dropdown
 function populateSubscriptionFilter() {
     const select = document.getElementById('subscriptionFilter');
+    const currentValue = select.value; // Preserve current selection
+    
     select.innerHTML = '<option value="all">All Subscriptions</option>';
     
     allSubscriptions.forEach(sub => {
@@ -760,6 +762,14 @@ function populateSubscriptionFilter() {
         option.textContent = `${sub.displayName} (${sub.subscriptionId.substring(0, 8)}...)`;
         select.appendChild(option);
     });
+    
+    // Restore previous selection if it still exists
+    if (currentValue && currentValue !== 'all') {
+        const optionExists = Array.from(select.options).some(opt => opt.value === currentValue);
+        if (optionExists) {
+            select.value = currentValue;
+        }
+    }
     
     // Show subscription selector
     document.getElementById('subscriptionSelector').style.display = 'flex';
