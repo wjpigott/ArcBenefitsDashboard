@@ -465,11 +465,11 @@ class AzureService {
                     analysis.automatedConfig.disabledServers.push(server.name);
                 }
                 
-                // Check Best Practice Assessment (SQL Server Assessment)
+                // Check Best Practice Assessment (Windows Server Assessment)
+                // Best Practice Assessment uses windowsserverassessment and assessmentplatform extensions
                 const hasBestPractice = serverExtensions.some(ext => 
-                    ext.extensionType?.includes('SqlAssessment') ||
-                    ext.extensionType?.includes('WindowsAgent.SqlServer') ||
-                    ext.extensionName?.toLowerCase().includes('sqlassessment')
+                    ext.extensionType?.toLowerCase() === 'windowsserverassessment' ||
+                    ext.extensionType?.toLowerCase() === 'assessmentplatform'
                 );
                 if (hasBestPractice) {
                     analysis.bestPracticeAssessment.enabled++;
