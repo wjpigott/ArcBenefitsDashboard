@@ -447,7 +447,7 @@ async function refreshData() {
         const isAuth = await window.azureService.isAuthenticated();
         if (isAuth) {
             try {
-                await loadAzureData();
+                await loadAzureBenefitsData();
                 alert('✅ Azure data refreshed successfully!');
             } catch (error) {
                 console.error('Error refreshing Azure data:', error);
