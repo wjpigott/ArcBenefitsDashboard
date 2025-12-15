@@ -150,6 +150,19 @@
         </div>
     </div>
 
+    <!-- Savings Breakdown Modal -->
+    <div id="savingsModal" class="modal" onclick="closeSavingsModal(event)">
+        <div class="modal-content savings-modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>💰 Potential Savings Breakdown</h2>
+                <span class="close" onclick="closeSavingsModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="savingsBreakdownContent">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
     <script src="config.js"></script>
     <script src="assets/azure-auth.js"></script>
     <script src="assets/app.js"></script>

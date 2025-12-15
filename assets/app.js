@@ -18,13 +18,19 @@ function showSavingsBreakdown() {
     const inactiveBenefits = benefits.filter(b => !b.isActive);
     
     if (inactiveBenefits.length === 0) {
-        alert('Great job! All benefits are currently active. No potential savings to calculate.');
+        const modal = document.getElementById('savingsModal');
+        const content = document.getElementById('savingsBreakdownContent');
+        content.innerHTML = `
+            <div class="savings-breakdown-intro">
+                <p style="text-align: center; font-size: 1.2rem; margin: 20px 0;">
+                    ✅ <strong>Excellent!</strong> All benefits are currently active.
+                </p>
+                <p style="text-align: center; color: #6c757d;">No potential savings to calculate.</p>
+            </div>
+        `;
+        modal.style.display = 'block';
         return;
     }
-    
-    let breakdown = '💰 POTENTIAL SAVINGS CALCULATION\n';
-    breakdown += '='.repeat(60) + '\n\n';
-    breakdown += 'Based on unconfigured servers for each benefit:\n\n';
     
     const perServerRates = {
         'arc-001': 400,  // Update Manager
@@ -36,6 +42,8 @@ function showSavingsBreakdown() {
         'arc-008': 275   // Automated Config
     };
     
+    let html = '<div class="savings-breakdown-intro">Based on unconfigured servers for each benefit:</div>';
+    
     let total = 0;
     inactiveBenefits.forEach(benefit => {
         const value = benefit.estimatedValue || 0;
@@ -43,19 +51,44 @@ function showSavingsBreakdown() {
         const unconfigured = benefit.unconfiguredServers?.length || 0;
         
         if (value > 0) {
-            breakdown += `${benefit.name}\n`;
-            breakdown += `  ${unconfigured} unconfigured servers × $${rate}/server/year\n`;
-            breakdown += `  = $${value.toLocaleString()}\n\n`;
+            html += `
+                <div class="savings-item">
+                    <div class="savings-item-header">
+                        <div class="savings-item-name">${benefit.name}</div>
+                        <div class="savings-item-value">$${value.toLocaleString()}</div>
+                    </div>
+                    <div class="savings-item-calculation">
+                        <span>${unconfigured} unconfigured servers</span>
+                        <span class="multiply">×</span>
+                        <span>$${rate.toLocaleString()}/server/year</span>
+                    </div>
+                </div>
+            `;
             total += value;
         }
     });
     
-    breakdown += '='.repeat(60) + '\n';
-    breakdown += `TOTAL POTENTIAL ANNUAL SAVINGS: $${total.toLocaleString()}\n\n`;
-    breakdown += 'Note: Values represent estimated annual cost savings or risk\n';
-    breakdown += 'reduction per server when these features are enabled.';
+    html += `
+        <div class="savings-total">
+            <div class="savings-total-label">Total Potential Annual Savings</div>
+            <div class="savings-total-amount">$${total.toLocaleString()}</div>
+        </div>
+        <div class="savings-note">
+            <strong>💡 Note:</strong>
+            These values represent estimated annual cost savings or risk reduction per server when these features are enabled. 
+            Actual savings may vary based on your organization's specific configuration and usage patterns.
+        </div>
+    `;
     
-    alert(breakdown);
+    document.getElementById('savingsBreakdownContent').innerHTML = html;
+    document.getElementById('savingsModal').style.display = 'block';
+}
+
+// Close savings modal
+function closeSavingsModal(event) {
+    if (!event || event.target.id === 'savingsModal') {
+        document.getElementById('savingsModal').style.display = 'none';
+    }
 }
 
 // Check for pre-configured Azure settings
