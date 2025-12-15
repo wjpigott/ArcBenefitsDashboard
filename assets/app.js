@@ -441,9 +441,26 @@ function exportReport() {
 }
 
 // Refresh data
-function refreshData() {
-    loadBenefitsData();
-    alert('Data refreshed successfully!');
+async function refreshData() {
+    if (currentDataSource === 'azure') {
+        // Refresh Azure data
+        const isAuth = await window.azureService.isAuthenticated();
+        if (isAuth) {
+            try {
+                await loadAzureData();
+                alert('✅ Azure data refreshed successfully!');
+            } catch (error) {
+                console.error('Error refreshing Azure data:', error);
+                alert('❌ Failed to refresh Azure data: ' + error.message);
+            }
+        } else {
+            alert('⚠️ Not authenticated. Please sign in to Azure first.');
+        }
+    } else {
+        // Refresh sample data
+        await loadBenefitsData();
+        alert('✅ Sample data refreshed successfully!');
+    }
 }
 
 // Show error message
