@@ -91,12 +91,18 @@ Use the provided PowerShell script to automatically configure your Azure AD app 
 
 The script will:
 1. ✅ Create or update an Azure AD app registration
-2. ✅ Configure the redirect URI
+2. ✅ Configure the redirect URI (for local development and/or Azure Static Web Apps)
 3. ✅ Add required API permissions:
    - Microsoft Graph: `User.Read`, `Directory.Read.All`
    - Azure Service Management: `user_impersonation`
 4. ✅ Attempt to grant admin consent (if you have permissions)
-5. ✅ Provide you with Client ID and Tenant ID values
+5. ✅ Generate `config.js` with your Client ID and Tenant ID
+6. ✅ Display your credentials for deployment
+
+**After running the script:**
+- For local testing: Use `.\Start-Server.ps1` 
+- For Azure deployment: Update `config.js` if needed, then deploy using instructions in `infrastructure/README.md`
+- **Note**: The script creates `config.js` locally - this file is now committed to the repo for easier deployment
 
 #### Option 2: Manual Setup
 
@@ -142,22 +148,31 @@ If you prefer to set up the Azure AD app manually:
    cd ArcBenefitsDashboard
    ```
 
-2. **Configure Azure credentials**
+2. **Configure Azure AD credentials**
+   
+   **Option A: Using Setup-AzureApp.ps1 (Automated)**
+   ```powershell
+   # This creates Azure AD app AND generates config.js
+   .\Setup-AzureApp.ps1
+   ```
+   The script automatically creates `config.js` with your credentials. Done! ✅
+
+   **Option B: Manual Configuration**
    ```bash
    # Copy the example config file
    cp config.example.js config.js
    ```
-
-3. **Edit `config.js`** with your Azure AD app details:
+   
+   Then edit `config.js` with your Azure AD app details:
    ```javascript
-   const AZURE_CONFIG = {
+   window.AZURE_CONFIG = {
        CLIENT_ID: 'your-client-id-here',
        TENANT_ID: 'your-tenant-id-here',
        AUTO_INIT: true
    };
    ```
 
-4. **Start a local web server**
+3. **Start a local web server**
    ```powershell
    # Using Python (if installed)
    python -m http.server 8080
