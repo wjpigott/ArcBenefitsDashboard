@@ -14,6 +14,90 @@
         "version": "KqlParameterItem/1.0",
         "parameters": [
           {
+            "id": "defender-cost",
+            "version": "KqlParameterItem/1.0",
+            "name": "DefenderCost",
+            "label": "Defender for Cloud Cost",
+            "type": 1,
+            "value": "450"
+          },
+          {
+            "id": "updatemanager-cost",
+            "version": "KqlParameterItem/1.0",
+            "name": "UpdateManagerCost",
+            "label": "Update Manager Cost",
+            "type": 1,
+            "value": "400"
+          },
+          {
+            "id": "guestconfig-cost",
+            "version": "KqlParameterItem/1.0",
+            "name": "GuestConfigCost",
+            "label": "Guest Configuration Cost",
+            "type": 1,
+            "value": "350"
+          },
+          {
+            "id": "inventory-cost",
+            "version": "KqlParameterItem/1.0",
+            "name": "InventoryCost",
+            "label": "Inventory & Tracking Cost",
+            "type": 1,
+            "value": "300"
+          },
+          {
+            "id": "bestpractice-cost",
+            "version": "KqlParameterItem/1.0",
+            "name": "BestPracticeCost",
+            "label": "Best Practice Assessment Cost",
+            "type": 1,
+            "value": "250"
+          },
+          {
+            "id": "hotpatching-cost",
+            "version": "KqlParameterItem/1.0",
+            "name": "HotpatchingCost",
+            "label": "Hotpatching Cost",
+            "type": 1,
+            "value": "225"
+          },
+          {
+            "id": "monitoring-cost",
+            "version": "KqlParameterItem/1.0",
+            "name": "MonitoringCost",
+            "label": "Monitoring & Insights Cost",
+            "type": 1,
+            "value": "200"
+          },
+          {
+            "id": "tagging-cost",
+            "version": "KqlParameterItem/1.0",
+            "name": "TaggingCost",
+            "label": "Resource Tagging Cost",
+            "type": 1,
+            "value": "150"
+          },
+          {
+            "id": "admincenter-cost",
+            "version": "KqlParameterItem/1.0",
+            "name": "AdminCenterCost",
+            "label": "Windows Admin Center Cost",
+            "type": 1,
+            "value": "125"
+          }
+        ],
+        "style": "above",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "name": "cost-parameters"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
             "id": "subscription-filter",
             "version": "KqlParameterItem/1.0",
             "name": "Subscriptions",
@@ -163,7 +247,7 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "// Single join for all extension-based services\r\nresources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| extend \r\n    hasUpdateManager = isnotnull(properties.osProfile.windowsConfiguration.patchSettings.assessmentMode) or isnotnull(properties.osProfile.linuxConfiguration.patchSettings.assessmentMode),\r\n    hasTags = isnotnull(tags) and tostring(tags) != \"{}\",\r\n    isWS2025 = properties.osVersion contains \"2025\" or properties.osVersion contains \"10.0.26100\",\r\n    hasHotpatch = tobool(properties.osProfile.windowsConfiguration.patchSettings.enableHotpatching),\r\n    machineId = tolower(id)\r\n| join kind=leftouter (\r\n    resources\r\n    | where type == \"microsoft.hybridcompute/machines/extensions\"\r\n    | extend \r\n        machineId = tolower(substring(id, 0, indexof(id, \"/extensions/\"))),\r\n        extType = tolower(tostring(properties.type)),\r\n        extPublisher = tolower(tostring(properties.publisher)),\r\n        extName = tolower(name)\r\n    | summarize extensions = make_set(strcat(extType, \"|\", extPublisher, \"|\", extName)) by machineId\r\n) on machineId\r\n| extend \r\n    hasDefender = isnotnull(extensions) and (extensions has \"mde\" or extensions has \"microsoft.azure.security\"),\r\n    hasInventory = isnotnull(extensions) and (extensions has \"changetracking\" or extensions has \"microsoftmonitoringagent\"),\r\n    hasMonitoring = isnotnull(extensions) and (extensions has \"azuremonitorwindowsagent\" or extensions has \"azuremonitorlinuxagent\" or extensions has \"loganalytics\" or extensions has \"omsagent\"),\r\n    hasGuestConfig = isnotnull(extensions) and (extensions has \"configurationforwindows\" or extensions has \"configurationforlinux\" or extensions has \"microsoft.guestconfiguration\"),\r\n    hasBestPractice = isnotnull(extensions) and (extensions has \"windowsserverassessment\" or extensions has \"assessmentplatform\"),\r\n    hasAdminCenter = isnotnull(extensions) and extensions has \"admincenter\"\r\n| summarize \r\n    TotalServers = count(),\r\n    UpdateManagerConfigured = countif(hasUpdateManager),\r\n    TaggingConfigured = countif(hasTags),\r\n    HotpatchConfigured = countif(isWS2025 and hasHotpatch),\r\n    HotpatchTotal = countif(isWS2025),\r\n    DefenderConfigured = countif(hasDefender),\r\n    InventoryConfigured = countif(hasInventory),\r\n    MonitoringConfigured = countif(hasMonitoring),\r\n    GuestConfigConfigured = countif(hasGuestConfig),\r\n    BestPracticeConfigured = countif(hasBestPractice),\r\n    AdminCenterConfigured = countif(hasAdminCenter)\r\n| project \r\n    TotalServers,\r\n    services = pack_array(\r\n        pack(\"name\", \"Azure Arc-enabled Servers - Update Manager\", \"category\", \"Security & Compliance\", \"cost\", 400, \"configured\", UpdateManagerConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Resource Tagging\", \"category\", \"Deployment & Management\", \"cost\", 150, \"configured\", TaggingConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Hotpatching (WS2025)\", \"category\", \"Deployment & Management\", \"cost\", 225, \"configured\", HotpatchConfigured, \"total\", HotpatchTotal),\r\n        pack(\"name\", \"Arc-enabled Servers - Microsoft Defender for Cloud\", \"category\", \"Security & Compliance\", \"cost\", 450, \"configured\", DefenderConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Azure Arc-enabled Servers - Inventory & Tracking\", \"category\", \"Security & Compliance\", \"cost\", 300, \"configured\", InventoryConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Monitoring & Insights\", \"category\", \"Deployment & Management\", \"cost\", 200, \"configured\", MonitoringConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Azure Arc-enabled Servers - Guest Configuration\", \"category\", \"Security & Compliance\", \"cost\", 350, \"configured\", GuestConfigConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Best Practice Assessment\", \"category\", \"Security & Compliance\", \"cost\", 250, \"configured\", BestPracticeConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Windows Admin Center\", \"category\", \"Deployment & Management\", \"cost\", 125, \"configured\", AdminCenterConfigured, \"total\", TotalServers)\r\n    )\r\n| mv-expand service = services\r\n| extend \r\n    ServiceName = tostring(service.name),\r\n    Category = tostring(service.category),\r\n    Cost = toint(service.cost),\r\n    Configured = tolong(service.configured),\r\n    Total = tolong(service.total)\r\n| extend \r\n    Unconfigured = Total - Configured,\r\n    Percent = round(todouble(Configured) * 100.0 / todouble(Total), 1)\r\n| extend Savings = todouble(Unconfigured * Cost)\r\n| extend Status = case(Percent >= 100.0, \"🟢 Fully Configured\", Percent > 0.0, \"🟡 Partially Configured\", \"🔴 Not Configured\")\r\n| project ServiceName, Category, ConfiguredServers = Configured, UnconfiguredServers = Unconfigured, PercentConfigured = Percent, PotentialSavings = Savings, Status\r\n| order by PotentialSavings desc",
+        "query": "// Single join for all extension-based services\r\nresources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| extend \r\n    hasUpdateManager = isnotnull(properties.osProfile.windowsConfiguration.patchSettings.assessmentMode) or isnotnull(properties.osProfile.linuxConfiguration.patchSettings.assessmentMode),\r\n    hasTags = isnotnull(tags) and tostring(tags) != \"{}\",\r\n    isWS2025 = properties.osVersion contains \"2025\" or properties.osVersion contains \"10.0.26100\",\r\n    hasHotpatch = tobool(properties.osProfile.windowsConfiguration.patchSettings.enableHotpatching),\r\n    machineId = tolower(id)\r\n| join kind=leftouter (\r\n    resources\r\n    | where type == \"microsoft.hybridcompute/machines/extensions\"\r\n    | extend \r\n        machineId = tolower(substring(id, 0, indexof(id, \"/extensions/\"))),\r\n        extType = tolower(tostring(properties.type)),\r\n        extPublisher = tolower(tostring(properties.publisher)),\r\n        extName = tolower(name)\r\n    | summarize extensions = make_set(strcat(extType, \"|\", extPublisher, \"|\", extName)) by machineId\r\n) on machineId\r\n| extend \r\n    hasDefender = isnotnull(extensions) and (extensions has \"mde\" or extensions has \"microsoft.azure.security\"),\r\n    hasInventory = isnotnull(extensions) and (extensions has \"changetracking\" or extensions has \"microsoftmonitoringagent\"),\r\n    hasMonitoring = isnotnull(extensions) and (extensions has \"azuremonitorwindowsagent\" or extensions has \"azuremonitorlinuxagent\" or extensions has \"loganalytics\" or extensions has \"omsagent\"),\r\n    hasGuestConfig = isnotnull(extensions) and (extensions has \"configurationforwindows\" or extensions has \"configurationforlinux\" or extensions has \"microsoft.guestconfiguration\"),\r\n    hasBestPractice = isnotnull(extensions) and (extensions has \"windowsserverassessment\" or extensions has \"assessmentplatform\"),\r\n    hasAdminCenter = isnotnull(extensions) and extensions has \"admincenter\"\r\n| summarize \r\n    TotalServers = count(),\r\n    UpdateManagerConfigured = countif(hasUpdateManager),\r\n    TaggingConfigured = countif(hasTags),\r\n    HotpatchConfigured = countif(isWS2025 and hasHotpatch),\r\n    HotpatchTotal = countif(isWS2025),\r\n    DefenderConfigured = countif(hasDefender),\r\n    InventoryConfigured = countif(hasInventory),\r\n    MonitoringConfigured = countif(hasMonitoring),\r\n    GuestConfigConfigured = countif(hasGuestConfig),\r\n    BestPracticeConfigured = countif(hasBestPractice),\r\n    AdminCenterConfigured = countif(hasAdminCenter)\r\n| project \r\n    TotalServers,\r\n    services = pack_array(\r\n        pack(\"name\", \"Azure Arc-enabled Servers - Update Manager\", \"category\", \"Security & Compliance\", \"cost\", {UpdateManagerCost}, \"configured\", UpdateManagerConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Resource Tagging\", \"category\", \"Deployment & Management\", \"cost\", {TaggingCost}, \"configured\", TaggingConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Hotpatching (WS2025)\", \"category\", \"Deployment & Management\", \"cost\", {HotpatchingCost}, \"configured\", HotpatchConfigured, \"total\", HotpatchTotal),\r\n        pack(\"name\", \"Arc-enabled Servers - Microsoft Defender for Cloud\", \"category\", \"Security & Compliance\", \"cost\", {DefenderCost}, \"configured\", DefenderConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Azure Arc-enabled Servers - Inventory & Tracking\", \"category\", \"Security & Compliance\", \"cost\", {InventoryCost}, \"configured\", InventoryConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Monitoring & Insights\", \"category\", \"Deployment & Management\", \"cost\", {MonitoringCost}, \"configured\", MonitoringConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Azure Arc-enabled Servers - Guest Configuration\", \"category\", \"Security & Compliance\", \"cost\", {GuestConfigCost}, \"configured\", GuestConfigConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Best Practice Assessment\", \"category\", \"Security & Compliance\", \"cost\", {BestPracticeCost}, \"configured\", BestPracticeConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Windows Admin Center\", \"category\", \"Deployment & Management\", \"cost\", {AdminCenterCost}, \"configured\", AdminCenterConfigured, \"total\", TotalServers)\r\n    )\r\n| mv-expand service = services\r\n| extend \r\n    ServiceName = tostring(service.name),\r\n    Category = tostring(service.category),\r\n    Cost = toint(service.cost),\r\n    Configured = tolong(service.configured),\r\n    Total = tolong(service.total)\r\n| extend \r\n    Unconfigured = Total - Configured,\r\n    Percent = round(todouble(Configured) * 100.0 / todouble(Total), 1)\r\n| extend Savings = todouble(Unconfigured * Cost)\r\n| extend Status = case(Percent >= 100.0, \"🟢 Fully Configured\", Percent > 0.0, \"🟡 Partially Configured\", \"🔴 Not Configured\")\r\n| project ServiceName, Category, ConfiguredServers = Configured, UnconfiguredServers = Unconfigured, PercentConfigured = Percent, PotentialSavings = Savings, Status\r\n| order by PotentialSavings desc",
         "size": 0,
         "title": "📊 Arc Capabilities Summary - All Services",
         "queryType": 1,
@@ -812,7 +896,7 @@
     {
       "type": 1,
       "content": {
-        "json": "---\n\n### �📝 Notes\n\n**Cost Rates (Annual per server):**\n- Defender for Cloud: $450\n- Update Manager: $400\n- Guest Configuration: $350\n- Inventory & Tracking: $300\n- Automated Configuration: $275\n- Best Practice Assessment: $250\n- Hotpatching: $225\n- Monitoring & Insights: $200\n- Resource Tagging: $150\n- Windows Admin Center: $125\n\n**Note:** This workbook shows summary data only. For detailed server lists and per-server status, use the full-featured Static Web App version.\n\n**Full Featured Version:** Static Web App with complete extension detection, custom cost editing, and drill-down details available at http://localhost:8080"
+        "json": "---\n\n### 📝 Notes\n\n**To Edit Pricing:**\n1. Click \"Edit\" at the top of the workbook\n2. Scroll to the top and modify the cost parameter values (DefenderCost, UpdateManagerCost, etc.)\n3. Click \"Done Editing\" → \"Save\""
       },
       "name": "notes"
     }

@@ -2,7 +2,7 @@
 // This file contains Azure AD app registration details for authentication
 
 window.AZURE_CONFIG = {
-    CLIENT_ID: '26f74251-a565-4069-b198-ae07cac814b9',
-    TENANT_ID: '28ad7eb2-0ea4-40b8-99c2-cc6c124035d2',
+    CLIENT_ID: 'b4dbada1-2d7c-417e-bb3d-11996b0fb037',
+    TENANT_ID: '7da854e2-6115-4de1-bf5a-9e7af4fc3c98',
     AUTO_INIT: true
 };

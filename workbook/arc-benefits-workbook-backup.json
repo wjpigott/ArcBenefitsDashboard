@@ -1,0 +1,254 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "## 🎯 Azure Arc Benefits Dashboard\n\nTrack and maximize your Azure Arc-enabled server capabilities across subscriptions."
+      },
+      "name": "title"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "subscription-filter",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscriptions",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "Resources\r\n| where type =~ 'microsoft.hybridcompute/machines'\r\n| summarize Count = count() by subscriptionId\r\n| order by Count desc\r\n| extend Rank = row_number()\r\n| project value = subscriptionId, label = subscriptionId, selected = true",
+            "crossComponentResources": [
+              "value::all"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "value": [
+              "value::all"
+            ]
+          }
+        ],
+        "style": "pills",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "name": "parameters"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "selected-tab-param",
+            "name": "selectedTab",
+            "type": 1,
+            "value": "overview"
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "conditionalVisibility": {
+        "parameterName": "alwaysHide",
+        "comparison": "isEqualTo",
+        "value": "true"
+      },
+      "name": "tab-parameter"
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "tabs",
+        "links": [
+          {
+            "id": "overview-tab",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "📊 Overview",
+            "subTarget": "overview",
+            "preText": "",
+            "style": "link"
+          },
+          {
+            "id": "updatemanager-tab",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Update Manager",
+            "subTarget": "updatemanager",
+            "style": "link"
+          },
+          {
+            "id": "defender-tab",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Defender",
+            "subTarget": "defender",
+            "style": "link"
+          },
+          {
+            "id": "inventory-tab",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Inventory",
+            "subTarget": "inventory",
+            "style": "link"
+          },
+          {
+            "id": "guestconfig-tab",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Guest Config",
+            "subTarget": "guestconfig",
+            "style": "link"
+          },
+          {
+            "id": "bestpractice-tab",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Best Practice",
+            "subTarget": "bestpractice",
+            "style": "link"
+          },
+          {
+            "id": "automation-tab",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Automation",
+            "subTarget": "automation",
+            "style": "link"
+          },
+          {
+            "id": "tagging-tab",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Tagging",
+            "subTarget": "tagging",
+            "style": "link"
+          },
+          {
+            "id": "monitoring-tab",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Monitoring",
+            "subTarget": "monitoring",
+            "style": "link"
+          },
+          {
+            "id": "admincenter-tab",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Admin Center",
+            "subTarget": "admincenter",
+            "style": "link"
+          },
+          {
+            "id": "hotpatching-tab",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Hotpatching",
+            "subTarget": "hotpatching",
+            "style": "link"
+          }
+        ]
+      },
+      "name": "service-tabs"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "// Single join for all extension-based services\r\nresources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| extend \r\n    hasUpdateManager = isnotnull(properties.osProfile.windowsConfiguration.patchSettings.assessmentMode) or isnotnull(properties.osProfile.linuxConfiguration.patchSettings.assessmentMode),\r\n    hasTags = isnotnull(tags) and tostring(tags) != \"{}\",\r\n    isWS2025 = properties.osVersion contains \"2025\" or properties.osVersion contains \"10.0.26100\",\r\n    hasHotpatch = tobool(properties.osProfile.windowsConfiguration.patchSettings.enableHotpatching),\r\n    machineId = tolower(id)\r\n| join kind=leftouter (\r\n    resources\r\n    | where type == \"microsoft.hybridcompute/machines/extensions\"\r\n    | extend \r\n        machineId = tolower(substring(id, 0, indexof(id, \"/extensions/\"))),\r\n        extType = tolower(tostring(properties.type)),\r\n        extPublisher = tolower(tostring(properties.publisher)),\r\n        extName = tolower(name)\r\n    | summarize extensions = make_set(strcat(extType, \"|\", extPublisher, \"|\", extName)) by machineId\r\n) on machineId\r\n| extend \r\n    hasDefender = extensions has_any (dynamic([\"mde\", \"microsoft.azure.security\"])),\r\n    hasInventory = extensions has_any (dynamic([\"changetracking\", \"microsoftmonitoringagent\"])),\r\n    hasMonitoring = extensions has_any (dynamic([\"azuremonitor\", \"loganalytics\", \"omsagent\"])),\r\n    hasGuestConfig = extensions has_any (dynamic([\"configurationforwindows\", \"configurationforlinux\", \"microsoft.guestconfiguration\"])),\r\n    hasBestPractice = extensions has_any (dynamic([\"windowsserverassessment\", \"assessmentplatform\"])),\r\n    hasAdminCenter = extensions has \"admincenter\"\r\n| summarize \r\n    TotalServers = count(),\r\n    UpdateManagerConfigured = countif(hasUpdateManager),\r\n    TaggingConfigured = countif(hasTags),\r\n    HotpatchConfigured = countif(isWS2025 and hasHotpatch),\r\n    HotpatchTotal = countif(isWS2025),\r\n    DefenderConfigured = countif(hasDefender),\r\n    InventoryConfigured = countif(hasInventory),\r\n    MonitoringConfigured = countif(hasMonitoring),\r\n    GuestConfigConfigured = countif(hasGuestConfig),\r\n    BestPracticeConfigured = countif(hasBestPractice),\r\n    AdminCenterConfigured = countif(hasAdminCenter)\r\n| project \r\n    TotalServers,\r\n    services = pack_array(\r\n        pack(\"name\", \"Azure Arc-enabled Servers - Update Manager\", \"category\", \"Security & Compliance\", \"cost\", 400, \"configured\", UpdateManagerConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Resource Tagging\", \"category\", \"Deployment & Management\", \"cost\", 150, \"configured\", TaggingConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Hotpatching (WS2025)\", \"category\", \"Deployment & Management\", \"cost\", 225, \"configured\", HotpatchConfigured, \"total\", HotpatchTotal),\r\n        pack(\"name\", \"Arc-enabled Servers - Microsoft Defender for Cloud\", \"category\", \"Security & Compliance\", \"cost\", 450, \"configured\", DefenderConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Azure Arc-enabled Servers - Inventory & Tracking\", \"category\", \"Security & Compliance\", \"cost\", 300, \"configured\", InventoryConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Monitoring & Insights\", \"category\", \"Deployment & Management\", \"cost\", 200, \"configured\", MonitoringConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Azure Arc-enabled Servers - Guest Configuration\", \"category\", \"Security & Compliance\", \"cost\", 350, \"configured\", GuestConfigConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Best Practice Assessment\", \"category\", \"Security & Compliance\", \"cost\", 250, \"configured\", BestPracticeConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Windows Admin Center\", \"category\", \"Deployment & Management\", \"cost\", 125, \"configured\", AdminCenterConfigured, \"total\", TotalServers)\r\n    )\r\n| mv-expand service = services\r\n| extend \r\n    ServiceName = tostring(service.name),\r\n    Category = tostring(service.category),\r\n    Cost = toint(service.cost),\r\n    Configured = tolong(service.configured),\r\n    Total = tolong(service.total)\r\n| extend \r\n    Unconfigured = Total - Configured,\r\n    Percent = round(todouble(Configured) * 100.0 / todouble(Total), 1)\r\n| extend Savings = todouble(Unconfigured * Cost)\r\n| extend Status = case(Percent >= 100.0, \"🟢 Fully Configured\", Percent > 0.0, \"🟡 Partially Configured\", \"🔴 Not Configured\")\r\n| project ServiceName, Category, ConfiguredServers = Configured, UnconfiguredServers = Unconfigured, PercentConfigured = Percent, PotentialSavings = Savings, Status\r\n| union (\r\n    // Automation requires separate join (different resource type)\r\n    resources\r\n    | where type == \"microsoft.hybridcompute/machines\"\r\n    | extend machineId = tolower(id)\r\n    | join kind=leftouter (\r\n        resources\r\n        | where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n        | extend machineId = tolower(extract(@\"(/subscriptions/[^/]+/resourceGroups/[^/]+/providers/Microsoft.HybridCompute/machines/[^/]+)\", 1, id))\r\n        | summarize by machineId\r\n    ) on machineId\r\n    | summarize Total = count(), Configured = countif(isnotnull(machineId1))\r\n    | extend \r\n        ServiceName = \"Arc-enabled Servers - Automated Machine Configuration\",\r\n        Category = \"Deployment & Management\",\r\n        Cost = 275,\r\n        Unconfigured = Total - Configured,\r\n        Percent = round(todouble(Configured) * 100.0 / todouble(Total), 1)\r\n    | extend Savings = todouble(Unconfigured * Cost)\r\n    | extend Status = case(Percent >= 100.0, \"🟢 Fully Configured\", Percent > 0.0, \"🟡 Partially Configured\", \"🔴 Not Configured\")\r\n    | project ServiceName, Category, ConfiguredServers = tolong(Configured), UnconfiguredServers = tolong(Unconfigured), PercentConfigured = Percent, PotentialSavings = Savings, Status\r\n)\r\n| order by PotentialSavings desc",
+        "size": 0,
+        "title": "📊 Arc Capabilities Summary - All Services",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscriptions}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "ConfiguredServers",
+              "formatter": 4,
+              "formatOptions": {
+                "palette": "green"
+              }
+            },
+            {
+              "columnMatch": "UnconfiguredServers",
+              "formatter": 4,
+              "formatOptions": {
+                "palette": "red"
+              }
+            },
+            {
+              "columnMatch": "PercentConfigured",
+              "formatter": 8,
+              "formatOptions": {
+                "palette": "greenRed"
+              },
+              "numberFormat": {
+                "unit": 1,
+                "options": {
+                  "style": "decimal",
+                  "maximumFractionDigits": 0
+                }
+              }
+            },
+            {
+              "columnMatch": "PotentialSavings",
+              "formatter": 4,
+              "formatOptions": {
+                "palette": "blue"
+              },
+              "numberFormat": {
+                "unit": 0,
+                "options": {
+                  "style": "currency",
+                  "currency": "USD",
+                  "maximumFractionDigits": 0
+                }
+              }
+            }
+          ],
+          "hierarchySettings": {
+            "treeType": 1,
+            "groupBy": [
+              "Category"
+            ],
+            "expandTopLevel": true
+          }
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "overview"
+      },
+      "name": "benefits-summary"
+    },
+    {
+      arison": ""name": "notes"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
+
+
