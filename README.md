@@ -101,6 +101,8 @@ If you prefer to set up the Azure AD app manually:
      - **Azure Service Management**:
        - `user_impersonation` - Access Azure Resource Manager
    - Click "Grant admin consent" (requires admin privileges)
+   
+   **Note:** If you don't have admin privileges, you may need to use Azure AD Privileged Identity Management (PIM) to elevate your access temporarily to grant consent. Navigate to the API permissions page and click "Grant admin consent for [Your Organization]".
 
 3. **Note your credentials**
    - Copy the "Application (client) ID" from the Overview page
@@ -296,6 +298,12 @@ This is a starter kit designed to grow with your needs. Future enhancements coul
 **Problem**: "Consent required" or permission errors
 - **Solution**: Admin must grant consent in Azure Portal → App Registration → API Permissions
 - **Solution**: Or run: `az ad app permission admin-consent --id <your-app-id>`
+- **Solution**: If you don't have admin privileges, use Azure AD Privileged Identity Management (PIM) to temporarily elevate your access:
+  1. Go to Azure Portal → Azure AD Privileged Identity Management
+  2. Activate the required admin role (e.g., Cloud Application Administrator or Global Administrator)
+  3. Navigate to App Registrations → Your App → API Permissions
+  4. Click "Grant admin consent for [Your Organization]"
+  5. Verify all permissions show "Granted for [Your Organization]" in the Status column
 
 ### Data Not Loading
 
