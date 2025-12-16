@@ -610,7 +610,7 @@ class AzureService {
     }
 
     // Get comprehensive benefits data from Azure
-    async getAzureBenefitsData() {
+    async getAzureBenefitsData(subscriptionIds = null) {
         try {
             const [subscriptions, licenses] = await Promise.all([
                 this.getSubscriptions(),
@@ -620,10 +620,13 @@ class AzureService {
             let arcAnalysis = null;
 
             if (subscriptions.length > 0) {
-                const subscriptionIds = subscriptions.map(s => s.subscriptionId);
+                // Use provided subscription IDs or all subscriptions
+                const subsToQuery = subscriptionIds || subscriptions.map(s => s.subscriptionId);
+                
+                console.log('Querying subscriptions:', subsToQuery);
                 
                 // Get Arc services data
-                arcAnalysis = await this.analyzeArcServices(subscriptionIds);
+                arcAnalysis = await this.analyzeArcServices(subsToQuery);
             }
 
             return {

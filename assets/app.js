@@ -772,11 +772,19 @@ function toggleDetails(event, benefitId) {
 async function loadAzureBenefitsData() {
     try {
         console.log('Loading Azure benefits data...');
-        const azureData = await window.azureService.getAzureBenefitsData();
+        
+        // Get the subscription IDs to query (if 'all' or empty, pass null to query all)
+        const subsToQuery = selectedSubscriptions && selectedSubscriptions.length > 0 && selectedSubscriptions[0] !== 'all' 
+            ? selectedSubscriptions 
+            : null;
+        
+        console.log('Querying with subscription filter:', subsToQuery);
+        
+        const azureData = await window.azureService.getAzureBenefitsData(subsToQuery);
         console.log('Azure data received:', azureData);
         console.log('Arc services data:', azureData.arcServices);
         
-        // Store subscriptions
+        // Store subscriptions (this gets ALL subscriptions for the dropdown)
         allSubscriptions = azureData.subscriptions || [];
         populateSubscriptionFilter();
         
@@ -841,7 +849,15 @@ function populateSubscriptionFilter() {
 // Handle subscription selection change
 async function handleSubscriptionChange(e) {
     const value = e.target.value;
-    selectedSubscriptions = value === 'all' ? allSubscriptions.map(s => s.subscriptionId) : [value];
+    console.log('Subscription filter changed to:', value);
+    
+    if (value === 'all') {
+        selectedSubscriptions = ['all'];
+    } else {
+        selectedSubscriptions = [value];
+    }
+    
+    console.log('Selected subscriptions:', selectedSubscriptions);
     
     showLoading(true);
     await loadAzureBenefitsData();
