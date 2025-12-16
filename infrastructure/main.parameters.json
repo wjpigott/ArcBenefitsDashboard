@@ -1,0 +1,44 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "staticWebAppName": {
+      "value": "arc-benefits-dashboard"
+    },
+    "location": {
+      "value": "eastus2"
+    },
+    "sku": {
+      "value": "Free"
+    },
+    "repositoryUrl": {
+      "value": "https://github.com/wjpigott/ArcBenefitsDashboard"
+    },
+    "repositoryBranch": {
+      "value": "main"
+    },
+    "repositoryToken": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/YOUR_SUBSCRIPTION_ID/resourceGroups/YOUR_RG/providers/Microsoft.KeyVault/vaults/YOUR_KEYVAULT"
+        },
+        "secretName": "github-pat-token"
+      }
+    },
+    "azureClientId": {
+      "value": ""
+    },
+    "azureTenantId": {
+      "value": ""
+    },
+    "tags": {
+      "value": {
+        "Environment": "Production",
+        "Application": "Arc-Benefits-Dashboard",
+        "ManagedBy": "Bicep-IaC",
+        "CostCenter": "IT-Operations",
+        "Owner": "Arc-Team"
+      }
+    }
+  }
+}
