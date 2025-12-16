@@ -803,21 +803,27 @@ async function loadAzureBenefitsData() {
             azureBenefitsData = [];
         }
         
-        // Load sample data to merge non-Arc benefits
-        const sampleResponse = await fetch('data/benefits.json');
-        const sampleData = await sampleResponse.json();
-        
-        // Get IDs from Azure mapped data
-        const azureMappedIds = azureBenefitsData.map(b => b.id);
-        
-        // Only add benefits from sample data that weren't provided by Azure
-        const additionalBenefits = sampleData.filter(b => !azureMappedIds.includes(b.id));
-        
-        // Azure data takes precedence
-        azureBenefitsData = [...azureBenefitsData, ...additionalBenefits];
-        
-        console.log('Final benefits data:', azureBenefitsData.length, 'benefits');
-        console.log('Azure mapped:', azureMappedIds.length, 'Sample added:', additionalBenefits.length);
+        // Try to load sample data to merge non-Arc benefits (optional)
+        try {
+            const sampleResponse = await fetch('data/benefits.json');
+            if (sampleResponse.ok) {
+                const sampleData = await sampleResponse.json();
+                
+                // Get IDs from Azure mapped data
+                const azureMappedIds = azureBenefitsData.map(b => b.id);
+                
+                // Only add benefits from sample data that weren't provided by Azure
+                const additionalBenefits = sampleData.filter(b => !azureMappedIds.includes(b.id));
+                
+                // Azure data takes precedence
+                azureBenefitsData = [...azureBenefitsData, ...additionalBenefits];
+                
+                console.log('Final benefits data:', azureBenefitsData.length, 'benefits');
+                console.log('Azure mapped:', azureMappedIds.length, 'Sample added:', additionalBenefits.length);
+            }
+        } catch (error) {
+            console.log('No sample benefits.json file found (optional) - using Azure data only');
+        }
     } catch (error) {
         console.error('Error loading Azure benefits data:', error);
         throw error;
