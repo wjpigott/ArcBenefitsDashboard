@@ -39,7 +39,7 @@ This folder contains an Azure Workbook template that provides a native Azure Por
 3. Click "New" or "Empty Workbook"
 4. Click the Advanced Editor button (</> icon in toolbar)
 5. Delete all content in the editor
-6. Copy and paste the entire contents of `arc-benefits-workbook.json`
+6. Copy and paste the entire contents of ***`arc-benefits-workbook.json`***
 7. Click "Apply"
 8. Click "Save" and choose:
    - **Title**: Arc Benefits Dashboard
