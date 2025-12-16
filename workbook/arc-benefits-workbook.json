@@ -4,7 +4,7 @@
     {
       "type": 1,
       "content": {
-        "json": "## 🎯 Azure Arc Benefits Dashboard\n\nTrack and maximize your Azure Arc-enabled server capabilities across subscriptions.\n\n---"
+        "json": "## 🎯 Azure Arc Benefits Dashboard\n\nTrack and maximize your Azure Arc-enabled server capabilities across subscriptions."
       },
       "name": "title"
     },
@@ -22,7 +22,7 @@
             "multiSelect": true,
             "quote": "'",
             "delimiter": ",",
-            "query": "Resources\r\n| where type =~ 'microsoft.hybridcompute/machines'\r\n| summarize Count = count() by subscriptionId\r\n| order by Count desc\r\n| extend Rank = row_number()\r\n| project value = subscriptionId, label = subscriptionId, selected = Rank == 1",
+            "query": "Resources\r\n| where type =~ 'microsoft.hybridcompute/machines'\r\n| summarize Count = count() by subscriptionId\r\n| order by Count desc\r\n| extend Rank = row_number()\r\n| project value = subscriptionId, label = subscriptionId, selected = true",
             "crossComponentResources": [
               "value::all"
             ],
@@ -46,45 +46,27 @@
       "name": "parameters"
     },
     {
-      "type": 3,
+      "type": 9,
       "content": {
-        "version": "KqlItem/1.0",
-        "query": "resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| extend \r\n    // Detection logic\r\n    hasUpdateManager = isnotnull(properties.osProfile.windowsConfiguration.patchSettings.assessmentMode) or isnotnull(properties.osProfile.linuxConfiguration.patchSettings.assessmentMode),\r\n    hasChangeTracking = false, // Requires extension check\r\n    hasMonitoring = false, // Requires extension check\r\n    hasGuestConfig = false, // Requires extension check\r\n    hasDefender = false, // Requires extension check\r\n    hasAutomatedConfig = false, // Requires assignment check\r\n    hasBestPractice = false, // Requires extension check\r\n    hasTags = isnotnull(tags) and tostring(tags) != \"{}\",\r\n    hasAdminCenter = false, // Requires extension check\r\n    hasHotpatch = tobool(properties.osProfile.windowsConfiguration.patchSettings.enableHotpatching) and (properties.osVersion contains \"2025\" or properties.osVersion contains \"10.0.26100\")\r\n| summarize \r\n    TotalServers = count(),\r\n    UpdateManagerEnabled = countif(hasUpdateManager),\r\n    ChangeTrackingEnabled = countif(hasChangeTracking),\r\n    MonitoringEnabled = countif(hasMonitoring),\r\n    GuestConfigEnabled = countif(hasGuestConfig),\r\n    DefenderEnabled = countif(hasDefender),\r\n    AutomatedConfigEnabled = countif(hasAutomatedConfig),\r\n    BestPracticeEnabled = countif(hasBestPractice),\r\n    TaggingEnabled = countif(hasTags),\r\n    AdminCenterEnabled = countif(hasAdminCenter),\r\n    HotpatchEnabled = countif(hasHotpatch)\r\n| extend \r\n    // Calculate unconfigured counts\r\n    UpdateManagerDisabled = TotalServers - UpdateManagerEnabled,\r\n    ChangeTrackingDisabled = TotalServers - ChangeTrackingEnabled,\r\n    MonitoringDisabled = TotalServers - MonitoringEnabled,\r\n    GuestConfigDisabled = TotalServers - GuestConfigEnabled,\r\n    DefenderDisabled = TotalServers - DefenderEnabled,\r\n    AutomatedConfigDisabled = TotalServers - AutomatedConfigEnabled,\r\n    BestPracticeDisabled = TotalServers - BestPracticeEnabled,\r\n    TaggingDisabled = TotalServers - TaggingEnabled,\r\n    AdminCenterDisabled = TotalServers - AdminCenterEnabled,\r\n    HotpatchDisabled = TotalServers - HotpatchEnabled\r\n| extend \r\n    // Calculate savings (cost per server per year)\r\n    UpdateManagerSavings = UpdateManagerDisabled * 400,\r\n    ChangeTrackingSavings = ChangeTrackingDisabled * 300,\r\n    MonitoringSavings = MonitoringDisabled * 200,\r\n    GuestConfigSavings = GuestConfigDisabled * 350,\r\n    DefenderSavings = DefenderDisabled * 450,\r\n    AutomatedConfigSavings = AutomatedConfigDisabled * 275,\r\n    BestPracticeSavings = BestPracticeDisabled * 250,\r\n    TaggingSavings = TaggingDisabled * 150,\r\n    AdminCenterSavings = AdminCenterDisabled * 125,\r\n    HotpatchSavings = HotpatchDisabled * 225\r\n| extend TotalSavings = UpdateManagerSavings + ChangeTrackingSavings + MonitoringSavings + GuestConfigSavings + DefenderSavings + AutomatedConfigSavings + BestPracticeSavings + TaggingSavings + AdminCenterSavings + HotpatchSavings\r\n| project TotalServers, TotalSavings",
-        "size": 4,
-        "queryType": 1,
-        "resourceType": "microsoft.resourcegraph/resources",
-        "crossComponentResources": [
-          "{Subscriptions}"
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "selected-tab-param",
+            "name": "selectedTab",
+            "type": 1,
+            "value": "overview"
+          }
         ],
-        "visualization": "tiles",
-        "tileSettings": {
-          "titleContent": {
-            "columnMatch": "TotalServers",
-            "formatter": 1
-          },
-          "leftContent": {
-            "columnMatch": "TotalServers",
-            "formatter": 12,
-            "formatOptions": {
-              "palette": "blue"
-            }
-          },
-          "secondaryContent": {
-            "columnMatch": "TotalSavings",
-            "formatter": 1
-          },
-          "showBorder": true
-        }
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.resourcegraph/resources"
       },
-      "customWidth": "50",
-      "name": "summary-tiles"
-    },
-    {
-      "type": 1,
-      "content": {
-        "json": "---\n\n### 📊 Arc Capabilities Status\n\nClick the arrows (▶) to expand and see all servers for each capability."
+      "conditionalVisibility": {
+        "parameterName": "alwaysHide",
+        "comparison": "isEqualTo",
+        "value": "true"
       },
-      "name": "benefits-header"
+      "name": "tab-parameter"
     },
     {
       "type": 11,
@@ -93,40 +75,97 @@
         "style": "tabs",
         "links": [
           {
-            "id": "all-benefits-tab",
+            "id": "overview-tab",
             "cellValue": "selectedTab",
             "linkTarget": "parameter",
-            "linkLabel": "All Benefits",
-            "subTarget": "all",
+            "linkLabel": "📊 Overview",
+            "subTarget": "overview",
+            "preText": "",
             "style": "link"
           },
           {
-            "id": "security-tab",
+            "id": "updatemanager-tab",
             "cellValue": "selectedTab",
             "linkTarget": "parameter",
-            "linkLabel": "Security & Compliance",
-            "subTarget": "security",
+            "linkLabel": "Update Manager",
+            "subTarget": "updatemanager",
             "style": "link"
           },
           {
-            "id": "management-tab",
+            "id": "defender-tab",
             "cellValue": "selectedTab",
             "linkTarget": "parameter",
-            "linkLabel": "Deployment & Management",
-            "subTarget": "management",
+            "linkLabel": "Defender",
+            "subTarget": "defender",
+            "style": "link"
+          },
+          {
+            "id": "inventory-tab",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Inventory",
+            "subTarget": "inventory",
+            "style": "link"
+          },
+          {
+            "id": "guestconfig-tab",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Guest Config",
+            "subTarget": "guestconfig",
+            "style": "link"
+          },
+          {
+            "id": "bestpractice-tab",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Best Practice",
+            "subTarget": "bestpractice",
+            "style": "link"
+          },
+          {
+            "id": "tagging-tab",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Tagging",
+            "subTarget": "tagging",
+            "style": "link"
+          },
+          {
+            "id": "monitoring-tab",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Monitoring",
+            "subTarget": "monitoring",
+            "style": "link"
+          },
+          {
+            "id": "admincenter-tab",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Admin Center",
+            "subTarget": "admincenter",
+            "style": "link"
+          },
+          {
+            "id": "hotpatching-tab",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Hotpatching",
+            "subTarget": "hotpatching",
             "style": "link"
           }
         ]
       },
-      "name": "category-tabs"
+      "name": "service-tabs"
     },
     {
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| extend \r\n    hasUpdateManager = isnotnull(properties.osProfile.windowsConfiguration.patchSettings.assessmentMode) or isnotnull(properties.osProfile.linuxConfiguration.patchSettings.assessmentMode),\r\n    hasTags = isnotnull(tags) and tostring(tags) != \"{}\",\r\n    hasHotpatch = tobool(properties.osProfile.windowsConfiguration.patchSettings.enableHotpatching) and (properties.osVersion contains \"2025\" or properties.osVersion contains \"10.0.26100\")\r\n| summarize \r\n    TotalServers = count(),\r\n    ConfiguredServers = countif(hasUpdateManager),\r\n    UnconfiguredServers = countif(not(hasUpdateManager))\r\n| extend \r\n    ServiceName = \"Update Manager\",\r\n    Category = \"Security & Compliance\",\r\n    PercentConfigured = iff(TotalServers > 0, (ConfiguredServers * 100) / TotalServers, 0),\r\n    PotentialSavings = UnconfiguredServers * 400,\r\n    Status = case(\r\n        PercentConfigured == 100, \"🟢 Fully Configured\",\r\n        PercentConfigured > 0, \"🟡 Partially Configured\",\r\n        \"🔴 Not Configured\"\r\n    )\r\n| project ServiceName, Category, ConfiguredServers, UnconfiguredServers, TotalServers, PercentConfigured, PotentialSavings, Status\r\n| union (\r\n    resources\r\n    | where type == \"microsoft.hybridcompute/machines\"\r\n    | extend hasTags = isnotnull(tags) and tostring(tags) != \"{}\"\r\n    | summarize \r\n        TotalServers = count(),\r\n        ConfiguredServers = countif(hasTags),\r\n        UnconfiguredServers = countif(not(hasTags))\r\n    | extend \r\n        ServiceName = \"Resource Tagging\",\r\n        Category = \"Deployment & Management\",\r\n        PercentConfigured = iff(TotalServers > 0, (ConfiguredServers * 100) / TotalServers, 0),\r\n        PotentialSavings = UnconfiguredServers * 150,\r\n        Status = case(\r\n            PercentConfigured == 100, \"🟢 Fully Configured\",\r\n            PercentConfigured > 0, \"🟡 Partially Configured\",\r\n            \"🔴 Not Configured\"\r\n        )\r\n    | project ServiceName, Category, ConfiguredServers, UnconfiguredServers, TotalServers, PercentConfigured, PotentialSavings, Status\r\n)\r\n| union (\r\n    resources\r\n    | where type == \"microsoft.hybridcompute/machines\"\r\n    | extend hasHotpatch = tobool(properties.osProfile.windowsConfiguration.patchSettings.enableHotpatching) and (properties.osVersion contains \"2025\" or properties.osVersion contains \"10.0.26100\")\r\n    | summarize \r\n        TotalServers = count(),\r\n        ConfiguredServers = countif(hasHotpatch),\r\n        UnconfiguredServers = countif(not(hasHotpatch))\r\n    | extend \r\n        ServiceName = \"Hotpatching (WS2025)\",\r\n        Category = \"Deployment & Management\",\r\n        PercentConfigured = iff(TotalServers > 0, (ConfiguredServers * 100) / TotalServers, 0),\r\n        PotentialSavings = UnconfiguredServers * 225,\r\n        Status = case(\r\n            PercentConfigured == 100, \"🟢 Fully Configured\",\r\n            PercentConfigured > 0, \"🟡 Partially Configured\",\r\n            \"🔴 Not Configured\"\r\n        )\r\n    | project ServiceName, Category, ConfiguredServers, UnconfiguredServers, TotalServers, PercentConfigured, PotentialSavings, Status\r\n)\r\n| order by PotentialSavings desc",
+        "query": "// Single join for all extension-based services\r\nresources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| extend \r\n    hasUpdateManager = isnotnull(properties.osProfile.windowsConfiguration.patchSettings.assessmentMode) or isnotnull(properties.osProfile.linuxConfiguration.patchSettings.assessmentMode),\r\n    hasTags = isnotnull(tags) and tostring(tags) != \"{}\",\r\n    isWS2025 = properties.osVersion contains \"2025\" or properties.osVersion contains \"10.0.26100\",\r\n    hasHotpatch = tobool(properties.osProfile.windowsConfiguration.patchSettings.enableHotpatching),\r\n    machineId = tolower(id)\r\n| join kind=leftouter (\r\n    resources\r\n    | where type == \"microsoft.hybridcompute/machines/extensions\"\r\n    | extend \r\n        machineId = tolower(substring(id, 0, indexof(id, \"/extensions/\"))),\r\n        extType = tolower(tostring(properties.type)),\r\n        extPublisher = tolower(tostring(properties.publisher)),\r\n        extName = tolower(name)\r\n    | summarize extensions = make_set(strcat(extType, \"|\", extPublisher, \"|\", extName)) by machineId\r\n) on machineId\r\n| extend \r\n    hasDefender = isnotnull(extensions) and (extensions has \"mde\" or extensions has \"microsoft.azure.security\"),\r\n    hasInventory = isnotnull(extensions) and (extensions has \"changetracking\" or extensions has \"microsoftmonitoringagent\"),\r\n    hasMonitoring = isnotnull(extensions) and (extensions has \"azuremonitorwindowsagent\" or extensions has \"azuremonitorlinuxagent\" or extensions has \"loganalytics\" or extensions has \"omsagent\"),\r\n    hasGuestConfig = isnotnull(extensions) and (extensions has \"configurationforwindows\" or extensions has \"configurationforlinux\" or extensions has \"microsoft.guestconfiguration\"),\r\n    hasBestPractice = isnotnull(extensions) and (extensions has \"windowsserverassessment\" or extensions has \"assessmentplatform\"),\r\n    hasAdminCenter = isnotnull(extensions) and extensions has \"admincenter\"\r\n| summarize \r\n    TotalServers = count(),\r\n    UpdateManagerConfigured = countif(hasUpdateManager),\r\n    TaggingConfigured = countif(hasTags),\r\n    HotpatchConfigured = countif(isWS2025 and hasHotpatch),\r\n    HotpatchTotal = countif(isWS2025),\r\n    DefenderConfigured = countif(hasDefender),\r\n    InventoryConfigured = countif(hasInventory),\r\n    MonitoringConfigured = countif(hasMonitoring),\r\n    GuestConfigConfigured = countif(hasGuestConfig),\r\n    BestPracticeConfigured = countif(hasBestPractice),\r\n    AdminCenterConfigured = countif(hasAdminCenter)\r\n| project \r\n    TotalServers,\r\n    services = pack_array(\r\n        pack(\"name\", \"Azure Arc-enabled Servers - Update Manager\", \"category\", \"Security & Compliance\", \"cost\", 400, \"configured\", UpdateManagerConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Resource Tagging\", \"category\", \"Deployment & Management\", \"cost\", 150, \"configured\", TaggingConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Hotpatching (WS2025)\", \"category\", \"Deployment & Management\", \"cost\", 225, \"configured\", HotpatchConfigured, \"total\", HotpatchTotal),\r\n        pack(\"name\", \"Arc-enabled Servers - Microsoft Defender for Cloud\", \"category\", \"Security & Compliance\", \"cost\", 450, \"configured\", DefenderConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Azure Arc-enabled Servers - Inventory & Tracking\", \"category\", \"Security & Compliance\", \"cost\", 300, \"configured\", InventoryConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Monitoring & Insights\", \"category\", \"Deployment & Management\", \"cost\", 200, \"configured\", MonitoringConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Azure Arc-enabled Servers - Guest Configuration\", \"category\", \"Security & Compliance\", \"cost\", 350, \"configured\", GuestConfigConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Best Practice Assessment\", \"category\", \"Security & Compliance\", \"cost\", 250, \"configured\", BestPracticeConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Windows Admin Center\", \"category\", \"Deployment & Management\", \"cost\", 125, \"configured\", AdminCenterConfigured, \"total\", TotalServers)\r\n    )\r\n| mv-expand service = services\r\n| extend \r\n    ServiceName = tostring(service.name),\r\n    Category = tostring(service.category),\r\n    Cost = toint(service.cost),\r\n    Configured = tolong(service.configured),\r\n    Total = tolong(service.total)\r\n| extend \r\n    Unconfigured = Total - Configured,\r\n    Percent = round(todouble(Configured) * 100.0 / todouble(Total), 1)\r\n| extend Savings = todouble(Unconfigured * Cost)\r\n| extend Status = case(Percent >= 100.0, \"🟢 Fully Configured\", Percent > 0.0, \"🟡 Partially Configured\", \"🔴 Not Configured\")\r\n| project ServiceName, Category, ConfiguredServers = Configured, UnconfiguredServers = Unconfigured, PercentConfigured = Percent, PotentialSavings = Savings, Status\r\n| order by PotentialSavings desc",
         "size": 0,
-        "title": "Arc Capabilities Overview",
+        "title": "📊 Arc Capabilities Summary - All Services",
         "queryType": 1,
         "resourceType": "microsoft.resourcegraph/resources",
         "crossComponentResources": [
@@ -187,12 +226,22 @@
           }
         }
       },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "overview"
+      },
       "name": "benefits-summary"
     },
     {
       "type": 1,
       "content": {
-        "json": "---\n\n### 🖥️ Update Manager - Server Details\n\nServers configured vs. unconfigured for Update Manager (automatic patch management)."
+        "json": "---\n\n### �️ Update Manager - Server Details\n\nServers configured vs. unconfigured for Update Manager (automatic patch management)."
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "updatemanager"
       },
       "name": "update-manager-header"
     },
@@ -241,12 +290,22 @@
           "filter": true
         }
       },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "updatemanager"
+      },
       "name": "update-manager-details"
     },
     {
       "type": 1,
       "content": {
-        "json": "---\n\n### 🏷️ Resource Tagging - Server Details\n\nServers with tags vs. without tags (important for organization and cost tracking)."
+        "json": "---\n\n### 🏷️ Resource Tagging - Server Details\n\nServers with proper resource tagging configured."
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "tagging"
       },
       "name": "tagging-header"
     },
@@ -254,9 +313,9 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| extend \r\n    hasTags = isnotnull(tags) and tostring(tags) != \"{}\",\r\n    ConfigurationStatus = iff(\r\n        isnotnull(tags) and tostring(tags) != \"{}\",\r\n        \"✅ Tagged\",\r\n        \"❌ Not Tagged\"\r\n    ),\r\n    TagCount = iff(isnotnull(tags), array_length(todynamic(tags)), 0),\r\n    TagsList = iff(isnotnull(tags), tostring(tags), \"No tags\")\r\n| project \r\n    ServerName = name,\r\n    ResourceGroup = resourceGroup,\r\n    Subscription = subscriptionId,\r\n    Status = ConfigurationStatus,\r\n    TagCount,\r\n    Tags = TagsList,\r\n    Location = location\r\n| order by Status desc, ServerName asc",
+        "query": "resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| extend hasTags = isnotnull(tags) and tostring(tags) != \"{}\"\r\n| extend ConfigurationStatus = iff(hasTags, \"✅ Configured\", \"❌ Not Configured\")\r\n| extend tagCount = array_length(todynamic(tags))\r\n| project \r\n    ServerName = name,\r\n    ResourceGroup = resourceGroup,\r\n    Subscription = subscriptionId,\r\n    TagCount = iff(isnotnull(tagCount), tagCount, 0),\r\n    Status = ConfigurationStatus,\r\n    Location = location\r\n| order by Status desc, ServerName asc",
         "size": 0,
-        "title": "All Servers - Tagging Status",
+        "title": "All Servers - Resource Tagging Status",
         "queryType": 1,
         "resourceType": "microsoft.resourcegraph/resources",
         "crossComponentResources": [
@@ -272,7 +331,7 @@
                 "thresholdsGrid": [
                   {
                     "operator": "contains",
-                    "thresholdValue": "Tagged",
+                    "thresholdValue": "Configured",
                     "representation": "green",
                     "text": "{0}"
                   },
@@ -290,32 +349,35 @@
                   }
                 ]
               }
-            },
-            {
-              "columnMatch": "TagCount",
-              "formatter": 4,
-              "formatOptions": {
-                "palette": "blue"
-              }
             }
           ],
           "filter": true
         }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "tagging"
       },
       "name": "tagging-details"
     },
     {
       "type": 1,
       "content": {
-        "json": "---\n\n### 🔥 Hotpatching (Windows Server 2025) - Server Details\n\nWindows Server 2025 machines with hotpatching enabled."
+        "json": "---\n\n### 🔥 Hotpatching - Server Details\n\nWindows Server 2025 machines with hotpatching enabled."
       },
-      "name": "hotpatch-header"
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "hotpatching"
+      },
+      "name": "hotpatching-header"
     },
     {
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| extend \r\n    isWS2025 = properties.osVersion contains \"2025\" or properties.osVersion contains \"10.0.26100\",\r\n    hasHotpatch = tobool(properties.osProfile.windowsConfiguration.patchSettings.enableHotpatching),\r\n    ConfigurationStatus = case(\r\n        not(isWS2025), \"⚪ Not Applicable (Not WS2025)\",\r\n        hasHotpatch, \"✅ Hotpatching Enabled\",\r\n        \"❌ Not Configured\"\r\n    )\r\n| project \r\n    ServerName = name,\r\n    ResourceGroup = resourceGroup,\r\n    Subscription = subscriptionId,\r\n    OSVersion = tostring(properties.osVersion),\r\n    Status = ConfigurationStatus,\r\n    Location = location\r\n| order by Status desc, ServerName asc",
+        "query": "resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| extend isWS2025 = properties.osVersion contains \"2025\" or properties.osVersion contains \"10.0.26100\"\r\n| extend hasHotpatch = tobool(properties.osProfile.windowsConfiguration.patchSettings.enableHotpatching) == true\r\n| extend ConfigurationStatus = iff(isWS2025 and hasHotpatch, \"✅ Configured\", iff(isWS2025, \"❌ Available but Not Configured\", \"N/A - Not WS2025\"))\r\n| project \r\n    ServerName = name,\r\n    ResourceGroup = resourceGroup,\r\n    Subscription = subscriptionId,\r\n    OSVersion = properties.osVersion,\r\n    Status = ConfigurationStatus,\r\n    Location = location\r\n| order by Status desc, ServerName asc",
         "size": 0,
         "title": "All Servers - Hotpatching Status",
         "queryType": 1,
@@ -333,7 +395,7 @@
                 "thresholdsGrid": [
                   {
                     "operator": "contains",
-                    "thresholdValue": "Enabled",
+                    "thresholdValue": "Configured",
                     "representation": "green",
                     "text": "{0}"
                   },
@@ -341,12 +403,6 @@
                     "operator": "contains",
                     "thresholdValue": "Not Configured",
                     "representation": "redBright",
-                    "text": "{0}"
-                  },
-                  {
-                    "operator": "contains",
-                    "thresholdValue": "Not Applicable",
-                    "representation": "gray",
                     "text": "{0}"
                   },
                   {
@@ -362,12 +418,401 @@
           "filter": true
         }
       },
-      "name": "hotpatch-details"
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "hotpatching"
+      },
+      "name": "hotpatching-details"
     },
     {
       "type": 1,
       "content": {
-        "json": "---\n\n### 📝 Notes\n\n**Cost Rates (Annual per server):**\n- Update Manager: $400\n- Resource Tagging: $150\n- Hotpatching: $225\n\n**Note:** Extension-based detection (Defender, Monitoring, Guest Configuration, etc.) requires additional queries due to Azure Resource Graph API limitations. These are simplified in this workbook version.\n\n**Full Featured Version:** For complete detection logic and custom cost editing, use the Static Web App version."
+        "json": "---\n\n### 🛡️ Defender for Cloud - Server Details\n\nServers with Microsoft Defender for Endpoint extension installed."
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "defender"
+      },
+      "name": "defender-header"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| extend machineId = tolower(id)\r\n| join kind=leftouter (\r\n    resources\r\n    | where type == \"microsoft.hybridcompute/machines/extensions\"\r\n    | where properties.type == \"MDE.Windows\" or properties.type == \"MDE.Linux\"\r\n    | extend machineId = tolower(substring(id, 0, indexof(id, '/extensions/')))\r\n    | summarize hasDefender = any(true) by machineId\r\n) on machineId\r\n| extend ConfigurationStatus = iff(hasDefender == true, \"✅ Configured\", \"❌ Not Configured\")\r\n| project \r\n    ServerName = name,\r\n    ResourceGroup = resourceGroup,\r\n    Subscription = subscriptionId,\r\n    OSType = properties.osName,\r\n    Status = ConfigurationStatus,\r\n    Location = location\r\n| order by Status desc, ServerName asc",
+        "size": 0,
+        "title": "All Servers - Defender for Cloud Status",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscriptions}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Status",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "Configured",
+                    "representation": "green",
+                    "text": "{0}"
+                  },
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "Not",
+                    "representation": "redBright",
+                    "text": "{0}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "gray",
+                    "text": "{0}"
+                  }
+                ]
+              }
+            }
+          ],
+          "filter": true
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "defender"
+      },
+      "name": "defender-details"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "---\n\n### 📦 Inventory & Tracking - Server Details\n\nServers with Change Tracking extension installed."
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "inventory"
+      },
+      "name": "inventory-header"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| extend machineId = tolower(id)\r\n| join kind=leftouter (\r\n    resources\r\n    | where type == \"microsoft.hybridcompute/machines/extensions\"\r\n    | where properties.type == \"ChangeTracking-Windows\" or properties.type == \"ChangeTracking-Linux\"\r\n    | extend machineId = tolower(substring(id, 0, indexof(id, '/extensions/')))\r\n    | summarize hasInventory = any(true) by machineId\r\n) on machineId\r\n| extend ConfigurationStatus = iff(hasInventory == true, \"✅ Configured\", \"❌ Not Configured\")\r\n| project \r\n    ServerName = name,\r\n    ResourceGroup = resourceGroup,\r\n    Subscription = subscriptionId,\r\n    OSType = properties.osName,\r\n    Status = ConfigurationStatus,\r\n    Location = location\r\n| order by Status desc, ServerName asc",
+        "size": 0,
+        "title": "All Servers - Inventory & Tracking Status",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscriptions}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Status",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "Configured",
+                    "representation": "green",
+                    "text": "{0}"
+                  },
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "Not",
+                    "representation": "redBright",
+                    "text": "{0}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "gray",
+                    "text": "{0}"
+                  }
+                ]
+              }
+            }
+          ],
+          "filter": true
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "inventory"
+      },
+      "name": "inventory-details"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "---\n\n### 📊 Monitoring & Insights - Server Details\n\nServers with Azure Monitor Agent extension installed."
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "monitoring"
+      },
+      "name": "monitoring-header"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| extend machineId = tolower(id)\r\n| join kind=leftouter (\r\n    resources\r\n    | where type == \"microsoft.hybridcompute/machines/extensions\"\r\n    | extend \r\n        machineId = tolower(substring(id, 0, indexof(id, '/extensions/'))),\r\n        extType = tolower(tostring(properties.type)),\r\n        extPublisher = tolower(tostring(properties.publisher)),\r\n        extName = tolower(name)\r\n    | where extType contains \"azuremonitor\" or extType contains \"loganalytics\" or extType contains \"omsagent\" or extPublisher contains \"microsoft.azure.monitor\"\r\n    | summarize hasMonitoring = any(true) by machineId\r\n) on machineId\r\n| extend ConfigurationStatus = iff(hasMonitoring == true, \"✅ Configured\", \"❌ Not Configured\")\r\n| project \r\n    ServerName = name,\r\n    ResourceGroup = resourceGroup,\r\n    Subscription = subscriptionId,\r\n    OSType = properties.osName,\r\n    Status = ConfigurationStatus,\r\n    Location = location\r\n| order by Status desc, ServerName asc",
+        "size": 0,
+        "title": "All Servers - Monitoring & Insights Status",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscriptions}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Status",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "Configured",
+                    "representation": "green",
+                    "text": "{0}"
+                  },
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "Not",
+                    "representation": "redBright",
+                    "text": "{0}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "gray",
+                    "text": "{0}"
+                  }
+                ]
+              }
+            }
+          ],
+          "filter": true
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "monitoring"
+      },
+      "name": "monitoring-details"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "---\n\n### ⚙️ Guest Configuration - Server Details\n\nServers with Guest Configuration extension installed."
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "guestconfig"
+      },
+      "name": "guestconfig-header"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| extend machineId = tolower(id)\r\n| join kind=leftouter (\r\n    resources\r\n    | where type == \"microsoft.hybridcompute/machines/extensions\"\r\n    | extend \r\n        machineId = tolower(substring(id, 0, indexof(id, '/extensions/'))),\r\n        extType = tolower(tostring(properties.type)),\r\n        extPublisher = tolower(tostring(properties.publisher)),\r\n        extName = tolower(name)\r\n    | where extType contains \"configurationforwindows\" or extType contains \"configurationforlinux\" or extPublisher contains \"microsoft.guestconfiguration\"\r\n    | summarize hasGuestConfig = any(true) by machineId\r\n) on machineId\r\n| extend ConfigurationStatus = iff(hasGuestConfig == true, \"✅ Configured\", \"❌ Not Configured\")\r\n| project \r\n    ServerName = name,\r\n    ResourceGroup = resourceGroup,\r\n    Subscription = subscriptionId,\r\n    OSType = properties.osName,\r\n    Status = ConfigurationStatus,\r\n    Location = location\r\n| order by Status desc, ServerName asc",
+        "size": 0,
+        "title": "All Servers - Guest Configuration Status",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscriptions}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Status",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "Configured",
+                    "representation": "green",
+                    "text": "{0}"
+                  },
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "Not",
+                    "representation": "redBright",
+                    "text": "{0}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "gray",
+                    "text": "{0}"
+                  }
+                ]
+              }
+            }
+          ],
+          "filter": true
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "guestconfig"
+      },
+      "name": "guestconfig-details"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "---\n\n### ✅ Best Practice Assessment - Server Details\n\nServers with Best Practice Assessment extension installed."
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "bestpractice"
+      },
+      "name": "bestpractice-header"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| extend machineId = tolower(id)\r\n| join kind=leftouter (\r\n    resources\r\n    | where type == \"microsoft.hybridcompute/machines/extensions\"\r\n    | extend \r\n        machineId = tolower(substring(id, 0, indexof(id, '/extensions/'))),\r\n        extType = tolower(tostring(properties.type)),\r\n        extName = tolower(name)\r\n    | where extType contains \"windowsserverassessment\" or extType contains \"assessmentplatform\" or extName contains \"windowsserverassessment\" or extName contains \"assessmentplatform\"\r\n    | summarize hasBestPractice = any(true) by machineId\r\n) on machineId\r\n| extend ConfigurationStatus = iff(hasBestPractice == true, \"✅ Configured\", \"❌ Not Configured\")\r\n| project \r\n    ServerName = name,\r\n    ResourceGroup = resourceGroup,\r\n    Subscription = subscriptionId,\r\n    OSType = properties.osName,\r\n    Status = ConfigurationStatus,\r\n    Location = location\r\n| order by Status desc, ServerName asc",
+        "size": 0,
+        "title": "All Servers - Best Practice Assessment Status",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscriptions}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Status",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "Configured",
+                    "representation": "green",
+                    "text": "{0}"
+                  },
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "Not",
+                    "representation": "redBright",
+                    "text": "{0}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "gray",
+                    "text": "{0}"
+                  }
+                ]
+              }
+            }
+          ],
+          "filter": true
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "bestpractice"
+      },
+      "name": "bestpractice-details"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "---\n\n### 💻 Windows Admin Center - Server Details\n\nServers with Windows Admin Center extension installed."
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "admincenter"
+      },
+      "name": "admincenter-header"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| extend machineId = tolower(id)\r\n| join kind=leftouter (\r\n    resources\r\n    | where type == \"microsoft.hybridcompute/machines/extensions\"\r\n    | where properties.type contains \"AdminCenter\"\r\n    | extend machineId = tolower(substring(id, 0, indexof(id, '/extensions/')))\r\n    | summarize hasAdminCenter = any(true) by machineId\r\n) on machineId\r\n| extend ConfigurationStatus = iff(hasAdminCenter == true, \"✅ Configured\", \"❌ Not Configured\")\r\n| project \r\n    ServerName = name,\r\n    ResourceGroup = resourceGroup,\r\n    Subscription = subscriptionId,\r\n    OSType = properties.osName,\r\n    Status = ConfigurationStatus,\r\n    Location = location\r\n| order by Status desc, ServerName asc",
+        "size": 0,
+        "title": "All Servers - Windows Admin Center Status",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscriptions}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Status",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "Configured",
+                    "representation": "green",
+                    "text": "{0}"
+                  },
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "Not",
+                    "representation": "redBright",
+                    "text": "{0}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "gray",
+                    "text": "{0}"
+                  }
+                ]
+              }
+            }
+          ],
+          "filter": true
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "admincenter"
+      },
+      "name": "admincenter-details"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "---\n\n### �📝 Notes\n\n**Cost Rates (Annual per server):**\n- Defender for Cloud: $450\n- Update Manager: $400\n- Guest Configuration: $350\n- Inventory & Tracking: $300\n- Automated Configuration: $275\n- Best Practice Assessment: $250\n- Hotpatching: $225\n- Monitoring & Insights: $200\n- Resource Tagging: $150\n- Windows Admin Center: $125\n\n**Note:** This workbook shows summary data only. For detailed server lists and per-server status, use the full-featured Static Web App version.\n\n**Full Featured Version:** Static Web App with complete extension detection, custom cost editing, and drill-down details available at http://localhost:8080"
       },
       "name": "notes"
     }
@@ -377,3 +822,4 @@
   ],
   "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
 }
+
