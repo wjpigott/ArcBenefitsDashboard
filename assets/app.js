@@ -627,8 +627,12 @@ async function handleAuth() {
             await window.azureService.signIn();
             updateAuthUI(true);
             
-            // Automatically switch to Azure data
-            await switchDataSource('azure');
+            // Automatically load Azure data after successful sign-in
+            console.log('Sign in successful - loading Azure data');
+            await loadAzureBenefitsData();
+            benefitsData = [...azureBenefitsData];
+            filteredData = [...benefitsData];
+            updateDashboard();
         } catch (error) {
             console.error('Sign in failed:', error);
             alert('Failed to sign in: ' + error.message + '\n\nClick "Reset Configuration" to try again.');
