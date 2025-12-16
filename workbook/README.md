@@ -27,6 +27,9 @@ This folder contains an Azure Workbook template that provides a native Azure Por
 - Custom modals and detailed UI
 - Some advanced styling/branding
 
+<img width="1472" height="658" alt="image" src="https://github.com/user-attachments/assets/f5345e55-8897-4653-9606-91794d8b2c37" />
+
+
 ## Installation
 
 ### Option 1: Import via Azure Portal (Recommended)
