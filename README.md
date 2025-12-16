@@ -2,6 +2,8 @@
 
 A simple, interactive dashboard to help organizations track and maximize their Windows Software Assurance benefits. This tool visualizes available benefits, identifies unused opportunities, and calculates potential savings.
 
+There are 2 options proposed, one is a static webpage that allows you to visualize the data. The other is an Azure Workbook that shares the same data but with much easier deployment option.
+
 ## 🎯 Purpose
 
 Many organizations with Software Assurance (SA) subscriptions don't fully utilize all the benefits they're paying for. This dashboard helps:
@@ -30,9 +32,6 @@ Many organizations with Software Assurance (SA) subscriptions don't fully utiliz
 - **Export Reports**: Generate JSON reports of your current benefit usage
 - **Detailed Views**: View comprehensive information about each benefit
 
-<img width="1033" height="834" alt="image" src="https://github.com/user-attachments/assets/25c04036-5452-4c20-bb18-51cb807214fe" />
-
-
 ## 🚀 Getting Started
 
 ### Deployment Options
@@ -51,6 +50,8 @@ Many organizations with Software Assurance (SA) subscriptions don't fully utiliz
    - 🔒 HTTPS and custom domains included
    - 📋 **See [infrastructure/README.md](infrastructure/README.md) for complete step-by-step deployment guide**
 
+  <img width="1033" height="834" alt="image" src="https://github.com/user-attachments/assets/25c04036-5452-4c20-bb18-51cb807214fe" />
+
 3. **Azure Workbook** (Portal-native, no hosting required)
    - 📊 Native Azure Portal experience
    - ⚡ Real-time KQL queries against Resource Graph
@@ -58,6 +59,9 @@ Many organizations with Software Assurance (SA) subscriptions don't fully utiliz
    - 💰 Customizable cost parameters at top of workbook
    - 🔧 No authentication setup required (uses Portal auth)
    - 📋 **See [workbook/README.md](workbook/README.md) for complete workbook documentation**
+  
+   <img width="1366" height="687" alt="image" src="https://github.com/user-attachments/assets/208be89e-c2c7-465c-9e47-be9d32371b9b" />
+
 
 ### Prerequisites
 - A modern web browser (Chrome, Edge, Firefox, Safari)
