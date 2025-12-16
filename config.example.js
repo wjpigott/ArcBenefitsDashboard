@@ -1,7 +1,7 @@
 // Azure Configuration Template
 // Copy this file to config.js and fill in your Azure AD App Registration details
 
-const AZURE_CONFIG = {
+window.AZURE_CONFIG = {
     // Azure AD App Registration Client ID
     // Get this from Azure Portal > App Registrations > Your App > Overview
     CLIENT_ID: '',

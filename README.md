@@ -17,13 +17,12 @@ Many organizations with Software Assurance (SA) subscriptions don't fully utiliz
 ### Dashboard Overview
 - **Real-time Statistics**: See total benefits, unused benefits, active benefits, and potential savings at a glance
 - **Visual Indicators**: Color-coded cards show benefit status (active/unused) and type (free/paid)
-- **Filtering**: Filter benefits by category (free items, training, deployment, security) and status (active/unused)
+- **Filtering**: Filter benefits by category (security, deployment, free benefits) and status (active/unused)
 
 ### Benefit Categories
-- **Free Items**: Benefits included at no additional cost with SA
-- **Training & Support**: Learning resources and technical support options
-- **Deployment Rights**: Licensing flexibility and deployment capabilities
-- **Security & Compliance**: Security updates and compliance features
+- **Security & Compliance**: Security updates and compliance features for Arc-enabled servers
+- **Deployment & Management**: Deployment tools and management capabilities
+- **Free Benefits**: Benefits included at no additional cost
 
 ### Interactive Features
 - **Toggle Benefits**: Mark benefits as active or inactive
@@ -31,27 +30,39 @@ Many organizations with Software Assurance (SA) subscriptions don't fully utiliz
 - **Export Reports**: Generate JSON reports of your current benefit usage
 - **Detailed Views**: View comprehensive information about each benefit
 
-### Free Benefits Sidebar
-A dedicated section highlighting free benefits that many organizations don't realize they have access to, including:
-- Windows 365 Cloud PC Access
-- Azure Hybrid Benefit
-- Extended Security Updates (ESU)
-- Home Use Program
-- Disaster Recovery Rights
-- Windows Autopatch
-- And more!
-
 ## 🚀 Getting Started
+
+### Deployment Options
+
+**Choose your deployment method:**
+
+1. **Local Development** (Quick start, localhost)
+   - Follow the setup instructions below
+   - Perfect for testing and development
+   - Runs on http://localhost:8080/
+
+2. **Azure Static Web Apps** (Cloud hosting, production-ready)
+   - 🌐 Deploy to Azure for team-wide access
+   - 🔄 Automatic CI/CD from GitHub
+   - 💰 Free tier available
+   - 🔒 HTTPS and custom domains included
+   - 📋 **See [infrastructure/README.md](infrastructure/README.md) for complete step-by-step deployment guide**
 
 ### Prerequisites
 - A modern web browser (Chrome, Edge, Firefox, Safari)
-- Azure AD App Registration (for live Azure data)
-- Azure CLI (for automated setup script)
-- Reader role on Azure subscriptions you want to query
+- **Azure CLI** - Required for automated setup script
+  - Download: https://aka.ms/installazurecliwindows (Windows)
+  - Download: https://docs.microsoft.com/cli/azure/install-azure-cli (Mac/Linux)
+- Azure AD App Registration (created automatically by setup script, or manually)
+- Reader role on Azure subscriptions you want to query (assigned after app creation)
 
 ### Quick Setup with Azure
 
 #### Option 1: Automated Setup (Recommended)
+
+**Prerequisites:** Azure CLI must be installed first
+- Windows: https://aka.ms/installazurecliwindows
+- Mac/Linux: https://docs.microsoft.com/cli/azure/install-azure-cli
 
 Use the provided PowerShell script to automatically configure your Azure AD app registration:
 
@@ -68,12 +79,18 @@ Use the provided PowerShell script to automatically configure your Azure AD app 
 
 The script will:
 1. ✅ Create or update an Azure AD app registration
-2. ✅ Configure the redirect URI
+2. ✅ Configure the redirect URI (for local development and/or Azure Static Web Apps)
 3. ✅ Add required API permissions:
    - Microsoft Graph: `User.Read`, `Directory.Read.All`
    - Azure Service Management: `user_impersonation`
 4. ✅ Attempt to grant admin consent (if you have permissions)
-5. ✅ Provide you with Client ID and Tenant ID values
+5. ✅ Generate `config.js` with your Client ID and Tenant ID
+6. ✅ Display your credentials for deployment
+
+**After running the script:**
+- For local testing: Use `.\Start-Server.ps1` 
+- For Azure deployment: Update `config.js` if needed, then deploy using instructions in `infrastructure/README.md`
+- **Note**: The script creates `config.js` locally - this file is now committed to the repo for easier deployment
 
 #### Option 2: Manual Setup
 
@@ -95,16 +112,59 @@ If you prefer to set up the Azure AD app manually:
      - **Azure Service Management**:
        - `user_impersonation` - Access Azure Resource Manager
    - Click "Grant admin consent" (requires admin privileges)
+   
+   **Note:** If you don't have admin privileges, you may need to use Azure AD Privileged Identity Management (PIM) to elevate your access temporarily to grant consent. Navigate to the API permissions page and click "Grant admin consent for [Your Organization]".
 
-3. **Note your credentials**
+   <img width="2590" height="1397" alt="image" src="https://github.com/user-attachments/assets/2f29872b-365e-4527-92c7-e149d980c0ec" />
+
+
+4. **Note your credentials**
    - Copy the "Application (client) ID" from the Overview page
    - Copy the "Directory (tenant) ID" from the Overview page
 
-4. **Assign Azure RBAC Role**
-   - Go to your Azure Subscriptions
-   - Select "Access control (IAM)"
-   - Add role assignment: "Reader" role to your app registration
-   - This allows the app to query Arc server data
+### Step 3: Grant Reader Role on Subscriptions
+
+After creating your Azure AD app, you need to grant it Reader permissions on your Azure subscriptions so it can query Arc-enabled servers.
+
+#### Option A: Automated Script (Recommended)
+
+Use the provided PowerShell script to grant Reader role on all or selected subscriptions:
+
+```powershell
+# Grant on ALL subscriptions you have access to
+.\Grant-ReaderRole.ps1 -AllSubscriptions
+
+# Interactive mode - select specific subscriptions
+.\Grant-ReaderRole.ps1
+
+# Grant on a specific subscription
+.\Grant-ReaderRole.ps1 -SubscriptionId "12345678-1234-1234-1234-123456789012"
+```
+
+The script will:
+- ✅ Read your App ID from `config.js` (or prompt for it)
+- ✅ Create a service principal if needed
+- ✅ Show all your enabled subscriptions
+- ✅ Let you select which subscriptions to grant access to
+- ✅ Skip subscriptions that already have the role assigned
+- ✅ Provide a summary of successful and failed assignments
+
+**For organizations with many subscriptions (100+)**, use `-AllSubscriptions` to automate the process.
+
+#### Option B: Manual Assignment
+
+If you prefer to assign roles manually:
+
+1. Go to [Azure Portal](https://portal.azure.com) → Subscriptions
+2. Select a subscription
+3. Click "Access control (IAM)"
+4. Click "Add" → "Add role assignment"
+5. Select "Reader" role
+6. Search for your app registration by name
+7. Click "Save"
+8. Repeat for each subscription
+
+**Note:** The Reader role is read-only and allows the app to query Arc server inventory without making any changes.
 
 ### Installation
 
@@ -114,22 +174,31 @@ If you prefer to set up the Azure AD app manually:
    cd ArcBenefitsDashboard
    ```
 
-2. **Configure Azure credentials**
+2. **Configure Azure AD credentials**
+   
+   **Option A: Using Setup-AzureApp.ps1 (Automated)**
+   ```powershell
+   # This creates Azure AD app AND generates config.js
+   .\Setup-AzureApp.ps1
+   ```
+   The script automatically creates `config.js` with your credentials. Done! ✅
+
+   **Option B: Manual Configuration**
    ```bash
    # Copy the example config file
    cp config.example.js config.js
    ```
-
-3. **Edit `config.js`** with your Azure AD app details:
+   
+   Then edit `config.js` with your Azure AD app details:
    ```javascript
-   const AZURE_CONFIG = {
+   window.AZURE_CONFIG = {
        CLIENT_ID: 'your-client-id-here',
        TENANT_ID: 'your-tenant-id-here',
        AUTO_INIT: true
    };
    ```
 
-4. **Start a local web server**
+3. **Start a local web server**
    ```powershell
    # Using Python (if installed)
    python -m http.server 8080
@@ -290,6 +359,12 @@ This is a starter kit designed to grow with your needs. Future enhancements coul
 **Problem**: "Consent required" or permission errors
 - **Solution**: Admin must grant consent in Azure Portal → App Registration → API Permissions
 - **Solution**: Or run: `az ad app permission admin-consent --id <your-app-id>`
+- **Solution**: If you don't have admin privileges, use Azure AD Privileged Identity Management (PIM) to temporarily elevate your access:
+  1. Go to Azure Portal → Azure AD Privileged Identity Management
+  2. Activate the required admin role (e.g., Cloud Application Administrator or Global Administrator)
+  3. Navigate to App Registrations → Your App → API Permissions
+  4. Click "Grant admin consent for [Your Organization]"
+  5. Verify all permissions show "Granted for [Your Organization]" in the Status column
 
 ### Data Not Loading
 
@@ -365,15 +440,38 @@ For questions about:
 
 ## 🔐 Security Notes
 
-- `config.js` containing your Azure credentials is excluded from git via `.gitignore`
-- Never commit `config.js` to version control
-- Use `config.example.js` as a template for others
 - The app uses delegated permissions - users can only see data they have access to
 - Authentication tokens are stored in browser localStorage
 - Recommend using single-tenant app registration for production
+- For production deployments, each organization should create their own Azure AD app
+- Update `config.js` with your own Client ID and Tenant ID after running `Setup-AzureApp.ps1`
+
+## 📦 Repository Structure
+
+```
+ArcBenefitsDashboard/
+├── index.html                  # Main dashboard HTML
+├── assets/
+│   ├── app.js                 # Dashboard logic and Azure integration
+│   ├── azure-auth.js          # Azure AD authentication
+│   └── styles.css             # Dashboard styling
+├── config.js                  # Azure AD app configuration (update with your IDs)
+├── config.example.js          # Template for config.js
+├── Setup-AzureApp.ps1         # Automated Azure AD setup script
+├── Start-Server.ps1           # Local web server for testing
+├── infrastructure/            # Infrastructure as Code for Azure deployment
+│   ├── main.bicep            # Bicep template for Static Web App
+│   ├── main.parameters.json  # Deployment parameters
+│   ├── Deploy-Infrastructure.ps1  # Deployment automation script
+│   └── README.md             # Complete IaC deployment guide
+├── .github/workflows/         # GitHub Actions for CI/CD
+│   └── azure-static-web-apps.yml
+└── generate-config.js         # Config generation script (optional)
+```
 
 ---
 
 **Version**: 1.0.0  
 **Last Updated**: December 2025  
+**Live Demo**: https://mango-bush-0a0ab4f0f.3.azurestaticapps.net
 **Built for**: Microsoft Arc Teams
