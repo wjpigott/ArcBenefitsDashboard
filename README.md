@@ -43,6 +43,21 @@ A dedicated section highlighting free benefits that many organizations don't rea
 
 ## 🚀 Getting Started
 
+### Deployment Options
+
+**Choose your deployment method:**
+
+1. **Local Development** (Quick start, localhost)
+   - Follow the setup instructions below
+   - Perfect for testing and development
+   - Runs on http://localhost:8080/
+
+2. **Azure Static Web Apps** (Cloud hosting, production)
+   - Deploy to Azure for team-wide access
+   - Automatic CI/CD from GitHub
+   - Free tier available
+   - See [AZURE_DEPLOYMENT.md](AZURE_DEPLOYMENT.md) for full guide
+
 ### Prerequisites
 - A modern web browser (Chrome, Edge, Firefox, Safari)
 - **Azure CLI** - Required for automated setup script
