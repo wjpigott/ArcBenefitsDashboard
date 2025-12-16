@@ -51,6 +51,14 @@ Many organizations with Software Assurance (SA) subscriptions don't fully utiliz
    - 🔒 HTTPS and custom domains included
    - 📋 **See [infrastructure/README.md](infrastructure/README.md) for complete step-by-step deployment guide**
 
+3. **Azure Workbook** (Portal-native, no hosting required)
+   - 📊 Native Azure Portal experience
+   - ⚡ Real-time KQL queries against Resource Graph
+   - 🎯 Tab-based navigation with detailed drill-downs
+   - 💰 Customizable cost parameters at top of workbook
+   - 🔧 No authentication setup required (uses Portal auth)
+   - 📋 **See [workbook/README.md](workbook/README.md) for complete workbook documentation**
+
 ### Prerequisites
 - A modern web browser (Chrome, Edge, Firefox, Safari)
 - **Azure CLI** - Required for automated setup script
@@ -462,6 +470,10 @@ ArcBenefitsDashboard/
 ├── config.example.js          # Template for config.js
 ├── Setup-AzureApp.ps1         # Automated Azure AD setup script
 ├── Start-Server.ps1           # Local web server for testing
+├── workbook/                  # Azure Workbook version (Portal-native alternative)
+│   ├── arc-benefits-workbook.json  # Workbook template with customizable cost parameters
+│   ├── Deploy-Workbook-AzPowerShell.ps1  # Deployment script
+│   └── README.md             # Workbook-specific documentation
 ├── infrastructure/            # Infrastructure as Code for Azure deployment
 │   ├── main.bicep            # Bicep template for Static Web App
 │   ├── main.parameters.json  # Deployment parameters

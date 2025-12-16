@@ -5,11 +5,12 @@ This folder contains an Azure Workbook template that provides a native Azure Por
 ## Features
 
 - 📊 Subscription filtering
-- 🔍 Arc server detection across 11 capabilities
+- 🔍 Arc server detection across 9 Arc capabilities
 - 📈 Configured vs. Unconfigured server counts
-- 💰 Calculated savings based on fixed cost rates
-- 📋 Detailed server lists (expandable sections)
+- 💰 Calculated savings with customizable cost rates
+- 📋 Tab-based navigation with detailed drill-down views
 - 🎨 Visual status indicators
+- ⚙️ Easy cost editing via parameters at top of workbook
 
 ## What's Included vs. Static Web App
 
@@ -22,10 +23,8 @@ This folder contains an Azure Workbook template that provides a native Azure Por
 - Summary statistics
 
 ### ❌ Not Available in Workbook
-- Custom cost editing (uses fixed rates)
 - localStorage persistence
 - Custom modals and detailed UI
-- Interactive cost customization
 - Some advanced styling/branding
 
 ## Installation
@@ -88,35 +87,42 @@ az deployment group create `
    - Savings are calculated using fixed per-server/year rates
    - Formulas are transparent in the KQL queries
 
-## Cost Rates (Fixed)
+## Cost Rates (Customizable)
 
-These are the annual per-server cost/risk values used in calculations:
+These are the default annual per-server cost/risk values used in calculations:
 
-| Service | Cost/Server/Year |
-|---------|-----------------|
-| Update Manager | $400 |
+| Service | Default Cost/Server/Year |
+|---------|-------------------------|
 | Defender for Cloud | $450 |
+| Update Manager | $400 |
 | Guest Configuration | $350 |
-| Change Tracking | $300 |
-| Automated Configuration | $275 |
+| Inventory & Tracking | $300 |
 | Best Practice Assessment | $250 |
+| Hotpatching (WS2025) | $225 |
 | Monitoring & Insights | $200 |
 | Resource Tagging | $150 |
 | Windows Admin Center | $125 |
-| Hotpatching (WS2025) | $225 |
 
-To change these values, edit the KQL queries in the workbook's Advanced Editor.
+To change these values, see the "Modify Cost Values" section below.
 
 ## Customization
 
 ### Modify Cost Values
 
+**Easy Method (Recommended):**
+1. Open the workbook
+2. Click "Edit" mode at the top
+3. Scroll to the top and you'll see cost parameters (DefenderCost, UpdateManagerCost, etc.)
+4. Edit the values directly in the parameter fields
+5. Click "Done Editing" and "Save"
+
+**Advanced Method:**
 1. Open the workbook
 2. Click "Edit" mode
 3. Click "Advanced Editor" (</> icon)
-4. Search for cost values like `400` (Update Manager cost)
-5. Update the numbers in the KQL `extend` statements
-6. Click "Apply" and "Done Editing"
+4. Find the cost parameters section near the top (around lines 15-70)
+5. Modify the "value" field for each cost parameter
+6. Click "Apply", "Done Editing", and "Save"
 
 ### Add More Benefits
 
@@ -182,13 +188,13 @@ To change these values, edit the KQL queries in the workbook's Advanced Editor.
 
 | Feature | Static Web App | Azure Workbook |
 |---------|---------------|----------------|
-| Custom Costs | ✅ Editable | ❌ Fixed |
-| Expandable Rows | ✅ Beautiful UI | ⚠️ Separate tables |
-| Modal Details | ✅ Rich modals | ❌ Inline only |
+| Custom Costs | ✅ Modal UI | ✅ Parameters |
+| Expandable Rows | ✅ Beautiful UI | ✅ Tab navigation |
+| Modal Details | ✅ Rich modals | ✅ Detail tabs |
 | Authentication | MSAL.js | Azure Portal auth |
 | Hosting | Static Web Apps | Native Portal |
 | Sharing | URL | Portal permissions |
-| Customization | Full control | Limited to KQL |
+| Customization | Full control | KQL + Parameters |
 | Cost | Free tier | Free |
 
 ## Support
