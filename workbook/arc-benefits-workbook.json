@@ -9,6 +9,13 @@
       "name": "title"
     },
     {
+      "type": 1,
+      "content": {
+        "json": "### 💰 Labor Costs\n\nEnter the estimated annual labor cost per server for managing each Arc capability:"
+      },
+      "name": "labor-costs-header"
+    },
+    {
       "type": 9,
       "content": {
         "version": "KqlParameterItem/1.0",
@@ -17,7 +24,7 @@
             "id": "defender-cost",
             "version": "KqlParameterItem/1.0",
             "name": "DefenderCost",
-            "label": "Defender for Cloud Labor $",
+            "label": "Defender for Cloud",
             "type": 1,
             "value": "450"
           },
@@ -25,7 +32,7 @@
             "id": "updatemanager-cost",
             "version": "KqlParameterItem/1.0",
             "name": "UpdateManagerCost",
-            "label": "Update Manager Labor $",
+            "label": "Update Manager",
             "type": 1,
             "value": "400"
           },
@@ -33,7 +40,7 @@
             "id": "guestconfig-cost",
             "version": "KqlParameterItem/1.0",
             "name": "GuestConfigCost",
-            "label": "Guest Configuration Labor $",
+            "label": "Guest Configuration",
             "type": 1,
             "value": "350"
           },
@@ -41,7 +48,7 @@
             "id": "inventory-cost",
             "version": "KqlParameterItem/1.0",
             "name": "InventoryCost",
-            "label": "Inventory & Tracking Labor $",
+            "label": "Inventory & Tracking",
             "type": 1,
             "value": "300"
           },
@@ -49,15 +56,27 @@
             "id": "bestpractice-cost",
             "version": "KqlParameterItem/1.0",
             "name": "BestPracticeCost",
-            "label": "Best Practice Assessment Labor $",
+            "label": "Best Practice Assessment",
             "type": 1,
             "value": "250"
-          },
+          }
+        ],
+        "style": "above",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "name": "cost-parameters-row1"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
           {
             "id": "hotpatching-cost",
             "version": "KqlParameterItem/1.0",
             "name": "HotpatchingCost",
-            "label": "Hotpatching Labor $",
+            "label": "Hotpatching",
             "type": 1,
             "value": "225"
           },
@@ -65,7 +84,7 @@
             "id": "monitoring-cost",
             "version": "KqlParameterItem/1.0",
             "name": "MonitoringCost",
-            "label": "Monitoring & Insights Labor $",
+            "label": "Monitoring & Insights",
             "type": 1,
             "value": "200"
           },
@@ -73,7 +92,7 @@
             "id": "tagging-cost",
             "version": "KqlParameterItem/1.0",
             "name": "TaggingCost",
-            "label": "Resource Tagging Labor $",
+            "label": "Resource Tagging",
             "type": 1,
             "value": "150"
           },
@@ -81,7 +100,7 @@
             "id": "admincenter-cost",
             "version": "KqlParameterItem/1.0",
             "name": "AdminCenterCost",
-            "label": "Windows Admin Center Labor $",
+            "label": "Windows Admin Center",
             "type": 1,
             "value": "125"
           }
@@ -90,7 +109,7 @@
         "queryType": 1,
         "resourceType": "microsoft.resourcegraph/resources"
       },
-      "name": "cost-parameters"
+      "name": "cost-parameters-row2"
     },
     {
       "type": 1,
