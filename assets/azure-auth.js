@@ -512,8 +512,8 @@ class AzureService {
                 
                 // Check Guest Configuration (via guestconfigurationresources assignments)
                 // Guest Configuration is enabled when there are actual configuration assignments
-                const machineConfig = configsByMachine.get(serverNameLower);
-                const hasGuestConfig = machineConfig && machineConfig.assignmentCount > 0;
+                const guestConfigData = configsByMachine.get(serverNameLower);
+                const hasGuestConfig = guestConfigData && guestConfigData.assignmentCount > 0;
                 
                 if (hasGuestConfig) {
                     analysis.guestConfiguration.enabled++;
