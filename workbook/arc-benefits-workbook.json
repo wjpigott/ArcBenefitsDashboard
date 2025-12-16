@@ -362,8 +362,19 @@
               "Category"
             ],
             "expandTopLevel": true
-          }
-        }
+          },
+          "labelSettings": [
+            {
+              "columnId": "ServiceName",
+              "label": "Service Name"
+            },
+            {
+              "columnId": "PotentialSavings",
+              "label": "Potential Savings"
+            }
+          ]
+        },
+        "exportToExcelOptions": "all"
       },
       "conditionalVisibility": {
         "parameterName": "selectedTab",
