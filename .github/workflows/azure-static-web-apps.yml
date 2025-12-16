@@ -19,6 +19,14 @@ jobs:
         with:
           submodules: true
           lfs: false
+      
+      - name: Generate config.js from environment variables
+        run: |
+          node generate-config.js
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
