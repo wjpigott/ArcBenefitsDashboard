@@ -122,11 +122,49 @@ If you prefer to set up the Azure AD app manually:
    - Copy the "Application (client) ID" from the Overview page
    - Copy the "Directory (tenant) ID" from the Overview page
 
-5. **Assign Azure RBAC Role**
-   - Go to your Azure Subscriptions
-   - Select "Access control (IAM)"
-   - Add role assignment: "Reader" role to your app registration
-   - This allows the app to query Arc server data
+### Step 3: Grant Reader Role on Subscriptions
+
+After creating your Azure AD app, you need to grant it Reader permissions on your Azure subscriptions so it can query Arc-enabled servers.
+
+#### Option A: Automated Script (Recommended)
+
+Use the provided PowerShell script to grant Reader role on all or selected subscriptions:
+
+```powershell
+# Grant on ALL subscriptions you have access to
+.\Grant-ReaderRole.ps1 -AllSubscriptions
+
+# Interactive mode - select specific subscriptions
+.\Grant-ReaderRole.ps1
+
+# Grant on a specific subscription
+.\Grant-ReaderRole.ps1 -SubscriptionId "12345678-1234-1234-1234-123456789012"
+```
+
+The script will:
+- ✅ Read your App ID from `config.js` (or prompt for it)
+- ✅ Create a service principal if needed
+- ✅ Show all your enabled subscriptions
+- ✅ Let you select which subscriptions to grant access to
+- ✅ Skip subscriptions that already have the role assigned
+- ✅ Provide a summary of successful and failed assignments
+
+**For organizations with many subscriptions (100+)**, use `-AllSubscriptions` to automate the process.
+
+#### Option B: Manual Assignment
+
+If you prefer to assign roles manually:
+
+1. Go to [Azure Portal](https://portal.azure.com) → Subscriptions
+2. Select a subscription
+3. Click "Access control (IAM)"
+4. Click "Add" → "Add role assignment"
+5. Select "Reader" role
+6. Search for your app registration by name
+7. Click "Save"
+8. Repeat for each subscription
+
+**Note:** The Reader role is read-only and allows the app to query Arc server inventory without making any changes.
 
 ### Installation
 
