@@ -52,11 +52,13 @@ A dedicated section highlighting free benefits that many organizations don't rea
    - Perfect for testing and development
    - Runs on http://localhost:8080/
 
-2. **Azure Static Web Apps** (Cloud hosting, production)
-   - Deploy to Azure for team-wide access
-   - Automatic CI/CD from GitHub
-   - Free tier available
-   - See [AZURE_DEPLOYMENT.md](AZURE_DEPLOYMENT.md) for full guide
+2. **Azure Static Web Apps** (Cloud hosting, production-ready)
+   - 🌐 Deploy to Azure for team-wide access
+   - 🔄 Automatic CI/CD from GitHub
+   - 💰 Free tier available
+   - 🔒 HTTPS and custom domains included
+   - 📋 **See [infrastructure/README.md](infrastructure/README.md) for complete deployment guide**
+   - **Quick deploy**: Run `.\infrastructure\Deploy-Infrastructure.ps1 -ResourceGroupName "rg-arc-benefits" -GitHubPAT "YOUR-TOKEN"`
 
 ### Prerequisites
 - A modern web browser (Chrome, Edge, Firefox, Safari)
@@ -397,15 +399,38 @@ For questions about:
 
 ## 🔐 Security Notes
 
-- `config.js` containing your Azure credentials is excluded from git via `.gitignore`
-- Never commit `config.js` to version control
-- Use `config.example.js` as a template for others
 - The app uses delegated permissions - users can only see data they have access to
 - Authentication tokens are stored in browser localStorage
 - Recommend using single-tenant app registration for production
+- For production deployments, each organization should create their own Azure AD app
+- Update `config.js` with your own Client ID and Tenant ID after running `Setup-AzureApp.ps1`
+
+## 📦 Repository Structure
+
+```
+ArcBenefitsDashboard/
+├── index.html                  # Main dashboard HTML
+├── assets/
+│   ├── app.js                 # Dashboard logic and Azure integration
+│   ├── azure-auth.js          # Azure AD authentication
+│   └── styles.css             # Dashboard styling
+├── config.js                  # Azure AD app configuration (update with your IDs)
+├── config.example.js          # Template for config.js
+├── Setup-AzureApp.ps1         # Automated Azure AD setup script
+├── Start-Server.ps1           # Local web server for testing
+├── infrastructure/            # Infrastructure as Code for Azure deployment
+│   ├── main.bicep            # Bicep template for Static Web App
+│   ├── main.parameters.json  # Deployment parameters
+│   ├── Deploy-Infrastructure.ps1  # Deployment automation script
+│   └── README.md             # Complete IaC deployment guide
+├── .github/workflows/         # GitHub Actions for CI/CD
+│   └── azure-static-web-apps.yml
+└── generate-config.js         # Config generation script (optional)
+```
 
 ---
 
 **Version**: 1.0.0  
 **Last Updated**: December 2025  
+**Live Demo**: https://mango-bush-0a0ab4f0f.3.azurestaticapps.net
 **Built for**: Microsoft Arc Teams
