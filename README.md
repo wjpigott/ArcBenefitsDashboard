@@ -45,13 +45,19 @@ A dedicated section highlighting free benefits that many organizations don't rea
 
 ### Prerequisites
 - A modern web browser (Chrome, Edge, Firefox, Safari)
-- Azure AD App Registration (for live Azure data)
-- Azure CLI (for automated setup script)
-- Reader role on Azure subscriptions you want to query
+- **Azure CLI** - Required for automated setup script
+  - Download: https://aka.ms/installazurecliwindows (Windows)
+  - Download: https://docs.microsoft.com/cli/azure/install-azure-cli (Mac/Linux)
+- Azure AD App Registration (created automatically by setup script, or manually)
+- Reader role on Azure subscriptions you want to query (assigned after app creation)
 
 ### Quick Setup with Azure
 
 #### Option 1: Automated Setup (Recommended)
+
+**Prerequisites:** Azure CLI must be installed first
+- Windows: https://aka.ms/installazurecliwindows
+- Mac/Linux: https://docs.microsoft.com/cli/azure/install-azure-cli
 
 Use the provided PowerShell script to automatically configure your Azure AD app registration:
 

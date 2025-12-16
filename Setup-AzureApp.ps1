@@ -1,4 +1,4 @@
-# Setup Azure AD App Registration for Arc Benefits Dashboard
+﻿# Setup Azure AD App Registration for Arc Benefits Dashboard
 # This script creates or updates an Azure AD app registration with the required API permissions
 
 param(
@@ -141,3 +141,4 @@ Write-Host "🔗 Useful Links:" -ForegroundColor Cyan
 Write-Host "  App Registration: https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Overview/appId/$appId" -ForegroundColor Gray
 Write-Host "  API Permissions:  https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/CallAnAPI/appId/$appId" -ForegroundColor Gray
 Write-Host ""
+
