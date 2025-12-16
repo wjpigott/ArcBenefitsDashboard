@@ -46,8 +46,7 @@ Many organizations with Software Assurance (SA) subscriptions don't fully utiliz
    - 🔄 Automatic CI/CD from GitHub
    - 💰 Free tier available
    - 🔒 HTTPS and custom domains included
-   - 📋 **See [infrastructure/README.md](infrastructure/README.md) for complete deployment guide**
-   - **Quick deploy**: Run `.\infrastructure\Deploy-Infrastructure.ps1 -ResourceGroupName "rg-arc-benefits" -GitHubPAT "YOUR-TOKEN"`
+   - 📋 **See [infrastructure/README.md](infrastructure/README.md) for complete step-by-step deployment guide**
 
 ### Prerequisites
 - A modern web browser (Chrome, Edge, Firefox, Safari)

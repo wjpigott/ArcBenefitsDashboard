@@ -8,7 +8,6 @@ This guide provides complete Infrastructure as Code (IaC) deployment for the Arc
 infrastructure/
 ├── main.bicep                    # Bicep template (main IaC definition)
 ├── main.parameters.json          # Parameters file (customize your deployment)
-├── Deploy-Infrastructure.ps1     # PowerShell deployment script
 └── README.md                     # This file
 ```
 
@@ -21,124 +20,139 @@ infrastructure/
    az --version
    ```
 
-2. **GitHub Personal Access Token (PAT)**
+2. **Azure AD App Registration**
+   - Run `Setup-AzureApp.ps1` first (from repository root)
+   - This creates the Azure AD app and generates `config.js`
+
+3. **GitHub Personal Access Token (PAT)**
    - Go to: https://github.com/settings/tokens
    - Click "Generate new token (classic)"
-   - Select scopes: `repo`, `workflow`
+   - Select scopes: **`repo`**, **`workflow`**, **`admin:repo_hook`**
    - Copy the token (starts with `ghp_`)
+   - ⚠️ Save it securely - you won't see it again!
 
-3. **Azure Subscription**
+4. **Azure Subscription**
    - Contributor access to create resources
 
-### One-Command Deployment
+### Step-by-Step Deployment
 
+**1. Setup Azure AD App (if not already done):**
+```powershell
+cd ..
+.\Setup-AzureApp.ps1
+```
+
+**2. Note your credentials from `config.js`:**
+- Client ID
+- Tenant ID
+
+**3. Deploy to Azure:**
 ```powershell
 cd infrastructure
 
-.\Deploy-Infrastructure.ps1 `
-  -ResourceGroupName "rg-arc-benefits" `
-  -GitHubPAT "ghp_YOUR_GITHUB_TOKEN_HERE"
-```
-
-That's it! The script will:
-- ✅ Create resource group
-- ✅ Deploy Static Web App
-- ✅ Configure GitHub Actions integration
-- ✅ Output the deployment URL
-- ✅ Provide next steps
-
----
-
-## 📋 Detailed Deployment Options
-
-### Option 1: Using PowerShell Script (Recommended)
-
-**Basic deployment:**
-```powershell
-.\Deploy-Infrastructure.ps1 `
-  -ResourceGroupName "rg-arc-benefits" `
-  -GitHubPAT "ghp_xxxxxxxxxxxx"
-```
-
-**Custom location:**
-```powershell
-.\Deploy-Infrastructure.ps1 `
-  -ResourceGroupName "rg-arc-benefits-prod" `
-  -Location "westus2" `
-  -StaticWebAppName "arc-dashboard-prod" `
-  -GitHubPAT "ghp_xxxxxxxxxxxx"
-```
-
-**With pre-configured Azure AD:**
-```powershell
-.\Deploy-Infrastructure.ps1 `
-  -ResourceGroupName "rg-arc-benefits" `
-  -AzureClientId "YOUR-CLIENT-ID" `
-  -AzureTenantId "YOUR-TENANT-ID" `
-  -GitHubPAT "ghp_xxxxxxxxxxxx"
-```
-
-**Standard SKU (for enterprise features):**
-```powershell
-.\Deploy-Infrastructure.ps1 `
-  -ResourceGroupName "rg-arc-benefits-enterprise" `
-  -SkuName "Standard" `
-  -GitHubPAT "ghp_xxxxxxxxxxxx"
-```
-
----
-
-### Option 2: Using Azure CLI Directly
-
-**Step-by-step deployment:**
-
-```powershell
-# 1. Login to Azure
-az login
-
-# 2. Set subscription (if you have multiple)
-az account set --subscription "YOUR-SUBSCRIPTION-NAME"
-
-# 3. Create resource group
+# Create resource group
 az group create `
   --name "rg-arc-benefits" `
   --location "eastus2" `
   --tags "Application=Arc-Benefits-Dashboard" "ManagedBy=IaC"
 
-# 4. Deploy Bicep template
+# Deploy Static Web App with Bicep
 az deployment group create `
-  --name "arc-benefits-$(Get-Date -Format 'yyyyMMdd-HHmmss')" `
+  --name "arc-benefits-deployment-$(Get-Date -Format 'yyyyMMdd-HHmmss')" `
   --resource-group "rg-arc-benefits" `
   --template-file "main.bicep" `
-  --parameters staticWebAppName="arc-benefits-dashboard" `
-  --parameters location="eastus2" `
-  --parameters sku="Free" `
-  --parameters repositoryUrl="https://github.com/wjpigott/ArcBenefitsDashboard" `
-  --parameters repositoryBranch="main" `
-  --parameters repositoryToken="YOUR-GITHUB-PAT"
-
-# 5. Get the deployment URL
-az staticwebapp show `
-  --name "arc-benefits-dashboard" `
-  --resource-group "rg-arc-benefits" `
-  --query "defaultHostname" -o tsv
+  --parameters `
+    staticWebAppName="arc-benefits-dashboard" `
+    location="eastus2" `
+    sku="Free" `
+    repositoryUrl="https://github.com/YOUR-USERNAME/ArcBenefitsDashboard" `
+    repositoryBranch="main" `
+    repositoryToken="YOUR-GITHUB-PAT" `
+    azureClientId="YOUR-CLIENT-ID" `
+    azureTenantId="YOUR-TENANT-ID"
 ```
+
+**4. Update Azure AD redirect URI:**
+```powershell
+# Get the Static Web App URL from deployment output
+$appUrl = "https://YOUR-STATIC-WEB-APP-URL.azurestaticapps.net/"
+
+# Add it to your Azure AD app
+$appObjectId = (az ad app show --id YOUR-CLIENT-ID --query id -o tsv)
+$currentUris = (az ad app show --id YOUR-CLIENT-ID --query 'spa.redirectUris' -o json | ConvertFrom-Json)
+$newUris = $currentUris + @($appUrl)
+$body = @{spa=@{redirectUris=$newUris}} | ConvertTo-Json
+$body | Out-File -FilePath "$env:TEMP\app-update.json" -Encoding UTF8
+az rest --method PATCH --uri "https://graph.microsoft.com/v1.0/applications/$appObjectId" --body "@$env:TEMP\app-update.json"
+Remove-Item "$env:TEMP\app-update.json"
+```
+
+**5. Grant RBAC permissions:**
+```powershell
+cd ..
+.\Grant-ReaderRole.ps1 -AllSubscriptions
+```
+
+That's it! Your deployment is complete.
 
 ---
 
-### Option 3: Using Bicep with Parameters File
+## 📋 Customization Options
 
-**1. Customize parameters file:**
+### Different Locations
 
-Edit `main.parameters.json`:
+Deploy to a different Azure region:
+```powershell
+az deployment group create `
+  --name "arc-benefits-deployment-$(Get-Date -Format 'yyyyMMdd-HHmmss')" `
+  --resource-group "rg-arc-benefits" `
+  --template-file "main.bicep" `
+  --parameters `
+    staticWebAppName="arc-benefits-dashboard" `
+    location="westus2" `
+    sku="Free" `
+    repositoryUrl="https://github.com/YOUR-USERNAME/ArcBenefitsDashboard" `
+    repositoryBranch="main" `
+    repositoryToken="YOUR-GITHUB-PAT" `
+    azureClientId="YOUR-CLIENT-ID" `
+    azureTenantId="YOUR-TENANT-ID"
+```
+
+### Standard SKU (Enterprise Features)
+
+Deploy with Standard SKU for custom domains, staging environments, and higher limits:
+```powershell
+az deployment group create `
+  --name "arc-benefits-deployment-$(Get-Date -Format 'yyyyMMdd-HHmmss')" `
+  --resource-group "rg-arc-benefits" `
+  --template-file "main.bicep" `
+  --parameters `
+    staticWebAppName="arc-benefits-dashboard" `
+    location="eastus2" `
+    sku="Standard" `
+    repositoryUrl="https://github.com/YOUR-USERNAME/ArcBenefitsDashboard" `
+    repositoryBranch="main" `
+    repositoryToken="YOUR-GITHUB-PAT" `
+    azureClientId="YOUR-CLIENT-ID" `
+    azureTenantId="YOUR-TENANT-ID"
+```
+
+### Using Parameters File
+
+Edit `main.parameters.json` with your values:
 ```json
 {
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
   "parameters": {
     "staticWebAppName": {
       "value": "your-custom-name"
     },
     "location": {
-      "value": "westus2"
+      "value": "eastus2"
+    },
+    "sku": {
+      "value": "Free"
     },
     "azureClientId": {
       "value": "YOUR-CLIENT-ID"
@@ -150,42 +164,14 @@ Edit `main.parameters.json`:
 }
 ```
 
-**2. Deploy with parameters:**
+Then deploy:
 ```powershell
 az deployment group create `
-  --name "arc-benefits-deployment" `
+  --name "arc-benefits-deployment-$(Get-Date -Format 'yyyyMMdd-HHmmss')" `
   --resource-group "rg-arc-benefits" `
   --template-file "main.bicep" `
   --parameters "@main.parameters.json" `
   --parameters repositoryToken="YOUR-GITHUB-PAT"
-```
-
----
-
-## 🔐 Secure Token Management
-
-### Option 1: Azure Key Vault (Recommended for Production)
-
-**Store GitHub PAT in Key Vault:**
-```powershell
-# Create Key Vault
-az keyvault create `
-  --name "kv-arc-benefits" `
-  --resource-group "rg-arc-benefits" `
-  --location "eastus2"
-
-# Store GitHub PAT
-az keyvault secret set `
-  --vault-name "kv-arc-benefits" `
-  --name "github-pat-token" `
-  --value "ghp_xxxxxxxxxxxx"
-
-# Deploy using Key Vault reference
-az deployment group create `
-  --name "arc-benefits-deployment" `
-  --resource-group "rg-arc-benefits" `
-  --template-file "main.bicep" `
-  --parameters "@main.parameters.json"
 ```
 
 Update `main.parameters.json`:
