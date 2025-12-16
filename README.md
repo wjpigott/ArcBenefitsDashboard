@@ -56,7 +56,9 @@ Many organizations with Software Assurance (SA) subscriptions don't fully utiliz
    - 📊 Native Azure Portal experience
    - ⚡ Real-time KQL queries against Resource Graph
    - 🎯 Tab-based navigation with detailed drill-downs
-   - 💰 Customizable cost parameters at top of workbook
+   - 💰 Customizable labor cost parameters in easy-to-use form
+   - 📈 Total Estimated Labor Savings displayed at bottom of overview table
+   - 📊 Export to Excel functionality built-in
    - 🔧 No authentication setup required (uses Portal auth)
    - 📋 **See [workbook/README.md](workbook/README.md) for complete workbook documentation**
   
@@ -422,14 +424,13 @@ The dashboard tracks 11 Azure Arc-enabled server capabilities:
 - Microsoft Defender for Cloud
 - Guest Configuration (Compliance)
 - Best Practice Assessment
+- Hotpatching (Windows Server 2025)
 - Resource Tagging
 
 **Deployment & Management:**
 - Inventory & Change Tracking
 - Monitoring & Insights (Azure Monitor)
-- Automated Machine Configuration
 - Windows Admin Center Extension
-- Hotpatching (Windows Server 2025)
 
 All benefits show:
 - Number of servers configured vs. not configured
