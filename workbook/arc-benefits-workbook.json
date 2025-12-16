@@ -951,7 +951,7 @@
     {
       "type": 1,
       "content": {
-        "json": "---\n\n### 📝 Notes\n\n**To Edit Pricing:**\n1. Click \"Edit\" at the top of the workbook\n2. Scroll to the top and modify the cost parameter values (DefenderCost, UpdateManagerCost, etc.)\n3. Click \"Done Editing\" → \"Save\""
+        "json": "---\n\n### 📝 Notes"
       },
       "name": "notes"
     },
