@@ -31,16 +31,6 @@ Many organizations with Software Assurance (SA) subscriptions don't fully utiliz
 - **Export Reports**: Generate JSON reports of your current benefit usage
 - **Detailed Views**: View comprehensive information about each benefit
 
-### Free Benefits Sidebar
-A dedicated section highlighting free benefits that many organizations don't realize they have access to, including:
-- Windows 365 Cloud PC Access
-- Azure Hybrid Benefit
-- Extended Security Updates (ESU)
-- Home Use Program
-- Disaster Recovery Rights
-- Windows Autopatch
-- And more!
-
 ## 🚀 Getting Started
 
 ### Deployment Options
