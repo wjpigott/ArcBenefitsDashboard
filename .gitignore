@@ -1,5 +1,5 @@
-# Azure Configuration (contains sensitive credentials)
-config.js
+# Azure Configuration - now committed for easier deployment
+# Users can modify config.js with their own Azure AD app IDs
 
 # IDE and Editor files
 .vscode/
