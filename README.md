@@ -104,11 +104,14 @@ If you prefer to set up the Azure AD app manually:
    
    **Note:** If you don't have admin privileges, you may need to use Azure AD Privileged Identity Management (PIM) to elevate your access temporarily to grant consent. Navigate to the API permissions page and click "Grant admin consent for [Your Organization]".
 
-3. **Note your credentials**
+   <img width="2590" height="1397" alt="image" src="https://github.com/user-attachments/assets/2f29872b-365e-4527-92c7-e149d980c0ec" />
+
+
+4. **Note your credentials**
    - Copy the "Application (client) ID" from the Overview page
    - Copy the "Directory (tenant) ID" from the Overview page
 
-4. **Assign Azure RBAC Role**
+5. **Assign Azure RBAC Role**
    - Go to your Azure Subscriptions
    - Select "Access control (IAM)"
    - Add role assignment: "Reader" role to your app registration
