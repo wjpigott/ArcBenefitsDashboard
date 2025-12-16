@@ -951,7 +951,7 @@
     {
       "type": 1,
       "content": {
-        "json": "---\n\n### 📝 Notes"
+        "json": "---\n\n### 📝 Notes\n\n**Export to Excel:** Click the \"↓\" (Export) button at the top of any table to download data to Excel."
       },
       "name": "notes"
     },
