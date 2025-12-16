@@ -93,6 +93,13 @@
       "name": "cost-parameters"
     },
     {
+      "type": 1,
+      "content": {
+        "json": "💡 **Cost Parameters:** The values above represent estimated annual labor/operational costs per server for managing each Arc capability. These are customizable estimates used to calculate potential savings from unconfigured servers. Edit these values to match your organization's costs.\n\n📚 [Learn more about Windows Server software assurance benefits and pricing](https://learn.microsoft.com/en-us/azure/azure-arc/servers/windows-server-management-overview)"
+      },
+      "name": "cost-note"
+    },
+    {
       "type": 9,
       "content": {
         "version": "KqlParameterItem/1.0",
@@ -289,7 +296,8 @@
               "columnMatch": "PotentialSavings",
               "formatter": 4,
               "formatOptions": {
-                "palette": "blue"
+                "palette": "blue",
+                "customColumnWidthSetting": "20ch"
               },
               "numberFormat": {
                 "unit": 0,
