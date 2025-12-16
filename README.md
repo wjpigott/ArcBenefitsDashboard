@@ -30,6 +30,9 @@ Many organizations with Software Assurance (SA) subscriptions don't fully utiliz
 - **Export Reports**: Generate JSON reports of your current benefit usage
 - **Detailed Views**: View comprehensive information about each benefit
 
+<img width="1033" height="834" alt="image" src="https://github.com/user-attachments/assets/25c04036-5452-4c20-bb18-51cb807214fe" />
+
+
 ## 🚀 Getting Started
 
 ### Deployment Options
