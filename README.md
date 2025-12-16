@@ -17,13 +17,12 @@ Many organizations with Software Assurance (SA) subscriptions don't fully utiliz
 ### Dashboard Overview
 - **Real-time Statistics**: See total benefits, unused benefits, active benefits, and potential savings at a glance
 - **Visual Indicators**: Color-coded cards show benefit status (active/unused) and type (free/paid)
-- **Filtering**: Filter benefits by category (free items, training, deployment, security) and status (active/unused)
+- **Filtering**: Filter benefits by category (security, deployment, free benefits) and status (active/unused)
 
 ### Benefit Categories
-- **Free Items**: Benefits included at no additional cost with SA
-- **Training & Support**: Learning resources and technical support options
-- **Deployment Rights**: Licensing flexibility and deployment capabilities
-- **Security & Compliance**: Security updates and compliance features
+- **Security & Compliance**: Security updates and compliance features for Arc-enabled servers
+- **Deployment & Management**: Deployment tools and management capabilities
+- **Free Benefits**: Benefits included at no additional cost
 
 ### Interactive Features
 - **Toggle Benefits**: Mark benefits as active or inactive
