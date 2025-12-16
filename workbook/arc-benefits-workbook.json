@@ -269,7 +269,6 @@
               "formatter": 18,
               "formatOptions": {
                 "palette": "green",
-                "customColumnWidthSetting": "10ch",
                 "thresholdsOptions": "icons",
                 "thresholdsGrid": [
                   {
@@ -292,7 +291,6 @@
               "formatter": 18,
               "formatOptions": {
                 "palette": "red",
-                "customColumnWidthSetting": "10ch",
                 "thresholdsOptions": "icons",
                 "thresholdsGrid": [
                   {
@@ -374,7 +372,9 @@
             }
           ]
         },
-        "exportToExcelOptions": "all"
+        "sortBy": [],
+        "exportToExcelOptions": "all",
+        "showExportToExcel": true
       },
       "conditionalVisibility": {
         "parameterName": "selectedTab",
