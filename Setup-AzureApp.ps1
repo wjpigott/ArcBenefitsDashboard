@@ -77,9 +77,23 @@ if ($UseExistingApp -and $ExistingAppId) {
 Write-Host ""
 Write-Host "🔧 Configuring app registration..." -ForegroundColor Yellow
 
-# Update redirect URI for SPA
-Write-Host "  → Setting redirect URI: $RedirectUri" -ForegroundColor Cyan
-az ad app update --id $appId --web-redirect-uris $RedirectUri --enable-id-token-issuance true | Out-Null
+# Get the object ID of the app
+$appObjectId = (az ad app show --id $appId --query id -o tsv)
+
+# Update redirect URI for SPA (Single-Page Application)
+Write-Host "  → Setting SPA redirect URI: $RedirectUri" -ForegroundColor Cyan
+$body = @{
+    spa = @{
+        redirectUris = @($RedirectUri)
+    }
+    web = @{
+        redirectUris = @()
+    }
+} | ConvertTo-Json -Depth 10
+
+$body | Out-File -FilePath "$env:TEMP\app-update.json" -Encoding UTF8
+az rest --method PATCH --uri "https://graph.microsoft.com/v1.0/applications/$appObjectId" --headers "Content-Type=application/json" --body "@$env:TEMP\app-update.json" | Out-Null
+Remove-Item "$env:TEMP\app-update.json" -ErrorAction SilentlyContinue
 
 # Add Microsoft Graph permissions
 Write-Host "  → Adding Microsoft Graph API permissions..." -ForegroundColor Cyan
