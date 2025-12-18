@@ -59,6 +59,14 @@
             "label": "Best Practice Assessment",
             "type": 1,
             "value": "100"
+          },
+          {
+            "id": "hotpatching-cost",
+            "version": "KqlParameterItem/1.0",
+            "name": "HotpatchingCost",
+            "label": "Hotpatching",
+            "type": 1,
+            "value": "220"
           }
         ],
         "style": "above",
@@ -72,14 +80,6 @@
       "content": {
         "version": "KqlParameterItem/1.0",
         "parameters": [
-          {
-            "id": "hotpatching-cost",
-            "version": "KqlParameterItem/1.0",
-            "name": "HotpatchingCost",
-            "label": "Hotpatching",
-            "type": 1,
-            "value": "220"
-          },
           {
             "id": "monitoring-cost",
             "version": "KqlParameterItem/1.0",
