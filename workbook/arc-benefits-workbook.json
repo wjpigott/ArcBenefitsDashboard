@@ -415,6 +415,18 @@
       "name": "update-manager-header"
     },
     {
+      "type": 1,
+      "content": {
+        "json": "#### 📋 Notes: Azure Update Manager\n\n**What it provides:**\n- Centralized patch visibility across all servers—Azure, on-premises, VMware, GCP, AWS\n- Automated scheduling, maintenance windows, compliance reporting, and auditability\n- Eliminates multiple tools (WSUS, SCCM, custom scripts, spreadsheets)\n\n**If not used:**\n- Manual patching takes 20–45 minutes per server per cycle\n- Multiple tools = duplicated operational effort\n- Higher likelihood of missed patches and extended vulnerability exposure\n- Significant time spent assembling compliance evidence for audits\n\n**Labor cost formula:**  \n`Servers × Patch Time/Month × Fully Loaded Labor Rate`\n\n**Example:**  \n500 servers × 0.5 hrs × $80/hr = **$20,000 per month saved**"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "updatemanager"
+      },
+      "name": "update-manager-notes"
+    },
+    {
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
@@ -477,6 +489,18 @@
         "value": "tagging"
       },
       "name": "tagging-header"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "#### 📋 Notes: Resource Tagging (with Chargeback/FinOps Benefits)\n\n**What it provides:**\n- Standardized tagging for owner, department, environment, cost center\n- Enables automated reporting for chargeback/showback to departments\n- Supports lifecycle automation (cleanup, patch grouping, compliance)\n- Helps FinOps teams accurately track hybrid costs\n\n**If not used:**\n- Chargeback/showback processes require manual spreadsheet tracking\n- Teams spend 5–10 hours per month reconciling server ownership\n- Higher risk of orphaned assets and unassigned costs\n- Poor visibility slows budget planning and capacity management\n\n**Labor cost formula:**  \n`FinOps Admin Hours/Month × Labor Rate`"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "tagging"
+      },
+      "name": "tagging-notes"
     },
     {
       "type": 3,
@@ -543,6 +567,18 @@
       "name": "hotpatching-header"
     },
     {
+      "type": 1,
+      "content": {
+        "json": "#### 📋 Notes: Azure Hotpatching (Arc-Enabled Windows Server)\n\n**What it provides:**\n- Zero-reboot patching for supported Core.\n\n**If not used:**\n- Monthly reboots required. Labor and Software downtime costs.\n\n**Labor cost formula:**  \n`Servers × Reboot Coordination Time × Patch Cycles × Labor Rate`"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "hotpatching"
+      },
+      "name": "hotpatching-notes"
+    },
+    {
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
@@ -605,6 +641,18 @@
         "value": "defender"
       },
       "name": "defender-header"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "#### 📋 Notes: Azure Defender for Cloud (Arc-Enabled Servers)\n\n**What it provides:**\n- Unified security posture mgmt across hybrid.\n\n**If not used:**\n- Manual agent deploy, scans.\n\n**Labor cost formula:**  \n`Servers × Security Review Time × Scan Frequency × Labor Rate`"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "defender"
+      },
+      "name": "defender-notes"
     },
     {
       "type": 3,
@@ -671,6 +719,18 @@
       "name": "inventory-header"
     },
     {
+      "type": 1,
+      "content": {
+        "json": "#### 📋 Notes: Azure Change Tracking & Inventory\n\n**What it provides:**\n- Automated tracking of software changes, service state, registry/file modifications\n- Instant visibility when troubleshooting incidents or validating expected changes\n- Historical change timeline for audits or RCA (root cause analysis)\n\n**If not used:**\n- Manual investigation requires RDP/SSH into each server\n- Audit prep requires hand-collected software/service lists\n- Troubleshooting incidents take longer without a timeline of system changes\n\n**Labor cost formula:**  \n`Investigations/Month × Minutes Saved × Labor Rate`\n\n**Typical savings:**  \n10–20 minutes per troubleshooting event"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "inventory"
+      },
+      "name": "inventory-notes"
+    },
+    {
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
@@ -733,6 +793,18 @@
         "value": "monitoring"
       },
       "name": "monitoring-header"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "#### 📋 Notes: Monitoring & Insights\n\n**What it provides:**\n- Unified metrics, logs, alerts, and dashboards for Arc-enabled servers\n- Reduced MTTR through correlated telemetry across hybrid environments\n- Avoids running multiple monitoring agents/tools per environment\n\n**If not used:**\n- Disparate monitoring tools increase operational complexity\n- Troubleshooting requires manually collecting logs from each system\n- Longer outages increase business impact costs\n\n**Cost formula:**  \n`Reduction in MTTR × Downtime Cost per Hour`\n\n**Impact:**  \nEven small MTTR reductions can save tens of thousands per incident"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "monitoring"
+      },
+      "name": "monitoring-notes"
     },
     {
       "type": 3,
@@ -799,6 +871,18 @@
       "name": "guestconfig-header"
     },
     {
+      "type": 1,
+      "content": {
+        "json": "#### 📋 Notes: Azure Machine Configuration (Guest Configuration)\n\n**What it provides:**\n- Enforces OS, security, and application baselines at scale\n- Automated continuous compliance auditing with Azure Policy\n- Reduces drift and supports frameworks like CIS, NIST, CMMC\n\n**If not used:**\n- Manual configuration validation takes 15–30 minutes per server per quarter\n- Drift persists longer, increasing security and compliance risk\n- GPO/script-based reviews require coordination across teams\n\n**Labor cost formula:**  \n`Servers × Config Review Time × Compliance Frequency × Labor Rate`"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "guestconfig"
+      },
+      "name": "guestconfig-notes"
+    },
+    {
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
@@ -863,6 +947,18 @@
       "name": "bestpractice-header"
     },
     {
+      "type": 1,
+      "content": {
+        "json": "#### 📋 Notes: Best Practices Assessment (BPA)\n\n**What it provides:**\n- Automated scanning for security misconfigurations and performance issues\n- Prioritized remediation steps and actionable recommendations\n- Reduces risk of outages and improves standardization\n\n**If not used:**\n- Manual runbooks/checklists take 20 minutes per server monthly\n- Issues often discovered only after incidents occur\n- Higher downtime risk from hidden misconfigurations\n\n**Labor cost formula:**  \n`Servers × Monthly Health Check Time × Labor Rate`"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "bestpractice"
+      },
+      "name": "bestpractice-notes"
+    },
+    {
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
@@ -925,6 +1021,18 @@
         "value": "admincenter"
       },
       "name": "admincenter-header"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "#### 📋 Notes: Windows Admin Center in Azure (WAC in Arc)\n\n**What it provides:**\n- Secure, VPN-less server management via browser\n- Tools include Hyper-V Manager, Event Viewer, Registry Editor, PowerShell console\n- JIT access with no public IPs or inbound ports\n\n**If not used:**\n- Teams spend time configuring VPNs and temporary access\n- Management requires RDP/WinRM exposure (security risk)\n- Troubleshooting requires juggling multiple tools rather than a single pane\n\n**Labor cost formula:**  \n`Remote Access Sessions × Minutes Saved per Session × Labor Rate`\n\n**Savings:**  \n5–15 minutes per admin session"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "admincenter"
+      },
+      "name": "admincenter-notes"
     },
     {
       "type": 3,

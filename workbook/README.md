@@ -11,6 +11,14 @@ This folder contains an Azure Workbook template that provides a native Azure Por
 - 📋 Tab-based navigation with detailed drill-down views
 - 🎨 Visual status indicators
 - ⚙️ Easy cost editing via parameters at top of workbook
+- 📋 Notes sections under each tab with benefit analysis and labor cost formulas
+
+Each capability tab includes a **Notes** section that provides:
+- **What it provides**: Key benefits and value propositions
+- **If not used**: Consequences and manual labor implications
+- **Labor cost formula**: Calculation methodology for estimating savings
+
+These notes help you understand the operational and financial impact of each Arc capability.
 
 ## What's Included vs. Static Web App
 
