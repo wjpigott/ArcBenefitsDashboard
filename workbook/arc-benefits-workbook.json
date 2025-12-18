@@ -11,7 +11,7 @@
     {
       "type": 1,
       "content": {
-        "json": "### 💰 Labor Costs\n\nEnter the estimated annual labor cost per server for managing each Arc capability:"
+        "json": "### 💰 Labor Costs\n\nEnter the estimated labor cost per server for managing each Arc capability:"
       },
       "name": "labor-costs-header"
     },
