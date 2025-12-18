@@ -35,7 +35,7 @@ These notes help you understand the operational and financial impact of each Arc
 - Custom modals and detailed UI
 - Some advanced styling/branding
 
-<img width="1125" height="772" alt="image" src="https://github.com/user-attachments/assets/81b40f5c-c51a-4091-b71b-77139c0fdfee" />
+<img width="1131" height="730" alt="image" src="https://github.com/user-attachments/assets/2dd48e30-e968-4a6b-9b8a-c9654b7bbe53" />
 
 
 ## Installation
