@@ -18,18 +18,31 @@
             },
             "jsonData": "[\r\n  { \"value\": \"true\", \"label\": \"Enabled\" },\r\n  { \"value\": \"false\", \"label\": \"Disabled\" }\r\n]",
             "value": "false"
+          },
+          {
+            "id": "resourcetype-param",
+            "version": "KqlParameterItem/1.0",
+            "name": "ResourceType",
+            "label": "📊 Dashboard View",
+            "type": 10,
+            "isRequired": true,
+            "typeSettings": {
+              "showAsRadioButton": true
+            },
+            "jsonData": "[\r\n  { \"value\": \"arc\", \"label\": \"Windows Arc Benefits\" },\r\n  { \"value\": \"sql\", \"label\": \"SQL Arc Benefits\" }\r\n]",
+            "value": "arc"
           }
         ],
         "style": "above",
         "queryType": 1,
         "resourceType": "microsoft.resourcegraph/resources"
       },
-      "name": "showcosts-parameter"
+      "name": "top-parameters"
     },
     {
       "type": 1,
       "content": {
-        "json": "## 🎯 Azure Arc Benefits Dashboard v2\n\nTrack and maximize your Azure Arc-enabled server capabilities across subscriptions, including SQL Server Arc functionality."
+        "json": "## 🎯 Azure Arc Benefits Dashboard v2\n\nTrack and maximize your Azure Arc-enabled server capabilities across subscriptions."
       },
       "name": "title"
     },
@@ -222,12 +235,6 @@
         "version": "KqlParameterItem/1.0",
         "parameters": [
           {
-            "id": "resourcetype-param",
-            "name": "ResourceType",
-            "type": 1,
-            "value": "arc"
-          },
-          {
             "id": "arc-tab-param",
             "name": "ArcTab",
             "type": 1,
@@ -250,32 +257,6 @@
         "value": "true"
       },
       "name": "tab-parameter"
-    },
-    {
-      "type": 11,
-      "content": {
-        "version": "LinkItem/1.0",
-        "style": "tabs",
-        "links": [
-          {
-            "id": "arc-resourcetype-tab",
-            "cellValue": "ResourceType",
-            "linkTarget": "parameter",
-            "linkLabel": "🖥️ Arc-enabled Servers",
-            "subTarget": "arc",
-            "style": "link"
-          },
-          {
-            "id": "sql-resourcetype-tab",
-            "cellValue": "ResourceType",
-            "linkTarget": "parameter",
-            "linkLabel": "🗄️ SQL Server Arc",
-            "subTarget": "sql",
-            "style": "link"
-          }
-        ]
-      },
-      "name": "resourcetype-tabs"
     },
     {
       "type": 11,
