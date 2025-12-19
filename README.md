@@ -17,7 +17,7 @@ The **Azure Workbook** is the easiest and most powerful way to deploy this dashb
 
 **📋 Get started with the workbook:** [workbook/README.md](workbook/README.md)
 
-<img width="1366" height="687" alt="image" src="https://github.com/user-attachments/assets/208be89e-c2c7-465c-9e47-be9d32371b9b" />
+<img width="1603" height="692" alt="image" src="https://github.com/user-attachments/assets/1dcec797-d1ff-4297-a8e0-ff6923c946fe" />
 
 ---
 
