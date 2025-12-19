@@ -818,6 +818,11 @@
       },
       "conditionalVisibilities": [
         {
+          "parameterName": "ResourceType",
+          "comparison": "isEqualTo",
+          "value": "sql"
+        },
+        {
           "parameterName": "SqlTab",
           "comparison": "isEqualTo",
           "value": "overview"
@@ -924,6 +929,11 @@
         "value": "overview"
       },
       "conditionalVisibilities": [
+        {
+          "parameterName": "ResourceType",
+          "comparison": "isEqualTo",
+          "value": "sql"
+        },
         {
           "parameterName": "SqlTab",
           "comparison": "isEqualTo",
