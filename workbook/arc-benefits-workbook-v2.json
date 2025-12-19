@@ -540,6 +540,11 @@
       },
       "conditionalVisibilities": [
         {
+          "parameterName": "ResourceType",
+          "comparison": "isEqualTo",
+          "value": "arc"
+        },
+        {
           "parameterName": "ArcTab",
           "comparison": "isEqualTo",
           "value": "overview"
@@ -646,6 +651,11 @@
         "value": "overview"
       },
       "conditionalVisibilities": [
+        {
+          "parameterName": "ResourceType",
+          "comparison": "isEqualTo",
+          "value": "arc"
+        },
         {
           "parameterName": "ArcTab",
           "comparison": "isEqualTo",
