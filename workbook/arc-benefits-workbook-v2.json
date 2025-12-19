@@ -1416,9 +1416,22 @@
       "name": "monitoring-header"
     },
     {
-      "type": 1,
+      "type": 12,
       "content": {
-        "json": "#### 📋 Notes: Monitoring & Insights\n\n**What it provides:**\n- Unified metrics, logs, alerts, and dashboards for Arc-enabled servers\n- Reduced MTTR through correlated telemetry across hybrid environments\n- Avoids running multiple monitoring agents/tools per environment\n\n**If not used:**\n- Disparate monitoring tools increase operational complexity\n- Troubleshooting requires manually collecting logs from each system\n- Longer outages increase business impact costs\n\n**Cost formula:**  \n`Reduction in MTTR × Downtime Cost per Hour`\n\n**Impact:**  \nEven small MTTR reductions can save tens of thousands per incident"
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "📋 Notes: Monitoring & Insights",
+        "expandable": true,
+        "expanded": false,
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "**What it provides:**\n- Unified metrics, logs, alerts, and dashboards for Arc-enabled servers\n- Reduced MTTR through correlated telemetry across hybrid environments\n- Avoids running multiple monitoring agents/tools per environment\n\n**If not used:**\n- Disparate monitoring tools increase operational complexity\n- Troubleshooting requires manually collecting logs from each system\n- Longer outages increase business impact costs\n\n**Cost formula:**  \n`Reduction in MTTR × Downtime Cost per Hour`\n\n**Impact:**  \nEven small MTTR reductions can save tens of thousands per incident"
+            },
+            "name": "text - 0"
+          }
+        ]
       },
       "conditionalVisibility": {
         "parameterName": "ArcTab",
@@ -1492,9 +1505,22 @@
       "name": "guestconfig-header"
     },
     {
-      "type": 1,
+      "type": 12,
       "content": {
-        "json": "#### 📋 Notes: Azure Machine Configuration (Guest Configuration)\n\n**What it provides:**\n- Enforces OS, security, and application baselines at scale\n- Automated continuous compliance auditing with Azure Policy\n- Reduces drift and supports frameworks like CIS, NIST, CMMC\n\n**If not used:**\n- Manual configuration validation takes 15–30 minutes per server per quarter\n- Drift persists longer, increasing security and compliance risk\n- GPO/script-based reviews require coordination across teams\n\n** Estimated Labor cost formula:**  \n`Servers × Config Review Time × Compliance Frequency × Labor Rate`"
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "📋 Notes: Azure Machine Configuration (Guest Configuration)",
+        "expandable": true,
+        "expanded": false,
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "**What it provides:**\n- Enforces OS, security, and application baselines at scale\n- Automated continuous compliance auditing with Azure Policy\n- Reduces drift and supports frameworks like CIS, NIST, CMMC\n\n**If not used:**\n- Manual configuration validation takes 15–30 minutes per server per quarter\n- Drift persists longer, increasing security and compliance risk\n- GPO/script-based reviews require coordination across teams\n\n** Estimated Labor cost formula:**  \n`Servers × Config Review Time × Compliance Frequency × Labor Rate`"
+            },
+            "name": "text - 0"
+          }
+        ]
       },
       "conditionalVisibility": {
         "parameterName": "ArcTab",
@@ -1568,9 +1594,22 @@
       "name": "bestpractice-header"
     },
     {
-      "type": 1,
+      "type": 12,
       "content": {
-        "json": "#### 📋 Notes: Best Practices Assessment (BPA)\n\n**What it provides:**\n- Automated scanning for security misconfigurations and performance issues\n- Prioritized remediation steps and actionable recommendations\n- Reduces risk of outages and improves standardization\n\n**If not used:**\n- Manual runbooks/checklists take 20 minutes per server monthly\n- Issues often discovered only after incidents occur\n- Higher downtime risk from hidden misconfigurations\n\n** EstimatedLabor cost formula:**  \n`Servers × Monthly Health Check Time × Labor Rate`"
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "📋 Notes: Best Practices Assessment (BPA)",
+        "expandable": true,
+        "expanded": false,
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "**What it provides:**\n- Automated scanning for security misconfigurations and performance issues\n- Prioritized remediation steps and actionable recommendations\n- Reduces risk of outages and improves standardization\n\n**If not used:**\n- Manual runbooks/checklists take 20 minutes per server monthly\n- Issues often discovered only after incidents occur\n- Higher downtime risk from hidden misconfigurations\n\n** EstimatedLabor cost formula:**  \n`Servers × Monthly Health Check Time × Labor Rate`"
+            },
+            "name": "text - 0"
+          }
+        ]
       },
       "conditionalVisibility": {
         "parameterName": "ArcTab",
@@ -1644,9 +1683,22 @@
       "name": "admincenter-header"
     },
     {
-      "type": 1,
+      "type": 12,
       "content": {
-        "json": "#### 📋 Notes: Windows Admin Center in Azure (WAC in Arc)\n\n**What it provides:**\n- Secure, VPN-less server management via browser\n- Tools include Hyper-V Manager, Event Viewer, Registry Editor, PowerShell console\n- JIT access with no public IPs or inbound ports\n\n**If not used:**\n- Teams spend time configuring VPNs and temporary access\n- Management requires RDP/WinRM exposure (security risk)\n- Troubleshooting requires juggling multiple tools rather than a single pane\n\n** EstimatedLabor cost formula:**  \n`Remote Access Sessions × Minutes Saved per Session × Labor Rate`\n\n**Savings:**  \n5–15 minutes per admin session"
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "📋 Notes: Windows Admin Center in Azure (WAC in Arc)",
+        "expandable": true,
+        "expanded": false,
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "**What it provides:**\n- Secure, VPN-less server management via browser\n- Tools include Hyper-V Manager, Event Viewer, Registry Editor, PowerShell console\n- JIT access with no public IPs or inbound ports\n\n**If not used:**\n- Teams spend time configuring VPNs and temporary access\n- Management requires RDP/WinRM exposure (security risk)\n- Troubleshooting requires juggling multiple tools rather than a single pane\n\n** EstimatedLabor cost formula:**  \n`Remote Access Sessions × Minutes Saved per Session × Labor Rate`\n\n**Savings:**  \n5–15 minutes per admin session"
+            },
+            "name": "text - 0"
+          }
+        ]
       },
       "conditionalVisibility": {
         "parameterName": "ArcTab",
@@ -1727,9 +1779,22 @@
       "name": "sqlbpa-header"
     },
     {
-      "type": 1,
+      "type": 12,
       "content": {
-        "json": "#### 📋 Notes: SQL Server Best Practices Assessment\n\n**What it provides:**\n- Automated scanning of SQL Server configurations against Microsoft best practices\n- Identifies security gaps, performance issues, and configuration problems\n- Generates actionable recommendations with priority levels\n- Tracks compliance over time with historical assessments\n\n**If not used:**\n- Manual configuration reviews consume 2-4 hours per server\n- Security vulnerabilities remain undetected until incidents occur\n- Performance problems discovered reactively, not proactively\n- Compliance audits require extensive manual documentation\n\n**Estimated Labor cost formula:**  \n`SQL Servers × Manual Assessment Hours × Labor Rate × Assessment Frequency`\n\n**Savings:**  \n2-4 hours per server per quarter for manual best practice assessments"
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "📋 Notes: SQL Server Best Practices Assessment",
+        "expandable": true,
+        "expanded": false,
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "**What it provides:**\n- Automated scanning of SQL Server configurations against Microsoft best practices\n- Identifies security gaps, performance issues, and configuration problems\n- Generates actionable recommendations with priority levels\n- Tracks compliance over time with historical assessments\n\n**If not used:**\n- Manual configuration reviews consume 2-4 hours per server\n- Security vulnerabilities remain undetected until incidents occur\n- Performance problems discovered reactively, not proactively\n- Compliance audits require extensive manual documentation\n\n**Estimated Labor cost formula:**  \n`SQL Servers × Manual Assessment Hours × Labor Rate × Assessment Frequency`\n\n**Savings:**  \n2-4 hours per server per quarter for manual best practice assessments"
+            },
+            "name": "text - 0"
+          }
+        ]
       },
       "conditionalVisibilities": [
         {
@@ -1824,9 +1889,22 @@
       "name": "sqlperformance-header"
     },
     {
-      "type": 1,
+      "type": 12,
       "content": {
-        "json": "#### 📋 Notes: SQL Server Performance Dashboard\n\n**What it provides:**\n- Real-time query performance metrics and wait statistics\n- Database resource utilization tracking (CPU, memory, I/O)\n- Slow query identification and execution plan analysis\n- Historical performance trending for capacity planning\n- Integration with Azure Monitor for alerting and dashboards\n\n**If not used:**\n- DBAs spend 1-2 hours per incident troubleshooting blind without metrics\n- Performance degradation detected only after user complaints\n- No historical data for capacity planning or trend analysis\n- Manual query analysis requires multiple tools and DMV queries\n\n**Estimated Labor cost formula:**  \n`SQL Servers × Performance Investigation Hours × Labor Rate × Monthly Incidents`\n\n**Savings:**  \n1-2 hours per performance investigation per server per month"
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "📋 Notes: SQL Server Performance Dashboard",
+        "expandable": true,
+        "expanded": false,
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "**What it provides:**\n- Real-time query performance metrics and wait statistics\n- Database resource utilization tracking (CPU, memory, I/O)\n- Slow query identification and execution plan analysis\n- Historical performance trending for capacity planning\n- Integration with Azure Monitor for alerting and dashboards\n\n**If not used:**\n- DBAs spend 1-2 hours per incident troubleshooting blind without metrics\n- Performance degradation detected only after user complaints\n- No historical data for capacity planning or trend analysis\n- Manual query analysis requires multiple tools and DMV queries\n\n**Estimated Labor cost formula:**  \n`SQL Servers × Performance Investigation Hours × Labor Rate × Monthly Incidents`\n\n**Savings:**  \n1-2 hours per performance investigation per server per month"
+            },
+            "name": "text - 0"
+          }
+        ]
       },
       "conditionalVisibilities": [
         {
@@ -1921,9 +1999,22 @@
       "name": "sqlinventory-header"
     },
     {
-      "type": 1,
+      "type": 12,
       "content": {
-        "json": "#### 📋 Notes: SQL Server Inventory & Configuration\n\n**What it provides:**\n- Automated discovery and tracking of all SQL Server instances\n- Version, edition, and patch level visibility across the enterprise\n- Database inventory with size and growth trends\n- SQL Agent job tracking and monitoring\n- License compliance reporting (PAYG vs. License Mobility)\n- Configuration drift detection\n\n**If not used:**\n- Manual inventory requires scripts run against each server (30-60 min per server)\n- License audits are time-consuming and error-prone\n- No visibility into shadow SQL instances or version sprawl\n- Patching coordination requires manual tracking spreadsheets\n\n**Estimated Labor cost formula:**  \n`SQL Servers × Manual Inventory Hours × Labor Rate × Quarterly Frequency`\n\n**Savings:**  \n30-60 minutes per server per quarter for manual inventory and compliance tracking"
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "📋 Notes: SQL Server Inventory & Configuration",
+        "expandable": true,
+        "expanded": false,
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "**What it provides:**\n- Automated discovery and tracking of all SQL Server instances\n- Version, edition, and patch level visibility across the enterprise\n- Database inventory with size and growth trends\n- SQL Agent job tracking and monitoring\n- License compliance reporting (PAYG vs. License Mobility)\n- Configuration drift detection\n\n**If not used:**\n- Manual inventory requires scripts run against each server (30-60 min per server)\n- License audits are time-consuming and error-prone\n- No visibility into shadow SQL instances or version sprawl\n- Patching coordination requires manual tracking spreadsheets\n\n**Estimated Labor cost formula:**  \n`SQL Servers × Manual Inventory Hours × Labor Rate × Quarterly Frequency`\n\n**Savings:**  \n30-60 minutes per server per quarter for manual inventory and compliance tracking"
+            },
+            "name": "text - 0"
+          }
+        ]
       },
       "conditionalVisibilities": [
         {
