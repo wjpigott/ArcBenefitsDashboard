@@ -220,6 +220,21 @@
             "name": "selectedTab",
             "type": 1,
             "value": "overview"
+          },
+          {
+            "id": "viewstate-param",
+            "name": "ViewState",
+            "type": 1,
+            "query": "let rt = '{ResourceType}';\r\nlet st = '{selectedTab}';\r\nprint ViewState = strcat(rt, '-', st)",
+            "crossComponentResources": [
+              "value::all"
+            ],
+            "isHiddenWhenLocked": false,
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
           }
         ],
         "style": "pills",
@@ -539,11 +554,10 @@
         "showExportToExcel": true
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-overview"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'overview'",
       "name": "benefits-summary"
     },
     {
@@ -699,11 +713,10 @@
         "showExportToExcel": true
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "sql-overview"
       },
-      "customConditionQuery": "{ResourceType} == 'sql' && {selectedTab} == 'overview'",
       "name": "sql-benefits-summary"
     },
     {
@@ -712,11 +725,10 @@
         "json": "---\n\n### �️ Update Manager - Server Details\n\nServers configured vs. unconfigured for Update Manager (automatic patch management)."
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-updatemanager"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'updatemanager'",
       "name": "update-manager-header"
     },
     {
@@ -725,11 +737,10 @@
         "json": "#### 📋 Notes: Azure Update Manager\n\n**What it provides:**\n- Centralized patch visibility across all servers—Azure, on-premises, VMware, GCP, AWS\n- Automated scheduling, maintenance windows, compliance reporting, and auditability\n- Eliminates multiple tools (WSUS, SCCM, custom scripts, spreadsheets)\n\n**If not used:**\n- Manual patching takes 20–45 minutes per server per cycle\n- Multiple tools = duplicated operational effort\n- Higher likelihood of missed patches and extended vulnerability exposure\n- Significant time spent assembling compliance evidence for audits\n\n** Estimated Labor cost formula:**  \n`Servers × Patch Time/Month × Fully Loaded Labor Rate`\n\n**Example:**  \n500 servers × 0.5 hrs × $80/hr = **$20,000 per month saved**"
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-updatemanager"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'updatemanager'",
       "name": "update-manager-notes"
     },
     {
@@ -778,11 +789,10 @@
         }
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-updatemanager"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'updatemanager'",
       "name": "update-manager-details"
     },
     {
@@ -791,11 +801,10 @@
         "json": "---\n\n### 🏷️ Resource Tagging - Server Details\n\nServers with proper resource tagging configured."
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-tagging"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'tagging'",
       "name": "tagging-header"
     },
     {
@@ -804,11 +813,10 @@
         "json": "#### 📋 Notes: Resource Tagging (with Chargeback/FinOps Benefits)\n\n**What it provides:**\n- Standardized tagging for owner, department, environment, cost center\n- Enables automated reporting for chargeback/showback to departments\n- Supports lifecycle automation (cleanup, patch grouping, compliance)\n- Helps FinOps teams accurately track hybrid costs\n\n**If not used:**\n- Chargeback/showback processes require manual spreadsheet tracking\n- Teams spend 5–10 hours per month reconciling server ownership\n- Higher risk of orphaned assets and unassigned costs\n- Poor visibility slows budget planning and capacity management\n\n** Estimated Labor cost formula:**  \n`FinOps Admin Hours/Month × Labor Rate`"
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-tagging"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'tagging'",
       "name": "tagging-notes"
     },
     {
@@ -857,11 +865,10 @@
         }
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-tagging"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'tagging'",
       "name": "tagging-details"
     },
     {
@@ -870,11 +877,10 @@
         "json": "---\n\n### 🔥 Hotpatching - Server Details\n\nWindows Server 2025 machines with hotpatching enabled."
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-hotpatching"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'hotpatching'",
       "name": "hotpatching-header"
     },
     {
@@ -883,11 +889,10 @@
         "json": "#### 📋 Notes: Azure Hotpatching (Arc-Enabled Windows Server)\n\n**What it provides:**\n- Zero-reboot patching for supported Core.\n\n**If not used:**\n- Monthly reboots required. Labor and Software downtime costs.\n\n** Estimated Labor cost formula:**  \n`Servers × Reboot Coordination Time × Patch Cycles × Labor Rate`"
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-hotpatching"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'hotpatching'",
       "name": "hotpatching-notes"
     },
     {
@@ -936,11 +941,10 @@
         }
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-hotpatching"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'hotpatching'",
       "name": "hotpatching-details"
     },
     {
@@ -949,11 +953,10 @@
         "json": "---\n\n### 🛡️ Defender for Cloud - Server Details\n\nServers with Microsoft Defender for Endpoint extension installed."
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-defender"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'defender'",
       "name": "defender-header"
     },
     {
@@ -962,11 +965,10 @@
         "json": "#### 📋 Notes: Azure Defender for Cloud (Arc-Enabled Servers)\n\n**What it provides:**\n- Unified security posture mgmt across hybrid.\n\n**If not used:**\n- Manual agent deploy, scans.\n\n** EstimatedLabor cost formula:**  \n`Servers × Security Review Time × Scan Frequency × Labor Rate`"
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-defender"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'defender'",
       "name": "defender-notes"
     },
     {
@@ -1015,11 +1017,10 @@
         }
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-defender"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'defender'",
       "name": "defender-details"
     },
     {
@@ -1028,11 +1029,10 @@
         "json": "---\n\n### 📦 Inventory & Tracking - Server Details\n\nServers with Change Tracking extension installed."
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-inventory"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'inventory'",
       "name": "inventory-header"
     },
     {
@@ -1041,11 +1041,10 @@
         "json": "#### 📋 Notes: Azure Change Tracking & Inventory\n\n**What it provides:**\n- Automated tracking of software changes, service state, registry/file modifications\n- Instant visibility when troubleshooting incidents or validating expected changes\n- Historical change timeline for audits or RCA (root cause analysis)\n\n**If not used:**\n- Manual investigation requires RDP/SSH into each server\n- Audit prep requires hand-collected software/service lists\n- Troubleshooting incidents take longer without a timeline of system changes\n\n** Estimated Labor cost formula:**  \n`Investigations/Month × Minutes Saved × Labor Rate`\n\n**Typical savings:**  \n10–20 minutes per troubleshooting event"
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-inventory"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'inventory'",
       "name": "inventory-notes"
     },
     {
@@ -1094,11 +1093,10 @@
         }
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-inventory"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'inventory'",
       "name": "inventory-details"
     },
     {
@@ -1107,11 +1105,10 @@
         "json": "---\n\n### 📊 Monitoring & Insights - Server Details\n\nServers with Azure Monitor Agent extension installed."
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-monitoring"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'monitoring'",
       "name": "monitoring-header"
     },
     {
@@ -1120,11 +1117,10 @@
         "json": "#### 📋 Notes: Monitoring & Insights\n\n**What it provides:**\n- Unified metrics, logs, alerts, and dashboards for Arc-enabled servers\n- Reduced MTTR through correlated telemetry across hybrid environments\n- Avoids running multiple monitoring agents/tools per environment\n\n**If not used:**\n- Disparate monitoring tools increase operational complexity\n- Troubleshooting requires manually collecting logs from each system\n- Longer outages increase business impact costs\n\n**Cost formula:**  \n`Reduction in MTTR × Downtime Cost per Hour`\n\n**Impact:**  \nEven small MTTR reductions can save tens of thousands per incident"
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-monitoring"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'monitoring'",
       "name": "monitoring-notes"
     },
     {
@@ -1173,11 +1169,10 @@
         }
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-monitoring"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'monitoring'",
       "name": "monitoring-details"
     },
     {
@@ -1186,11 +1181,10 @@
         "json": "---\n\n### ⚙️ Guest Configuration - Server Details\n\nServers with Guest Configuration extension installed."
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-guestconfig"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'guestconfig'",
       "name": "guestconfig-header"
     },
     {
@@ -1199,11 +1193,10 @@
         "json": "#### 📋 Notes: Azure Machine Configuration (Guest Configuration)\n\n**What it provides:**\n- Enforces OS, security, and application baselines at scale\n- Automated continuous compliance auditing with Azure Policy\n- Reduces drift and supports frameworks like CIS, NIST, CMMC\n\n**If not used:**\n- Manual configuration validation takes 15–30 minutes per server per quarter\n- Drift persists longer, increasing security and compliance risk\n- GPO/script-based reviews require coordination across teams\n\n** Estimated Labor cost formula:**  \n`Servers × Config Review Time × Compliance Frequency × Labor Rate`"
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-guestconfig"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'guestconfig'",
       "name": "guestconfig-notes"
     },
     {
@@ -1252,11 +1245,10 @@
         }
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-guestconfig"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'guestconfig'",
       "name": "guestconfig-details"
     },
     {
@@ -1265,11 +1257,10 @@
         "json": "---\n\n### ✅ Best Practice Assessment - Server Details\n\nServers with Best Practice Assessment extension installed."
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-bestpractice"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'bestpractice'",
       "name": "bestpractice-header"
     },
     {
@@ -1278,11 +1269,10 @@
         "json": "#### 📋 Notes: Best Practices Assessment (BPA)\n\n**What it provides:**\n- Automated scanning for security misconfigurations and performance issues\n- Prioritized remediation steps and actionable recommendations\n- Reduces risk of outages and improves standardization\n\n**If not used:**\n- Manual runbooks/checklists take 20 minutes per server monthly\n- Issues often discovered only after incidents occur\n- Higher downtime risk from hidden misconfigurations\n\n** EstimatedLabor cost formula:**  \n`Servers × Monthly Health Check Time × Labor Rate`"
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-bestpractice"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'bestpractice'",
       "name": "bestpractice-notes"
     },
     {
@@ -1331,11 +1321,10 @@
         }
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-bestpractice"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'bestpractice'",
       "name": "bestpractice-details"
     },
     {
@@ -1344,11 +1333,10 @@
         "json": "---\n\n### 💻 Windows Admin Center - Server Details\n\nServers with Windows Admin Center extension installed."
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-admincenter"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'admincenter'",
       "name": "admincenter-header"
     },
     {
@@ -1357,11 +1345,10 @@
         "json": "#### 📋 Notes: Windows Admin Center in Azure (WAC in Arc)\n\n**What it provides:**\n- Secure, VPN-less server management via browser\n- Tools include Hyper-V Manager, Event Viewer, Registry Editor, PowerShell console\n- JIT access with no public IPs or inbound ports\n\n**If not used:**\n- Teams spend time configuring VPNs and temporary access\n- Management requires RDP/WinRM exposure (security risk)\n- Troubleshooting requires juggling multiple tools rather than a single pane\n\n** EstimatedLabor cost formula:**  \n`Remote Access Sessions × Minutes Saved per Session × Labor Rate`\n\n**Savings:**  \n5–15 minutes per admin session"
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-admincenter"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'admincenter'",
       "name": "admincenter-notes"
     },
     {
@@ -1410,11 +1397,10 @@
         }
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "arc-admincenter"
       },
-      "customConditionQuery": "{ResourceType} == 'arc' && {selectedTab} == 'admincenter'",
       "name": "admincenter-details"
     },
     {
@@ -1423,11 +1409,10 @@
         "json": "---\n\n### �️ SQL Server Best Practices Assessment - Details\n\nSQL Server instances with Best Practices Assessment configured."
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "sql-sqlbpa"
       },
-      "customConditionQuery": "{ResourceType} == 'sql' && {selectedTab} == 'sqlbpa'",
       "name": "sqlbpa-header"
     },
     {
@@ -1436,11 +1421,10 @@
         "json": "#### 📋 Notes: SQL Server Best Practices Assessment\n\n**What it provides:**\n- Automated scanning of SQL Server configurations against Microsoft best practices\n- Identifies security gaps, performance issues, and configuration problems\n- Generates actionable recommendations with priority levels\n- Tracks compliance over time with historical assessments\n\n**If not used:**\n- Manual configuration reviews consume 2-4 hours per server\n- Security vulnerabilities remain undetected until incidents occur\n- Performance problems discovered reactively, not proactively\n- Compliance audits require extensive manual documentation\n\n**Estimated Labor cost formula:**  \n`SQL Servers × Manual Assessment Hours × Labor Rate × Assessment Frequency`\n\n**Savings:**  \n2-4 hours per server per quarter for manual best practice assessments"
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "sql-sqlbpa"
       },
-      "customConditionQuery": "{ResourceType} == 'sql' && {selectedTab} == 'sqlbpa'",
       "name": "sqlbpa-notes"
     },
     {
@@ -1489,11 +1473,10 @@
         }
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "sql-sqlbpa"
       },
-      "customConditionQuery": "{ResourceType} == 'sql' && {selectedTab} == 'sqlbpa'",
       "name": "sqlbpa-details"
     },
     {
@@ -1502,11 +1485,10 @@
         "json": "---\n\n### 📊 SQL Server Performance Dashboard - Details\n\nSQL Server instances with performance monitoring configured via Azure Monitor."
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "sql-sqlperformance"
       },
-      "customConditionQuery": "{ResourceType} == 'sql' && {selectedTab} == 'sqlperformance'",
       "name": "sqlperformance-header"
     },
     {
@@ -1515,11 +1497,10 @@
         "json": "#### 📋 Notes: SQL Server Performance Dashboard\n\n**What it provides:**\n- Real-time query performance metrics and wait statistics\n- Database resource utilization tracking (CPU, memory, I/O)\n- Slow query identification and execution plan analysis\n- Historical performance trending for capacity planning\n- Integration with Azure Monitor for alerting and dashboards\n\n**If not used:**\n- DBAs spend 1-2 hours per incident troubleshooting blind without metrics\n- Performance degradation detected only after user complaints\n- No historical data for capacity planning or trend analysis\n- Manual query analysis requires multiple tools and DMV queries\n\n**Estimated Labor cost formula:**  \n`SQL Servers × Performance Investigation Hours × Labor Rate × Monthly Incidents`\n\n**Savings:**  \n1-2 hours per performance investigation per server per month"
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "sql-sqlperformance"
       },
-      "customConditionQuery": "{ResourceType} == 'sql' && {selectedTab} == 'sqlperformance'",
       "name": "sqlperformance-notes"
     },
     {
@@ -1568,11 +1549,10 @@
         }
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "sql-sqlperformance"
       },
-      "customConditionQuery": "{ResourceType} == 'sql' && {selectedTab} == 'sqlperformance'",
       "name": "sqlperformance-details"
     },
     {
@@ -1581,11 +1561,10 @@
         "json": "---\n\n### 📦 SQL Server Inventory & Configuration - Details\n\nSQL Server instances tracked in Azure Arc for inventory and license management."
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "sql-sqlinventory"
       },
-      "customConditionQuery": "{ResourceType} == 'sql' && {selectedTab} == 'sqlinventory'",
       "name": "sqlinventory-header"
     },
     {
@@ -1594,11 +1573,10 @@
         "json": "#### 📋 Notes: SQL Server Inventory & Configuration\n\n**What it provides:**\n- Automated discovery and tracking of all SQL Server instances\n- Version, edition, and patch level visibility across the enterprise\n- Database inventory with size and growth trends\n- SQL Agent job tracking and monitoring\n- License compliance reporting (PAYG vs. License Mobility)\n- Configuration drift detection\n\n**If not used:**\n- Manual inventory requires scripts run against each server (30-60 min per server)\n- License audits are time-consuming and error-prone\n- No visibility into shadow SQL instances or version sprawl\n- Patching coordination requires manual tracking spreadsheets\n\n**Estimated Labor cost formula:**  \n`SQL Servers × Manual Inventory Hours × Labor Rate × Quarterly Frequency`\n\n**Savings:**  \n30-60 minutes per server per quarter for manual inventory and compliance tracking"
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "sql-sqlinventory"
       },
-      "customConditionQuery": "{ResourceType} == 'sql' && {selectedTab} == 'sqlinventory'",
       "name": "sqlinventory-notes"
     },
     {
@@ -1659,11 +1637,10 @@
         ]
       },
       "conditionalVisibility": {
-        "parameterName": "1",
+        "parameterName": "ViewState",
         "comparison": "isEqualTo",
-        "value": "1"
+        "value": "sql-sqlinventory"
       },
-      "customConditionQuery": "{ResourceType} == 'sql' && {selectedTab} == 'sqlinventory'",
       "name": "sqlinventory-details"
     },
     {
