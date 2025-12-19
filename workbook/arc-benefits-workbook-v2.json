@@ -492,11 +492,12 @@
               "columnMatch": "PotentialSavings",
               "formatter": 18,
               "formatOptions": {
+                "palette": "green",
                 "thresholdsOptions": "icons",
                 "thresholdsGrid": [
                   {
                     "operator": "Default",
-                    "representation": "Blank",
+                    "representation": "success",
                     "text": "{0}{1}"
                   }
                 ]
@@ -760,7 +761,7 @@
               "columnMatch": "PotentialSavings",
               "formatter": 18,
               "formatOptions": {
-                "palette": "blue",
+                "palette": "green",
                 "customColumnWidthSetting": "20ch",
                 "compositeBarSettings": {
                   "labelText": "",
@@ -771,7 +772,7 @@
                   {
                     "operator": "Default",
                     "thresholdValue": null,
-                    "representation": "Blank",
+                    "representation": "success",
                     "text": "{0}{1}"
                   }
                 ]
