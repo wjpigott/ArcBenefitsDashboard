@@ -193,6 +193,14 @@
             "label": "SQL Performance Dashboard",
             "type": 1,
             "value": "50"
+          },
+          {
+            "id": "sqldefender-cost",
+            "version": "KqlParameterItem/1.0",
+            "name": "SqlDefenderCost",
+            "label": "SQL Defender for Cloud",
+            "type": 1,
+            "value": "25"
           }
         ],
         "style": "above",
@@ -355,6 +363,14 @@
             "linkTarget": "parameter",
             "linkLabel": "📊 Overview",
             "subTarget": "overview",
+            "style": "link"
+          },
+          {
+            "id": "sqldefender-tab",
+            "cellValue": "SqlTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Defender for Cloud",
+            "subTarget": "sqldefender",
             "style": "link"
           },
           {
@@ -663,7 +679,7 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "resources\r\n| where type == \"microsoft.azurearcdata/sqlserverinstances\"\r\n| extend machineId = tolower(tostring(properties.containerResourceId))\r\n| join kind=leftouter (\r\n    resources\r\n    | where type == \"microsoft.hybridcompute/machines/extensions\"\r\n    | where properties.type contains \"AzureMonitorWindowsAgent\" or properties.type contains \"AzureMonitorLinuxAgent\"\r\n    | extend machineId = tolower(substring(id, 0, indexof(id, '/extensions/')))\r\n    | summarize hasMonitoring = any(true) by machineId\r\n) on machineId\r\n| extend \r\n    hasBPA = tobool(properties.migration.assessment.enabled) == true,\r\n    hasPerformance = hasMonitoring == true\r\n| summarize \r\n    TotalServers = count(),\r\n    BpaConfigured = countif(hasBPA),\r\n    BpaUnconfigured = countif(not(hasBPA)),\r\n    PerformanceConfigured = countif(hasPerformance),\r\n    PerformanceUnconfigured = countif(not(hasPerformance)),\r\n    InventoryConfigured = count(),\r\n    InventoryUnconfigured = 0\r\n| extend TotalSavings = todouble(\r\n    (BpaUnconfigured * {SqlBpaCost}) +\r\n    (PerformanceUnconfigured * {SqlPerformanceCost}))\r\n| project \r\n    TotalServers,\r\n    TotalSavings,\r\n    services = pack_array(\r\n        pack(\"name\", \"SQL Server Arc - Best Practices Assessment\", \"category\", \"Security & Compliance\", \"cost\", {SqlBpaCost}, \"configured\", BpaConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"SQL Server Arc - Performance Dashboard\", \"category\", \"Monitoring & Performance\", \"cost\", {SqlPerformanceCost}, \"configured\", PerformanceConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"SQL Server Arc - Inventory & Configuration\", \"category\", \"Inventory & Tracking\", \"cost\", 0, \"configured\", InventoryConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"💰 TOTAL ESTIMATED LABOR SAVINGS\", \"category\", \"Totals\", \"cost\", 0, \"configured\", 0, \"total\", 0)\r\n    )\r\n| mv-expand service = services\r\n| extend \r\n    ServiceName = tostring(service.name),\r\n    Category = tostring(service.category),\r\n    Cost = toint(service.cost),\r\n    Configured = tolong(service.configured),\r\n    Total = tolong(service.total)\r\n| extend \r\n    Unconfigured = Total - Configured,\r\n    Percent = iff(Total > 0, round(todouble(Configured) * 100.0 / todouble(Total), 1), 0.0)\r\n| extend Savings = iff(ServiceName startswith \"💰\", TotalSavings, todouble(Unconfigured * Cost))\r\n| extend Status = iff(ServiceName startswith \"💰\", \"\", case(Percent >= 100.0, \"🔵 Fully Configured\", Percent > 0.0, \"🟡 Partially Configured\", \"🔴 Not Configured\"))\r\n| extend SortOrder = iff(ServiceName startswith \"💰\", 1, 0)\r\n| project ServiceName, Category, ConfiguredServers = iff(ServiceName startswith \"💰\", tolong(-1), Configured), UnconfiguredServers = iff(ServiceName startswith \"💰\", tolong(-1), Unconfigured), PercentConfigured = iff(ServiceName startswith \"💰\", todouble(-1), Percent), PotentialSavings = Savings, Status, SortOrder\r\n| order by SortOrder asc, PotentialSavings desc\r\n| project-away SortOrder",
+        "query": "resources\r\n| where type == \"microsoft.azurearcdata/sqlserverinstances\"\r\n| extend machineId = tolower(tostring(properties.containerResourceId)), sqlResourceId = tolower(id)\r\n| join kind=leftouter (\r\n    resources\r\n    | where type == \"microsoft.hybridcompute/machines/extensions\"\r\n    | where properties.type contains \"AzureMonitorWindowsAgent\" or properties.type contains \"AzureMonitorLinuxAgent\"\r\n    | extend machineId = tolower(substring(id, 0, indexof(id, '/extensions/')))\r\n    | summarize hasMonitoring = any(true) by machineId\r\n) on machineId\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ \"microsoft.security/assessments\"\r\n    | where properties.displayName =~ \"Microsoft Defender for SQL status should be protected for Arc-enabled SQL Servers\"\r\n    | extend status = tostring(properties.status.code)\r\n    | extend resourceId = tolower(tostring(properties.resourceDetails.Id))\r\n    | project resourceId, defenderStatus = status\r\n) on $left.sqlResourceId == $right.resourceId\r\n| extend \r\n    hasBPA = tobool(properties.migration.assessment.enabled) == true,\r\n    hasPerformance = hasMonitoring == true,\r\n    hasDefender = defenderStatus =~ \"Healthy\"\r\n| summarize \r\n    TotalServers = count(),\r\n    DefenderConfigured = countif(hasDefender),\r\n    DefenderUnconfigured = countif(not(hasDefender)),\r\n    BpaConfigured = countif(hasBPA),\r\n    BpaUnconfigured = countif(not(hasBPA)),\r\n    PerformanceConfigured = countif(hasPerformance),\r\n    PerformanceUnconfigured = countif(not(hasPerformance)),\r\n    InventoryConfigured = count(),\r\n    InventoryUnconfigured = 0\r\n| extend TotalSavings = todouble(\r\n    (DefenderUnconfigured * {SqlDefenderCost}) +\r\n    (BpaUnconfigured * {SqlBpaCost}) +\r\n    (PerformanceUnconfigured * {SqlPerformanceCost}))\r\n| project \r\n    TotalServers,\r\n    TotalSavings,\r\n    services = pack_array(\r\n        pack(\"name\", \"SQL Server Arc - Defender for Cloud\", \"category\", \"Security & Compliance\", \"cost\", {SqlDefenderCost}, \"configured\", DefenderConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"SQL Server Arc - Best Practices Assessment\", \"category\", \"Security & Compliance\", \"cost\", {SqlBpaCost}, \"configured\", BpaConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"SQL Server Arc - Performance Dashboard\", \"category\", \"Monitoring & Performance\", \"cost\", {SqlPerformanceCost}, \"configured\", PerformanceConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"SQL Server Arc - Inventory & Configuration\", \"category\", \"Inventory & Tracking\", \"cost\", 0, \"configured\", InventoryConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"💰 TOTAL ESTIMATED LABOR SAVINGS\", \"category\", \"Totals\", \"cost\", 0, \"configured\", 0, \"total\", 0)\r\n    )\r\n| mv-expand service = services\r\n| extend \r\n    ServiceName = tostring(service.name),\r\n    Category = tostring(service.category),\r\n    Cost = toint(service.cost),\r\n    Configured = tolong(service.configured),\r\n    Total = tolong(service.total)\r\n| extend \r\n    Unconfigured = Total - Configured,\r\n    Percent = iff(Total > 0, round(todouble(Configured) * 100.0 / todouble(Total), 1), 0.0)\r\n| extend Savings = iff(ServiceName startswith \"💰\", TotalSavings, todouble(Unconfigured * Cost))\r\n| extend Status = iff(ServiceName startswith \"💰\", \"\", case(Percent >= 100.0, \"🔵 Fully Configured\", Percent > 0.0, \"🟡 Partially Configured\", \"🔴 Not Configured\"))\r\n| extend SortOrder = iff(ServiceName startswith \"💰\", 1, 0)\r\n| project ServiceName, Category, ConfiguredServers = iff(ServiceName startswith \"💰\", tolong(-1), Configured), UnconfiguredServers = iff(ServiceName startswith \"💰\", tolong(-1), Unconfigured), PercentConfigured = iff(ServiceName startswith \"💰\", todouble(-1), Percent), PotentialSavings = Savings, Status, SortOrder\r\n| order by SortOrder asc, PotentialSavings desc\r\n| project-away SortOrder",
         "size": 3,
         "title": "📊 SQL Server Arc Capabilities Summary",
         "queryType": 1,
@@ -839,7 +855,7 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "resources\r\n| where type == \"microsoft.azurearcdata/sqlserverinstances\"\r\n| extend machineId = tolower(tostring(properties.containerResourceId))\r\n| join kind=leftouter (\r\n    resources\r\n    | where type == \"microsoft.hybridcompute/machines/extensions\"\r\n    | where properties.type contains \"AzureMonitorWindowsAgent\" or properties.type contains \"AzureMonitorLinuxAgent\"\r\n    | extend machineId = tolower(substring(id, 0, indexof(id, '/extensions/')))\r\n    | summarize hasMonitoring = any(true) by machineId\r\n) on machineId\r\n| extend \r\n    hasBPA = tobool(properties.migration.assessment.enabled) == true,\r\n    hasPerformance = hasMonitoring == true\r\n| summarize \r\n    TotalServers = count(),\r\n    BpaConfigured = countif(hasBPA),\r\n    BpaUnconfigured = countif(not(hasBPA)),\r\n    PerformanceConfigured = countif(hasPerformance),\r\n    PerformanceUnconfigured = countif(not(hasPerformance)),\r\n    InventoryConfigured = count(),\r\n    InventoryUnconfigured = 0\r\n| project \r\n    TotalServers,\r\n    services = pack_array(\r\n        pack(\"name\", \"SQL Server Arc - Best Practices Assessment\", \"category\", \"Security & Compliance\", \"configured\", BpaConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"SQL Server Arc - Performance Dashboard\", \"category\", \"Monitoring & Performance\", \"configured\", PerformanceConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"SQL Server Arc - Inventory & Configuration\", \"category\", \"Inventory & Tracking\", \"configured\", InventoryConfigured, \"total\", TotalServers)\r\n    )\r\n| mv-expand service = services\r\n| extend \r\n    ServiceName = tostring(service.name),\r\n    Category = tostring(service.category),\r\n    Configured = tolong(service.configured),\r\n    Total = tolong(service.total)\r\n| extend \r\n    Unconfigured = Total - Configured,\r\n    Percent = iff(Total > 0, round(todouble(Configured) * 100.0 / todouble(Total), 1), 0.0)\r\n| extend Status = case(Percent >= 100.0, \"🔵 Fully Configured\", Percent > 0.0, \"🟡 Partially Configured\", \"🔴 Not Configured\")\r\n| project ServiceName, Category, ConfiguredServers = Configured, UnconfiguredServers = Unconfigured, PercentConfigured = Percent, Status\r\n| order by UnconfiguredServers desc",
+        "query": "resources\r\n| where type == \"microsoft.azurearcdata/sqlserverinstances\"\r\n| extend machineId = tolower(tostring(properties.containerResourceId)), sqlResourceId = tolower(id)\r\n| join kind=leftouter (\r\n    resources\r\n    | where type == \"microsoft.hybridcompute/machines/extensions\"\r\n    | where properties.type contains \"AzureMonitorWindowsAgent\" or properties.type contains \"AzureMonitorLinuxAgent\"\r\n    | extend machineId = tolower(substring(id, 0, indexof(id, '/extensions/')))\r\n    | summarize hasMonitoring = any(true) by machineId\r\n) on machineId\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ \"microsoft.security/assessments\"\r\n    | where properties.displayName =~ \"Microsoft Defender for SQL status should be protected for Arc-enabled SQL Servers\"\r\n    | extend status = tostring(properties.status.code)\r\n    | extend resourceId = tolower(tostring(properties.resourceDetails.Id))\r\n    | project resourceId, defenderStatus = status\r\n) on $left.sqlResourceId == $right.resourceId\r\n| extend \r\n    hasBPA = tobool(properties.migration.assessment.enabled) == true,\r\n    hasPerformance = hasMonitoring == true,\r\n    hasDefender = defenderStatus =~ \"Healthy\"\r\n| summarize \r\n    TotalServers = count(),\r\n    DefenderConfigured = countif(hasDefender),\r\n    DefenderUnconfigured = countif(not(hasDefender)),\r\n    BpaConfigured = countif(hasBPA),\r\n    BpaUnconfigured = countif(not(hasBPA)),\r\n    PerformanceConfigured = countif(hasPerformance),\r\n    PerformanceUnconfigured = countif(not(hasPerformance)),\r\n    InventoryConfigured = count(),\r\n    InventoryUnconfigured = 0\r\n| project \r\n    TotalServers,\r\n    services = pack_array(\r\n        pack(\"name\", \"SQL Server Arc - Defender for Cloud\", \"category\", \"Security & Compliance\", \"configured\", DefenderConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"SQL Server Arc - Best Practices Assessment\", \"category\", \"Security & Compliance\", \"configured\", BpaConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"SQL Server Arc - Performance Dashboard\", \"category\", \"Monitoring & Performance\", \"configured\", PerformanceConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"SQL Server Arc - Inventory & Configuration\", \"category\", \"Inventory & Tracking\", \"configured\", InventoryConfigured, \"total\", TotalServers)\r\n    )\r\n| mv-expand service = services\r\n| extend \r\n    ServiceName = tostring(service.name),\r\n    Category = tostring(service.category),\r\n    Configured = tolong(service.configured),\r\n    Total = tolong(service.total)\r\n| extend \r\n    Unconfigured = Total - Configured,\r\n    Percent = iff(Total > 0, round(todouble(Configured) * 100.0 / todouble(Total), 1), 0.0)\r\n| extend Status = case(Percent >= 100.0, \"🔵 Fully Configured\", Percent > 0.0, \"🟡 Partially Configured\", \"🔴 Not Configured\")\r\n| project ServiceName, Category, ConfiguredServers = Configured, UnconfiguredServers = Unconfigured, PercentConfigured = Percent, Status\r\n| order by UnconfiguredServers desc",
         "size": 3,
         "title": "📊 SQL Server Arc Capabilities Summary",
         "queryType": 1,
@@ -1751,6 +1767,116 @@
     {
       "type": 1,
       "content": {
+        "json": "---\n\n### 🛡️ SQL Server Defender for Cloud - Details\n\nSQL Server instances with Microsoft Defender for Cloud protection status."
+      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "ResourceType",
+          "comparison": "isEqualTo",
+          "value": "sql"
+        },
+        {
+          "parameterName": "SqlTab",
+          "comparison": "isEqualTo",
+          "value": "sqldefender"
+        }
+      ],
+      "name": "sqldefender-header"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "📋 Notes: SQL Server Defender for Cloud",
+        "expandable": true,
+        "expanded": false,
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "**What it provides:**\n- Advanced threat detection and vulnerability assessments for SQL Server\n- Real-time security alerts for suspicious database activities\n- SQL injection attack detection and prevention guidance\n- Automated vulnerability scanning with remediation recommendations\n- Integration with Azure Security Center for unified security management\n- Compliance reporting for regulatory requirements (PCI DSS, SOC, etc.)\n\n**If not used:**\n- Security teams spend 2-3 hours per server quarterly performing manual vulnerability scans\n- Threat detection relies on reactive log analysis instead of proactive monitoring\n- Compliance audits require extensive manual documentation and evidence gathering\n- Security incidents discovered after breach rather than prevention\n- No centralized view of SQL security posture across hybrid environments\n\n**Estimated Labor cost formula:**  \n`SQL Servers × Manual Security Review Hours × Labor Rate × Quarterly Reviews`\n\n**Savings:**  \n2-3 hours per server per quarter for manual security assessments and compliance reviews\n\n**Detection Method:** This workbook queries Azure Security Center assessments to detect Defender for Cloud protection status. Instances with 'Healthy' assessment status are marked as protected, while 'Unhealthy' or missing assessments indicate unprotected servers."
+            },
+            "name": "text - 0"
+          }
+        ]
+      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "ResourceType",
+          "comparison": "isEqualTo",
+          "value": "sql"
+        },
+        {
+          "parameterName": "SqlTab",
+          "comparison": "isEqualTo",
+          "value": "sqldefender"
+        }
+      ],
+      "name": "sqldefender-notes"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources\r\n| where type == \"microsoft.azurearcdata/sqlserverinstances\"\r\n| extend \r\n    serverName = tostring(properties.containerResourceId),\r\n    sqlVersion = tostring(properties.version),\r\n    sqlEdition = tostring(properties.edition),\r\n    sqlResourceId = tolower(id)\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ \"microsoft.security/assessments\"\r\n    | where properties.displayName =~ \"Microsoft Defender for SQL status should be protected for Arc-enabled SQL Servers\"\r\n    | extend status = tostring(properties.status.code)\r\n    | extend resourceId = tolower(tostring(properties.resourceDetails.Id))\r\n    | project resourceId, defenderStatus = status\r\n) on $left.sqlResourceId == $right.resourceId\r\n| extend hasDefender = defenderStatus =~ \"Healthy\"\r\n| extend ConfigurationStatus = iff(hasDefender == true, \"✅ Protected\", \"❌ Not Protected\")\r\n| project \r\n    SQLInstanceName = name,\r\n    ResourceGroup = resourceGroup,\r\n    Subscription = subscriptionId,\r\n    SQLVersion = sqlVersion,\r\n    SQLEdition = sqlEdition,\r\n    DefenderStatus = ConfigurationStatus,\r\n    AssessmentStatus = defenderStatus,\r\n    DefenderEnabled = iff(hasDefender == true, \"Yes\", \"No\"),\r\n    Location = location\r\n| order by DefenderStatus desc, SQLInstanceName asc",
+        "size": 0,
+        "title": "SQL Server Instances - Defender for Cloud Protection Status",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscriptions}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "DefenderStatus",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "Protected",
+                    "representation": "green",
+                    "text": "{0}"
+                  },
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "Not",
+                    "representation": "redBright",
+                    "text": "{0}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "gray",
+                    "text": "{0}"
+                  }
+                ]
+              }
+            }
+          ],
+          "filter": true
+        }
+      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "ResourceType",
+          "comparison": "isEqualTo",
+          "value": "sql"
+        },
+        {
+          "parameterName": "SqlTab",
+          "comparison": "isEqualTo",
+          "value": "sqldefender"
+        }
+      ],
+      "name": "sqldefender-details"
+    },
+    {
+      "type": 1,
+      "content": {
         "json": "---\n\n### �️ SQL Server Best Practices Assessment - Details\n\nSQL Server instances with Best Practices Assessment configured."
       },
       "conditionalVisibilities": [
@@ -1803,7 +1929,7 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "resources\r\n| where type == \"microsoft.azurearcdata/sqlserverinstances\"\r\n| extend \r\n    serverName = tostring(properties.containerResourceId),\r\n    sqlVersion = tostring(properties.version),\r\n    sqlEdition = tostring(properties.edition),\r\n    bpaEnabled = tobool(properties.migration.assessment.enabled),\r\n    bpaLastRun = tostring(properties.migration.assessment.assessmentUploadTime),\r\n    hasBPA = tobool(properties.migration.assessment.enabled) == true\r\n| extend ConfigurationStatus = iff(hasBPA == true, \"✅ Configured\", \"❌ Not Configured\")\r\n| project \r\n    SQLInstanceName = name,\r\n    ResourceGroup = resourceGroup,\r\n    Subscription = subscriptionId,\r\n    SQLVersion = sqlVersion,\r\n    SQLEdition = sqlEdition,\r\n    BPAStatus = ConfigurationStatus,\r\n    BPA_Enabled = bpaEnabled,\r\n    BPA_LastUpload = bpaLastRun,\r\n    Location = location\r\n| order by BPAStatus desc, SQLInstanceName asc",
+        "query": "resources\r\n| where type == \"microsoft.azurearcdata/sqlserverinstances\"\r\n| extend \r\n    serverName = tostring(properties.containerResourceId),\r\n    sqlVersion = tostring(properties.version),\r\n    sqlEdition = tostring(properties.edition),\r\n    bpaEnabled = tobool(properties.migration.assessment.enabled),\r\n    bpaLastRun = tostring(properties.migration.assessment.assessmentUploadTime),\r\n    hasBPA = tobool(properties.migration.assessment.enabled) == true\r\n| extend ConfigurationStatus = iff(hasBPA == true, \"✅ Configured\", \"❌ Not Configured\")\r\n| project \r\n    SQLInstanceName = name,\r\n    ResourceGroup = resourceGroup,\r\n    Subscription = subscriptionId,\r\n    SQLVersion = sqlVersion,\r\n    SQLEdition = sqlEdition,\r\n    BPAStatus = ConfigurationStatus,\r\n    BPA_Enabled = iff(bpaEnabled == true, \"Yes\", \"No\"),\r\n    BPA_LastUpload = bpaLastRun,\r\n    Location = location\r\n| order by BPAStatus desc, SQLInstanceName asc",
         "size": 0,
         "title": "SQL Server Instances - Best Practices Assessment Status",
         "queryType": 1,
