@@ -2,6 +2,31 @@
   "version": "Notebook/1.0",
   "items": [
     {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "showcosts-param",
+            "version": "KqlParameterItem/1.0",
+            "name": "ShowCosts",
+            "label": "💰 Show Cost Analysis",
+            "type": 10,
+            "isRequired": true,
+            "typeSettings": {
+              "showAsRadioButton": true
+            },
+            "jsonData": "[\r\n  { \"value\": \"true\", \"label\": \"Enabled\" },\r\n  { \"value\": \"false\", \"label\": \"Disabled\" }\r\n]",
+            "value": "false"
+          }
+        ],
+        "style": "above",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "name": "showcosts-parameter"
+    },
+    {
       "type": 1,
       "content": {
         "json": "## 🎯 Azure Arc Benefits Dashboard v2\n\nTrack and maximize your Azure Arc-enabled server capabilities across subscriptions, including SQL Server Arc functionality."
@@ -159,19 +184,6 @@
       "content": {
         "version": "KqlParameterItem/1.0",
         "parameters": [
-          {
-            "id": "showcosts-param",
-            "version": "KqlParameterItem/1.0",
-            "name": "ShowCosts",
-            "label": "💰 Show Cost Analysis",
-            "type": 10,
-            "isRequired": true,
-            "typeSettings": {
-              "showAsRadioButton": true
-            },
-            "jsonData": "[\r\n  { \"value\": \"true\", \"label\": \"Enabled\" },\r\n  { \"value\": \"false\", \"label\": \"Disabled\" }\r\n]",
-            "value": "false"
-          },
           {
             "id": "subscription-filter",
             "version": "KqlParameterItem/1.0",
@@ -497,10 +509,16 @@
             },
             {
               "columnMatch": "PotentialSavings",
-              "formatter": 4,
+              "formatter": 18,
               "formatOptions": {
-                "palette": "blue",
-                "customColumnWidthSetting": "20ch"
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "Default",
+                    "representation": "4",
+                    "text": "{0}{1}"
+                  }
+                ]
               },
               "numberFormat": {
                 "unit": 0,
@@ -509,16 +527,6 @@
                   "currency": "USD",
                   "maximumFractionDigits": 0
                 }
-              },
-              "conditionalFormatting": {
-                "conditionalFormats": [
-                  {
-                    "condition": "{ShowCosts} == 'false'",
-                    "format": {
-                      "isHidden": true
-                    }
-                  }
-                ]
               }
             }
           ],
@@ -549,7 +557,126 @@
         "comparison": "isEqualTo",
         "value": "overview"
       },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "ArcTab",
+          "comparison": "isEqualTo",
+          "value": "overview"
+        },
+        {
+          "parameterName": "ShowCosts",
+          "comparison": "isEqualTo",
+          "value": "true"
+        }
+      ],
       "name": "benefits-summary"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| extend machineId = tolower(id)\r\n| join kind=leftouter (\r\n    resources\r\n    | where type == \"microsoft.hybridcompute/machines/extensions\"\r\n    | extend \r\n        machineId = tolower(substring(id, 0, indexof(id, \"/extensions/\"))),\r\n        extType = tolower(tostring(properties.type)),\r\n        extPublisher = tolower(tostring(properties.publisher)),\r\n        extName = tolower(name)\r\n    | summarize extensions = make_set(strcat(extType, \"|\", extPublisher, \"|\", extName)) by machineId\r\n) on machineId\r\n| join kind=leftouter (\r\n    guestconfigurationresources\r\n    | where type =~ 'microsoft.guestconfiguration/guestconfigurationassignments'\r\n    | parse id with machineId '/providers/Microsoft.GuestConfiguration/guestConfigurationAssignments/' assignmentName\r\n    | project machineId = tolower(machineId)\r\n    | distinct machineId\r\n    | extend hasGuestConfigAssignment = true\r\n) on machineId\r\n| extend \r\n    hasUpdateManager = isnotnull(properties.osProfile.windowsConfiguration.patchSettings.assessmentMode) or isnotnull(properties.osProfile.linuxConfiguration.patchSettings.assessmentMode),\r\n    hasTags = isnotnull(tags) and tostring(tags) != \"{}\",\r\n    isWS2025 = properties.osVersion contains \"2025\" or properties.osVersion contains \"10.0.26100\",\r\n    hasHotpatch = tobool(properties.osProfile.windowsConfiguration.patchSettings.enableHotpatching),\r\n    hasDefender = isnotnull(extensions) and (extensions has \"mde\" or extensions has \"microsoft.azure.security\"),\r\n    hasInventory = isnotnull(extensions) and (extensions has \"changetracking\" or extensions has \"microsoftmonitoringagent\"),\r\n    hasMonitoring = isnotnull(extensions) and (extensions has \"azuremonitorwindowsagent\" or extensions has \"azuremonitorlinuxagent\" or extensions has \"loganalytics\" or extensions has \"omsagent\"),\r\n    hasGuestConfig = hasGuestConfigAssignment == true,\r\n    hasBestPractice = isnotnull(extensions) and (extensions has \"windowsserverassessment\" or extensions has \"assessmentplatform\"),\r\n    hasAdminCenter = isnotnull(extensions) and extensions has \"admincenter\"\r\n| summarize \r\n    TotalServers = count(),\r\n    UpdateManagerConfigured = countif(hasUpdateManager),\r\n    UpdateManagerUnconfigured = countif(not(hasUpdateManager)),\r\n    TaggingConfigured = countif(hasTags),\r\n    TaggingUnconfigured = countif(not(hasTags)),\r\n    HotpatchConfigured = countif(isWS2025 and hasHotpatch),\r\n    HotpatchTotal = countif(isWS2025),\r\n    DefenderConfigured = countif(hasDefender),\r\n    DefenderUnconfigured = countif(not(hasDefender)),\r\n    InventoryConfigured = countif(hasInventory),\r\n    InventoryUnconfigured = countif(not(hasInventory)),\r\n    MonitoringConfigured = countif(hasMonitoring),\r\n    MonitoringUnconfigured = countif(not(hasMonitoring)),\r\n    GuestConfigConfigured = countif(hasGuestConfig),\r\n    GuestConfigUnconfigured = countif(not(hasGuestConfig)),\r\n    BestPracticeConfigured = countif(hasBestPractice),\r\n    BestPracticeUnconfigured = countif(not(hasBestPractice)),\r\n    AdminCenterConfigured = countif(hasAdminCenter),\r\n    AdminCenterUnconfigured = countif(not(hasAdminCenter))\r\n| extend HotpatchUnconfigured = HotpatchTotal - HotpatchConfigured\r\n| project \r\n    TotalServers,\r\n    services = pack_array(\r\n        pack(\"name\", \"Azure Arc-enabled Servers - Update Manager\", \"category\", \"Security & Compliance\", \"configured\", UpdateManagerConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Resource Tagging\", \"category\", \"Deployment & Management\", \"configured\", TaggingConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Hotpatching (WS2025)\", \"category\", \"Security & Compliance\", \"configured\", HotpatchConfigured, \"total\", HotpatchTotal),\r\n        pack(\"name\", \"Arc-enabled Servers - Microsoft Defender for Cloud\", \"category\", \"Security & Compliance\", \"configured\", DefenderConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Azure Arc-enabled Servers - Inventory & Tracking\", \"category\", \"Security & Compliance\", \"configured\", InventoryConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Monitoring & Insights\", \"category\", \"Deployment & Management\", \"configured\", MonitoringConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Azure Arc-enabled Servers - Guest Configuration\", \"category\", \"Security & Compliance\", \"configured\", GuestConfigConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Best Practice Assessment\", \"category\", \"Security & Compliance\", \"configured\", BestPracticeConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"Arc-enabled Servers - Windows Admin Center\", \"category\", \"Deployment & Management\", \"configured\", AdminCenterConfigured, \"total\", TotalServers)\r\n    )\r\n| mv-expand service = services\r\n| extend \r\n    ServiceName = tostring(service.name),\r\n    Category = tostring(service.category),\r\n    Configured = tolong(service.configured),\r\n    Total = tolong(service.total)\r\n| extend \r\n    Unconfigured = Total - Configured,\r\n    Percent = iff(Total > 0, round(todouble(Configured) * 100.0 / todouble(Total), 1), 0.0)\r\n| extend Status = case(Percent >= 100.0, \"🟢 Fully Configured\", Percent > 0.0, \"🟡 Partially Configured\", \"🔴 Not Configured\")\r\n| project ServiceName, Category, ConfiguredServers = Configured, UnconfiguredServers = Unconfigured, PercentConfigured = Percent, Status\r\n| order by UnconfiguredServers desc",
+        "size": 3,
+        "title": "📊 Arc Capabilities Summary - All Services",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscriptions}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "ConfiguredServers",
+              "formatter": 18,
+              "formatOptions": {
+                "palette": "green",
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "success",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "UnconfiguredServers",
+              "formatter": 18,
+              "formatOptions": {
+                "palette": "red",
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "2",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "PercentConfigured",
+              "formatter": 18,
+              "formatOptions": {
+                "palette": "greenRed",
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": null,
+                    "text": "{0}{1}"
+                  }
+                ]
+              },
+              "numberFormat": {
+                "unit": 1,
+                "options": {
+                  "style": "decimal",
+                  "maximumFractionDigits": 0
+                }
+              }
+            }
+          ],
+          "hierarchySettings": {
+            "treeType": 1,
+            "groupBy": [
+              "Category"
+            ],
+            "expandTopLevel": true
+          },
+          "labelSettings": [
+            {
+              "columnId": "ServiceName",
+              "label": "Service Name"
+            }
+          ]
+        },
+        "sortBy": [],
+        "exportToExcelOptions": "all",
+        "showExportToExcel": true
+      },
+      "conditionalVisibility": {
+        "parameterName": "ArcTab",
+        "comparison": "isEqualTo",
+        "value": "overview"
+      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "ArcTab",
+          "comparison": "isEqualTo",
+          "value": "overview"
+        },
+        {
+          "parameterName": "ShowCosts",
+          "comparison": "isEqualTo",
+          "value": "false"
+        }
+      ],
+      "name": "benefits-summary-no-costs"
     },
     {
       "type": 3,
@@ -708,7 +835,126 @@
         "comparison": "isEqualTo",
         "value": "overview"
       },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "SqlTab",
+          "comparison": "isEqualTo",
+          "value": "overview"
+        },
+        {
+          "parameterName": "ShowCosts",
+          "comparison": "isEqualTo",
+          "value": "true"
+        }
+      ],
       "name": "sql-benefits-summary"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources\r\n| where type == \"microsoft.azurearcdata/sqlserverinstances\"\r\n| extend machineId = tolower(tostring(properties.containerResourceId))\r\n| join kind=leftouter (\r\n    resources\r\n    | where type == \"microsoft.hybridcompute/machines/extensions\"\r\n    | where properties.type contains \"AzureMonitorWindowsAgent\" or properties.type contains \"AzureMonitorLinuxAgent\"\r\n    | extend machineId = tolower(substring(id, 0, indexof(id, '/extensions/')))\r\n    | summarize hasMonitoring = any(true) by machineId\r\n) on machineId\r\n| extend \r\n    hasBPA = tobool(properties.migration.assessment.enabled) == true,\r\n    hasPerformance = hasMonitoring == true\r\n| summarize \r\n    TotalServers = count(),\r\n    BpaConfigured = countif(hasBPA),\r\n    BpaUnconfigured = countif(not(hasBPA)),\r\n    PerformanceConfigured = countif(hasPerformance),\r\n    PerformanceUnconfigured = countif(not(hasPerformance)),\r\n    InventoryConfigured = count(),\r\n    InventoryUnconfigured = 0\r\n| project \r\n    TotalServers,\r\n    services = pack_array(\r\n        pack(\"name\", \"SQL Server Arc - Best Practices Assessment\", \"category\", \"Security & Compliance\", \"configured\", BpaConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"SQL Server Arc - Performance Dashboard\", \"category\", \"Monitoring & Performance\", \"configured\", PerformanceConfigured, \"total\", TotalServers),\r\n        pack(\"name\", \"SQL Server Arc - Inventory & Configuration\", \"category\", \"Inventory & Tracking\", \"configured\", InventoryConfigured, \"total\", TotalServers)\r\n    )\r\n| mv-expand service = services\r\n| extend \r\n    ServiceName = tostring(service.name),\r\n    Category = tostring(service.category),\r\n    Configured = tolong(service.configured),\r\n    Total = tolong(service.total)\r\n| extend \r\n    Unconfigured = Total - Configured,\r\n    Percent = iff(Total > 0, round(todouble(Configured) * 100.0 / todouble(Total), 1), 0.0)\r\n| extend Status = case(Percent >= 100.0, \"🔵 Fully Configured\", Percent > 0.0, \"🟡 Partially Configured\", \"🔴 Not Configured\")\r\n| project ServiceName, Category, ConfiguredServers = Configured, UnconfiguredServers = Unconfigured, PercentConfigured = Percent, Status\r\n| order by UnconfiguredServers desc",
+        "size": 3,
+        "title": "📊 SQL Server Arc Capabilities Summary",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscriptions}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "ConfiguredServers",
+              "formatter": 18,
+              "formatOptions": {
+                "palette": "green",
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "success",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "UnconfiguredServers",
+              "formatter": 18,
+              "formatOptions": {
+                "palette": "red",
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "2",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "PercentConfigured",
+              "formatter": 18,
+              "formatOptions": {
+                "palette": "greenRed",
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": null,
+                    "text": "{0}{1}"
+                  }
+                ]
+              },
+              "numberFormat": {
+                "unit": 1,
+                "options": {
+                  "style": "decimal",
+                  "maximumFractionDigits": 0
+                }
+              }
+            }
+          ],
+          "hierarchySettings": {
+            "treeType": 1,
+            "groupBy": [
+              "Category"
+            ],
+            "expandTopLevel": true
+          },
+          "labelSettings": [
+            {
+              "columnId": "ServiceName",
+              "label": "Service Name"
+            }
+          ]
+        },
+        "sortBy": [],
+        "exportToExcelOptions": "all",
+        "showExportToExcel": true
+      },
+      "conditionalVisibility": {
+        "parameterName": "SqlTab",
+        "comparison": "isEqualTo",
+        "value": "overview"
+      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "SqlTab",
+          "comparison": "isEqualTo",
+          "value": "overview"
+        },
+        {
+          "parameterName": "ShowCosts",
+          "comparison": "isEqualTo",
+          "value": "false"
+        }
+      ],
+      "name": "sql-benefits-summary-no-costs"
     },
     {
       "type": 1,
