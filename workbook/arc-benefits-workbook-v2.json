@@ -1626,11 +1626,18 @@
       "content": {
         "json": "---\n\n### �️ SQL Server Best Practices Assessment - Details\n\nSQL Server instances with Best Practices Assessment configured."
       },
-      "conditionalVisibility": {
-        "parameterName": "SqlTab",
-        "comparison": "isEqualTo",
-        "value": "sqlbpa"
-      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "ResourceType",
+          "comparison": "isEqualTo",
+          "value": "sql"
+        },
+        {
+          "parameterName": "SqlTab",
+          "comparison": "isEqualTo",
+          "value": "sqlbpa"
+        }
+      ],
       "name": "sqlbpa-header"
     },
     {
@@ -1638,11 +1645,18 @@
       "content": {
         "json": "#### 📋 Notes: SQL Server Best Practices Assessment\n\n**What it provides:**\n- Automated scanning of SQL Server configurations against Microsoft best practices\n- Identifies security gaps, performance issues, and configuration problems\n- Generates actionable recommendations with priority levels\n- Tracks compliance over time with historical assessments\n\n**If not used:**\n- Manual configuration reviews consume 2-4 hours per server\n- Security vulnerabilities remain undetected until incidents occur\n- Performance problems discovered reactively, not proactively\n- Compliance audits require extensive manual documentation\n\n**Estimated Labor cost formula:**  \n`SQL Servers × Manual Assessment Hours × Labor Rate × Assessment Frequency`\n\n**Savings:**  \n2-4 hours per server per quarter for manual best practice assessments"
       },
-      "conditionalVisibility": {
-        "parameterName": "SqlTab",
-        "comparison": "isEqualTo",
-        "value": "sqlbpa"
-      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "ResourceType",
+          "comparison": "isEqualTo",
+          "value": "sql"
+        },
+        {
+          "parameterName": "SqlTab",
+          "comparison": "isEqualTo",
+          "value": "sqlbpa"
+        }
+      ],
       "name": "sqlbpa-notes"
     },
     {
@@ -1690,11 +1704,18 @@
           "filter": true
         }
       },
-      "conditionalVisibility": {
-        "parameterName": "SqlTab",
-        "comparison": "isEqualTo",
-        "value": "sqlbpa"
-      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "ResourceType",
+          "comparison": "isEqualTo",
+          "value": "sql"
+        },
+        {
+          "parameterName": "SqlTab",
+          "comparison": "isEqualTo",
+          "value": "sqlbpa"
+        }
+      ],
       "name": "sqlbpa-details"
     },
     {
@@ -1702,11 +1723,18 @@
       "content": {
         "json": "---\n\n### 📊 SQL Server Performance Dashboard - Details\n\nSQL Server instances with performance monitoring configured via Azure Monitor."
       },
-      "conditionalVisibility": {
-        "parameterName": "SqlTab",
-        "comparison": "isEqualTo",
-        "value": "sqlperformance"
-      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "ResourceType",
+          "comparison": "isEqualTo",
+          "value": "sql"
+        },
+        {
+          "parameterName": "SqlTab",
+          "comparison": "isEqualTo",
+          "value": "sqlperformance"
+        }
+      ],
       "name": "sqlperformance-header"
     },
     {
@@ -1714,11 +1742,18 @@
       "content": {
         "json": "#### 📋 Notes: SQL Server Performance Dashboard\n\n**What it provides:**\n- Real-time query performance metrics and wait statistics\n- Database resource utilization tracking (CPU, memory, I/O)\n- Slow query identification and execution plan analysis\n- Historical performance trending for capacity planning\n- Integration with Azure Monitor for alerting and dashboards\n\n**If not used:**\n- DBAs spend 1-2 hours per incident troubleshooting blind without metrics\n- Performance degradation detected only after user complaints\n- No historical data for capacity planning or trend analysis\n- Manual query analysis requires multiple tools and DMV queries\n\n**Estimated Labor cost formula:**  \n`SQL Servers × Performance Investigation Hours × Labor Rate × Monthly Incidents`\n\n**Savings:**  \n1-2 hours per performance investigation per server per month"
       },
-      "conditionalVisibility": {
-        "parameterName": "SqlTab",
-        "comparison": "isEqualTo",
-        "value": "sqlperformance"
-      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "ResourceType",
+          "comparison": "isEqualTo",
+          "value": "sql"
+        },
+        {
+          "parameterName": "SqlTab",
+          "comparison": "isEqualTo",
+          "value": "sqlperformance"
+        }
+      ],
       "name": "sqlperformance-notes"
     },
     {
@@ -1766,11 +1801,18 @@
           "filter": true
         }
       },
-      "conditionalVisibility": {
-        "parameterName": "SqlTab",
-        "comparison": "isEqualTo",
-        "value": "sqlperformance"
-      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "ResourceType",
+          "comparison": "isEqualTo",
+          "value": "sql"
+        },
+        {
+          "parameterName": "SqlTab",
+          "comparison": "isEqualTo",
+          "value": "sqlperformance"
+        }
+      ],
       "name": "sqlperformance-details"
     },
     {
@@ -1778,11 +1820,18 @@
       "content": {
         "json": "---\n\n### 📦 SQL Server Inventory & Configuration - Details\n\nSQL Server instances tracked in Azure Arc for inventory and license management."
       },
-      "conditionalVisibility": {
-        "parameterName": "SqlTab",
-        "comparison": "isEqualTo",
-        "value": "sqlinventory"
-      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "ResourceType",
+          "comparison": "isEqualTo",
+          "value": "sql"
+        },
+        {
+          "parameterName": "SqlTab",
+          "comparison": "isEqualTo",
+          "value": "sqlinventory"
+        }
+      ],
       "name": "sqlinventory-header"
     },
     {
@@ -1790,11 +1839,18 @@
       "content": {
         "json": "#### 📋 Notes: SQL Server Inventory & Configuration\n\n**What it provides:**\n- Automated discovery and tracking of all SQL Server instances\n- Version, edition, and patch level visibility across the enterprise\n- Database inventory with size and growth trends\n- SQL Agent job tracking and monitoring\n- License compliance reporting (PAYG vs. License Mobility)\n- Configuration drift detection\n\n**If not used:**\n- Manual inventory requires scripts run against each server (30-60 min per server)\n- License audits are time-consuming and error-prone\n- No visibility into shadow SQL instances or version sprawl\n- Patching coordination requires manual tracking spreadsheets\n\n**Estimated Labor cost formula:**  \n`SQL Servers × Manual Inventory Hours × Labor Rate × Quarterly Frequency`\n\n**Savings:**  \n30-60 minutes per server per quarter for manual inventory and compliance tracking"
       },
-      "conditionalVisibility": {
-        "parameterName": "SqlTab",
-        "comparison": "isEqualTo",
-        "value": "sqlinventory"
-      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "ResourceType",
+          "comparison": "isEqualTo",
+          "value": "sql"
+        },
+        {
+          "parameterName": "SqlTab",
+          "comparison": "isEqualTo",
+          "value": "sqlinventory"
+        }
+      ],
       "name": "sqlinventory-notes"
     },
     {
@@ -1854,11 +1910,18 @@
           }
         ]
       },
-      "conditionalVisibility": {
-        "parameterName": "SqlTab",
-        "comparison": "isEqualTo",
-        "value": "sqlinventory"
-      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "ResourceType",
+          "comparison": "isEqualTo",
+          "value": "sql"
+        },
+        {
+          "parameterName": "SqlTab",
+          "comparison": "isEqualTo",
+          "value": "sqlinventory"
+        }
+      ],
       "name": "sqlinventory-details"
     },
     {
