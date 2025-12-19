@@ -68,7 +68,7 @@
     {
       "type": 1,
       "content": {
-        "json": "## 🎯 Azure Arc Benefits Dashboard v2\n\nTrack and maximize your Azure Arc-enabled server capabilities across subscriptions."
+        "json": "## 🎯 Azure Arc Benefits Dashboard v2"
       },
       "name": "title"
     },
