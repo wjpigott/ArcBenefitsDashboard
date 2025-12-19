@@ -496,7 +496,7 @@
                 "thresholdsGrid": [
                   {
                     "operator": "Default",
-                    "representation": "4",
+                    "representation": "Blank",
                     "text": "{0}{1}"
                   }
                 ]
@@ -771,7 +771,7 @@
                   {
                     "operator": "Default",
                     "thresholdValue": null,
-                    "representation": "success",
+                    "representation": "Blank",
                     "text": "{0}{1}"
                   }
                 ]
