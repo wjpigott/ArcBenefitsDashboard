@@ -51,11 +51,11 @@ Many organizations with Azure Arc don't fully utilize all the capabilities they'
 
 ### Workbook Features (v2.0)
 - **Windows Arc Capabilities** - 10 services (Update Manager, Defender, Monitoring, etc.)
-- **SQL Server Arc Capabilities** - 3 services (BPA, Performance, Inventory)
+- **SQL Server Arc Capabilities** - 4 services (Defender for Cloud, BPA, Performance, Inventory)
 - **Cost Analysis Toggle** - Show/hide cost calculations and PotentialSavings column
 - **Radio Button Navigation** - Clean switching between Windows and SQL views
 - **Collapsible Notes** - Detailed benefit descriptions collapsed by default
-- **Real-time Queries** - Live data from Azure Resource Graph
+- **Real-time Queries** - Live data from Azure Resource Graph with security assessments
 - **Export to Excel** - Built-in export functionality
 
 ### Web App Features

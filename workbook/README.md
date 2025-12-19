@@ -12,7 +12,7 @@ This folder contains an Azure Workbook template that provides a native Azure Por
 ### Core Capabilities
 - 📊 Subscription filtering
 - 🔍 **Windows Arc server** detection across 10 capabilities
-- 🗄️ **SQL Server Arc** tracking across 3 capabilities (BPA, Performance, Inventory)
+- 🗄️ **SQL Server Arc** tracking across 4 capabilities (Defender for Cloud, BPA, Performance, Inventory)
 - 📈 Configured vs. Unconfigured server counts
 - 💰 Optional cost analysis with customizable rates (toggle on/off)
 - 📋 Clean radio button navigation (Windows Arc Benefits vs SQL Arc Benefits)
@@ -33,10 +33,11 @@ This folder contains an Azure Workbook template that provides a native Azure Por
 10. Overview
 
 ### SQL Server Arc Capabilities (4 tabs)
-1. Best Practices Assessment
-2. Performance Dashboard
-3. Inventory & Configuration
-4. Overview
+1. Defender for Cloud
+2. Best Practices Assessment
+3. Performance Dashboard
+4. Inventory & Configuration
+5. Overview
 
 Each capability tab includes a **Notes** section (collapsible) that provides:
 - **What it provides**: Key benefits and value propositions
@@ -47,11 +48,12 @@ These notes help you understand the operational and financial impact of each Arc
 
 ## What's New in v2.0
 
-- ✅ **SQL Server Arc support** - 3 new tabs for SQL-specific capabilities
+- ✅ **SQL Server Arc support** - 4 new tabs for SQL-specific capabilities including Defender for Cloud
 - ✅ **Cost toggle** - Show/hide cost analysis and PotentialSavings column
 - ✅ **Improved navigation** - Clean radio buttons instead of nested tabs
-- ✅ **Collapsible notes** - All 12 notes sections collapse by default to save space
+- ✅ **Collapsible notes** - All 13 notes sections collapse by default to save space
 - ✅ **Optimized layout** - Controls consolidated into single row at top
+- ✅ **Security assessments** - Queries Azure Security Center for Defender for Cloud status detection
 
 <img width="1603" height="692" alt="image" src="https://github.com/user-attachments/assets/1c456ecc-3ce2-4384-9ca0-45247043a3bf" />
 
@@ -69,15 +71,20 @@ These notes help you understand the operational and financial impact of each Arc
    - SQL Server instances registered as `microsoft.azurearcdata/sqlserverinstances` resources
    - `WindowsAgent.SqlServer` extension installed on Arc-enabled servers with SQL
 
-2. **Best Practices Assessment**
+2. **Defender for Cloud (New in v2.1)**
+   - Enable Microsoft Defender for Cloud at subscription level
+   - Enable "Defender for SQL" plan in subscription settings
+   - Status detected automatically via Azure Security Center assessments
+
+3. **Best Practices Assessment**
    - Configure BPA in Azure Portal for each SQL Server Arc resource
    - Requires Log Analytics workspace
 
-3. **Performance Monitoring**
+4. **Performance Monitoring**
    - Azure Monitor Agent installed on Arc-enabled servers hosting SQL
    - Data Collection Rules (DCRs) with SQL performance counters configured
 
-4. **Inventory (Automatic)**
+5. **Inventory (Automatic)**
    - No additional configuration needed beyond Arc registration
 
 ## Installation
@@ -113,7 +120,7 @@ These notes help you understand the operational and financial impact of each Arc
 2. **Select Resource Type**
    - Use radio buttons at top to switch between:
      - **Windows Arc Benefits** - Server capabilities (Update Manager, Defender, etc.)
-     - **SQL Arc Benefits** - SQL Server capabilities (BPA, Performance, Inventory)
+     - **SQL Arc Benefits** - SQL Server capabilities (Defender for Cloud, BPA, Performance, Inventory)
 
 3. **Enable Cost Analysis (Optional)**
    - Toggle "Show Cost Analysis" at the top
@@ -162,6 +169,7 @@ When cost analysis is enabled, these default annual per-server values are used:
 
 | Service | Default Cost/Server/Year |
 |---------|-------------------------|
+| Defender for Cloud | $25 (per year) |
 | Best Practices Assessment | $75 (per quarter) |
 | Performance Dashboard | $50 (per month) |
 | Inventory & Configuration | $40 (per quarter) |
