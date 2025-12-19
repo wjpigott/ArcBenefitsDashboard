@@ -53,7 +53,7 @@ These notes help you understand the operational and financial impact of each Arc
 - ✅ **Collapsible notes** - All 12 notes sections collapse by default to save space
 - ✅ **Optimized layout** - Controls consolidated into single row at top
 
-<img width="1131" height="730" alt="image" src="https://github.com/user-attachments/assets/2dd48e30-e968-4a6b-9b8a-c9654b7bbe53" />
+<img width="1603" height="692" alt="image" src="https://github.com/user-attachments/assets/1c456ecc-3ce2-4384-9ca0-45247043a3bf" />
 
 
 ## Prerequisites
