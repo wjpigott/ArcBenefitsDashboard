@@ -1022,14 +1022,14 @@
                 "thresholdsGrid": [
                   {
                     "operator": "contains",
-                    "thresholdValue": "Configured",
-                    "representation": "green",
+                    "thresholdValue": "Not",
+                    "representation": "yellow",
                     "text": "{0}"
                   },
                   {
                     "operator": "contains",
-                    "thresholdValue": "Not",
-                    "representation": "redBright",
+                    "thresholdValue": "Configured",
+                    "representation": "green",
                     "text": "{0}"
                   },
                   {
@@ -1111,14 +1111,14 @@
                 "thresholdsGrid": [
                   {
                     "operator": "contains",
-                    "thresholdValue": "Configured",
-                    "representation": "green",
+                    "thresholdValue": "Not",
+                    "representation": "yellow",
                     "text": "{0}"
                   },
                   {
                     "operator": "contains",
-                    "thresholdValue": "Not",
-                    "representation": "redBright",
+                    "thresholdValue": "Configured",
+                    "representation": "green",
                     "text": "{0}"
                   },
                   {
@@ -1200,14 +1200,14 @@
                 "thresholdsGrid": [
                   {
                     "operator": "contains",
-                    "thresholdValue": "Configured",
-                    "representation": "green",
+                    "thresholdValue": "Not Configured",
+                    "representation": "yellow",
                     "text": "{0}"
                   },
                   {
                     "operator": "contains",
-                    "thresholdValue": "Not Configured",
-                    "representation": "redBright",
+                    "thresholdValue": "Configured",
+                    "representation": "green",
                     "text": "{0}"
                   },
                   {
@@ -1289,14 +1289,14 @@
                 "thresholdsGrid": [
                   {
                     "operator": "contains",
-                    "thresholdValue": "Configured",
-                    "representation": "green",
+                    "thresholdValue": "Not",
+                    "representation": "yellow",
                     "text": "{0}"
                   },
                   {
                     "operator": "contains",
-                    "thresholdValue": "Not",
-                    "representation": "redBright",
+                    "thresholdValue": "Configured",
+                    "representation": "green",
                     "text": "{0}"
                   },
                   {
@@ -1378,14 +1378,14 @@
                 "thresholdsGrid": [
                   {
                     "operator": "contains",
-                    "thresholdValue": "Configured",
-                    "representation": "green",
+                    "thresholdValue": "Not",
+                    "representation": "yellow",
                     "text": "{0}"
                   },
                   {
                     "operator": "contains",
-                    "thresholdValue": "Not",
-                    "representation": "redBright",
+                    "thresholdValue": "Configured",
+                    "representation": "green",
                     "text": "{0}"
                   },
                   {
@@ -1467,14 +1467,14 @@
                 "thresholdsGrid": [
                   {
                     "operator": "contains",
-                    "thresholdValue": "Configured",
-                    "representation": "green",
+                    "thresholdValue": "Not",
+                    "representation": "yellow",
                     "text": "{0}"
                   },
                   {
                     "operator": "contains",
-                    "thresholdValue": "Not",
-                    "representation": "redBright",
+                    "thresholdValue": "Configured",
+                    "representation": "green",
                     "text": "{0}"
                   },
                   {
@@ -1556,14 +1556,14 @@
                 "thresholdsGrid": [
                   {
                     "operator": "contains",
-                    "thresholdValue": "Configured",
-                    "representation": "green",
+                    "thresholdValue": "Not",
+                    "representation": "yellow",
                     "text": "{0}"
                   },
                   {
                     "operator": "contains",
-                    "thresholdValue": "Not",
-                    "representation": "redBright",
+                    "thresholdValue": "Configured",
+                    "representation": "green",
                     "text": "{0}"
                   },
                   {
@@ -1645,14 +1645,14 @@
                 "thresholdsGrid": [
                   {
                     "operator": "contains",
-                    "thresholdValue": "Configured",
-                    "representation": "green",
+                    "thresholdValue": "Not",
+                    "representation": "yellow",
                     "text": "{0}"
                   },
                   {
                     "operator": "contains",
-                    "thresholdValue": "Not",
-                    "representation": "redBright",
+                    "thresholdValue": "Configured",
+                    "representation": "green",
                     "text": "{0}"
                   },
                   {
@@ -1734,14 +1734,14 @@
                 "thresholdsGrid": [
                   {
                     "operator": "contains",
-                    "thresholdValue": "Configured",
-                    "representation": "green",
+                    "thresholdValue": "Not",
+                    "representation": "yellow",
                     "text": "{0}"
                   },
                   {
                     "operator": "contains",
-                    "thresholdValue": "Not",
-                    "representation": "redBright",
+                    "thresholdValue": "Configured",
+                    "representation": "green",
                     "text": "{0}"
                   },
                   {
@@ -1837,14 +1837,14 @@
                 "thresholdsGrid": [
                   {
                     "operator": "contains",
-                    "thresholdValue": "Protected",
-                    "representation": "green",
+                    "thresholdValue": "Not",
+                    "representation": "yellow",
                     "text": "{0}"
                   },
                   {
                     "operator": "contains",
-                    "thresholdValue": "Not",
-                    "representation": "redBright",
+                    "thresholdValue": "Protected",
+                    "representation": "green",
                     "text": "{0}"
                   },
                   {
@@ -1947,14 +1947,14 @@
                 "thresholdsGrid": [
                   {
                     "operator": "contains",
-                    "thresholdValue": "Configured",
-                    "representation": "green",
+                    "thresholdValue": "Not",
+                    "representation": "yellow",
                     "text": "{0}"
                   },
                   {
                     "operator": "contains",
-                    "thresholdValue": "Not",
-                    "representation": "redBright",
+                    "thresholdValue": "Configured",
+                    "representation": "green",
                     "text": "{0}"
                   },
                   {
@@ -2057,14 +2057,14 @@
                 "thresholdsGrid": [
                   {
                     "operator": "contains",
-                    "thresholdValue": "Configured",
-                    "representation": "green",
+                    "thresholdValue": "Not",
+                    "representation": "yellow",
                     "text": "{0}"
                   },
                   {
                     "operator": "contains",
-                    "thresholdValue": "Not",
-                    "representation": "redBright",
+                    "thresholdValue": "Configured",
+                    "representation": "green",
                     "text": "{0}"
                   },
                   {
