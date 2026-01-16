@@ -1,0 +1,7 @@
+// Run this query in Azure Resource Graph Explorer to see actual BPA properties
+resources
+| where type == "microsoft.azurearcdata/sqlserverinstances"
+| project 
+    name,
+    properties
+| limit 5

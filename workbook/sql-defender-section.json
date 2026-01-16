@@ -1,0 +1,103 @@
+    {
+      "type": 1,
+      "content": {
+        "json": "---\n\n### 🛡️ SQL Server Defender for Cloud - Details\n\nSQL Server Arc instances with Microsoft Defender for Cloud enabled."
+      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "ResourceType",
+          "comparison": "isEqualTo",
+          "value": "sql"
+        },
+        {
+          "parameterName": "SqlTab",
+          "comparison": "isEqualTo",
+          "value": "sqldefender"
+        }
+      ],
+      "name": "sqldefender-header"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "📋 Notes: SQL Server Defender for Cloud",
+        "expandable": true,
+        "expanded": false,
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "**What it provides:**\n- Advanced threat protection for SQL Server Arc instances\n- Vulnerability assessments with automatic scanning\n- Security alerts for suspicious activities and anomalous access patterns\n- SQL injection attack detection and mitigation\n- Integration with Microsoft Defender for Cloud for centralized security management\n- Compliance reporting for regulatory requirements (PCI DSS, ISO, SOC)\n\n**If not used:**\n- Manual security monitoring requires dedicated security analysts\n- Vulnerabilities remain undetected until exploited\n- No real-time alerts for suspicious database activities\n- Compliance audits require manual evidence collection\n- Increased risk of data breaches and security incidents\n\n**Estimated Labor cost formula:**  \n`SQL Servers × Security Monitoring Hours × Analyst Rate × 12 months`\n\n**Savings:**  \n$150/server/year for automated security monitoring and vulnerability scanning vs. manual security operations"
+            },
+            "name": "text - 0"
+          }
+        ]
+      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "ResourceType",
+          "comparison": "isEqualTo",
+          "value": "sql"
+        },
+        {
+          "parameterName": "SqlTab",
+          "comparison": "isEqualTo",
+          "value": "sqldefender"
+        }
+      ],
+      "name": "sqldefender-notes"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let SubsWithSqlPlanEnabled =\r\n    securityresources\r\n    | where type =~ \"microsoft.security/pricings\"\r\n    | where name in~ (\"SqlServers\", \"SqlServerVirtualMachines\")\r\n    | extend pricingTier = tostring(properties.pricingTier)\r\n    | where pricingTier =~ \"Standard\"\r\n    | project subscriptionId;\r\nresources\r\n| where type =~ \"microsoft.azurearcdata/sqlserverinstances\"\r\n| extend hasDefender = subscriptionId in (SubsWithSqlPlanEnabled)\r\n| extend ConfigurationStatus = iff(hasDefender, \"✅ Configured\", \"❌ Not Configured\")\r\n| project \r\n    InstanceName = name,\r\n    ResourceGroup = resourceGroup,\r\n    Subscription = subscriptionId,\r\n    Location = location,\r\n    Version = tostring(properties.version),\r\n    Edition = tostring(properties.edition),\r\n    Status = ConfigurationStatus\r\n| order by Status desc, InstanceName asc",
+        "size": 0,
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscriptions}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Status",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "✅",
+                    "representation": "success",
+                    "text": "{0}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "2",
+                    "text": "{0}"
+                  }
+                ]
+              }
+            }
+          ],
+          "filter": true
+        }
+      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "ResourceType",
+          "comparison": "isEqualTo",
+          "value": "sql"
+        },
+        {
+          "parameterName": "SqlTab",
+          "comparison": "isEqualTo",
+          "value": "sqldefender"
+        }
+      ],
+      "name": "sqldefender-details"
+    },

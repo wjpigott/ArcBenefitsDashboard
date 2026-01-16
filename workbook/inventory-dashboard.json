@@ -1,0 +1,433 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "machinetype-param",
+            "version": "KqlParameterItem/1.0",
+            "name": "MachineType",
+            "label": "🖥️ Machine Type",
+            "type": 10,
+            "isRequired": true,
+            "typeSettings": {
+              "showAsRadioButton": true
+            },
+            "jsonData": "[\r\n  { \"value\": \"all\", \"label\": \"ALL\" },\r\n  { \"value\": \"arc\", \"label\": \"Arc-enabled Servers\" },\r\n  { \"value\": \"azure\", \"label\": \"Azure VMs\" }\r\n]",
+            "value": "all"
+          },
+          {
+            "id": "subscription-filter",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscriptions",
+            "label": "🔍 Subscriptions",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "resources\r\n| where type in~ ('microsoft.hybridcompute/machines', 'microsoft.compute/virtualmachines')\r\n| summarize Count = count() by subscriptionId\r\n| order by Count desc\r\n| project value = subscriptionId, label = strcat(subscriptionId, ' (', Count, ' machines)'), selected = true",
+            "crossComponentResources": [
+              "value::all"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "selectAllValue": "*",
+              "showDefault": false
+            },
+            "defaultValue": "value::all",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "workspace-filter",
+            "version": "KqlParameterItem/1.0",
+            "name": "Workspaces",
+            "label": "📊 Log Analytics Workspaces",
+            "type": 5,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "resources\r\n| where type =~ 'microsoft.operationalinsights/workspaces'\r\n| project id, label = name, selected = true",
+            "crossComponentResources": [
+              "value::all"
+            ],
+            "typeSettings": {
+              "showDefault": false
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "include-microsoft-param",
+            "version": "KqlParameterItem/1.0",
+            "name": "IncludeMicrosoft",
+            "label": "📦 Include Microsoft Corporation Software",
+            "type": 10,
+            "isRequired": true,
+            "typeSettings": {
+              "showAsRadioButton": true
+            },
+            "jsonData": "[\r\n  { \"value\": \"Include\", \"label\": \"Yes\" },\r\n  { \"value\": \"Exclude\", \"label\": \"No\" }\r\n]",
+            "value": "Include"
+          }
+        ],
+        "style": "above",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "name": "top-parameters"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## 📦 Azure Inventory Dashboard\r\n\r\nComprehensive view of Azure VMs and Arc-enabled servers with software inventory and CPU core tracking."
+      },
+      "name": "title"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "### 📊 Overview"
+            },
+            "name": "overview-title"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\r\n| where type in~ ('microsoft.hybridcompute/machines', 'microsoft.compute/virtualmachines')\r\n| where '{MachineType}' == 'all' or ('{MachineType}' == 'arc' and type =~ 'microsoft.hybridcompute/machines') or ('{MachineType}' == 'azure' and type =~ 'microsoft.compute/virtualmachines')\r\n| extend \r\n    machineType = iff(type =~ 'microsoft.hybridcompute/machines', 'Arc', 'Azure'),\r\n    coreCount = iff(\r\n        type =~ 'microsoft.hybridcompute/machines',\r\n        toint(properties.detectedProperties.coreCount),\r\n        0\r\n    ),\r\n    osType = iff(\r\n        type =~ 'microsoft.hybridcompute/machines',\r\n        tostring(properties.osName),\r\n        tostring(properties.storageProfile.osDisk.osType)\r\n    )\r\n| summarize \r\n    TotalMachines = count(),\r\n    TotalCores = sum(coreCount),\r\n    WindowsMachines = countif(osType contains 'Windows'),\r\n    LinuxMachines = countif(osType contains 'Linux')\r\n    by machineType\r\n| project \r\n    MachineType = machineType,\r\n    ['Total Machines'] = TotalMachines,\r\n    ['Total Cores'] = TotalCores,\r\n    ['Windows'] = WindowsMachines,\r\n    ['Linux'] = LinuxMachines\r\n| order by MachineType desc",
+              "size": 3,
+              "title": "Machine Summary by Type",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "value::all"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Total Machines",
+                    "formatter": 4,
+                    "formatOptions": {
+                      "palette": "blue"
+                    }
+                  },
+                  {
+                    "columnMatch": "Total Cores",
+                    "formatter": 4,
+                    "formatOptions": {
+                      "palette": "green"
+                    }
+                  }
+                ]
+              }
+            },
+            "name": "overview-summary"
+          }
+        ]
+      },
+      "name": "overview-group"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "### 🗄️ SQL Server Licensing"
+            },
+            "name": "sql-title"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\r\n| where type == 'microsoft.azurearcdata/sqlserverinstances'\r\n| extend \r\n    sqlVersion = tostring(properties.version),\r\n    sqlEdition = tostring(properties.edition),\r\n    vCores = toint(properties.vCore),\r\n    machineId = tolower(tostring(properties.containerResourceId))\r\n| join kind=inner (\r\n    resources\r\n    | where type == 'microsoft.hybridcompute/machines'\r\n    | where '{MachineType}' == 'all' or '{MachineType}' == 'arc'\r\n    | extend \r\n        machineId = tolower(id),\r\n        machineName = name,\r\n        totalCores = toint(properties.detectedProperties.coreCount)\r\n    | project machineId, machineName, totalCores, resourceGroup\r\n) on machineId\r\n| summarize \r\n    InstanceCount = count(),\r\n    TotalSQLCores = sum(vCores),\r\n    TotalServerCores = sum(totalCores),\r\n    Servers = make_list(machineName)\r\n    by sqlEdition, sqlVersion\r\n| project \r\n    ['SQL Edition'] = sqlEdition,\r\n    ['SQL Version'] = sqlVersion,\r\n    ['Instance Count'] = InstanceCount,\r\n    ['Total SQL vCores'] = TotalSQLCores,\r\n    ['Total Server Cores'] = TotalServerCores,\r\n    ['Servers'] = Servers\r\n| order by ['Instance Count'] desc",
+              "size": 3,
+              "title": "SQL Server Summary by Edition",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "value::all"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "SQL Edition",
+                    "formatter": 0
+                  },
+                  {
+                    "columnMatch": "Instance Count",
+                    "formatter": 4,
+                    "formatOptions": {
+                      "palette": "blue"
+                    }
+                  },
+                  {
+                    "columnMatch": "Total SQL vCores",
+                    "formatter": 4,
+                    "formatOptions": {
+                      "palette": "green"
+                    }
+                  },
+                  {
+                    "columnMatch": "Total Server Cores",
+                    "formatter": 4,
+                    "formatOptions": {
+                      "palette": "orange"
+                    }
+                  }
+                ]
+              }
+            },
+            "name": "sql-summary"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\r\n| where type == 'microsoft.azurearcdata/sqlserverinstances'\r\n| extend \r\n    sqlVersion = tostring(properties.version),\r\n    sqlEdition = tostring(properties.edition),\r\n    vCores = toint(properties.vCore),\r\n    licenseType = tostring(properties.licenseType),\r\n    machineId = tolower(tostring(properties.containerResourceId))\r\n| join kind=inner (\r\n    resources\r\n    | where type == 'microsoft.hybridcompute/machines'\r\n    | where '{MachineType}' == 'all' or '{MachineType}' == 'arc'\r\n    | extend \r\n        machineId = tolower(id),\r\n        machineName = name,\r\n        totalCores = toint(properties.detectedProperties.coreCount)\r\n    | project machineId, machineName, totalCores, resourceGroup, subscriptionId\r\n) on machineId\r\n| extend \r\n    MinRequiredCores = 4,\r\n    LicensingStatus = iff(totalCores >= 4, '✅ Compliant', '⚠️ Below 4 cores')\r\n| project \r\n    ['SQL Instance'] = name,\r\n    ['Server Name'] = machineName,\r\n    ['Edition'] = sqlEdition,\r\n    ['Version'] = sqlVersion,\r\n    ['License Type'] = licenseType,\r\n    ['SQL vCores'] = vCores,\r\n    ['Server Cores'] = totalCores,\r\n    ['Licensing Status'] = LicensingStatus,\r\n    ['Resource Group'] = resourceGroup,\r\n    ['Subscription'] = subscriptionId\r\n| order by ['Server Cores'] asc, ['SQL Instance'] asc",
+              "size": 3,
+              "title": "SQL Server Per-Server Details (Licensing Compliance)",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "value::all"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Licensing Status",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "contains",
+                          "thresholdValue": "✅",
+                          "representation": "success",
+                          "text": "{0}"
+                        },
+                        {
+                          "operator": "contains",
+                          "thresholdValue": "⚠️",
+                          "representation": "warning",
+                          "text": "{0}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "info",
+                          "text": "{0}"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "Server Cores",
+                    "formatter": 4,
+                    "formatOptions": {
+                      "min": 0,
+                      "max": 128,
+                      "palette": "greenRed"
+                    }
+                  }
+                ]
+              }
+            },
+            "name": "sql-per-server"
+          }
+        ]
+      },
+      "name": "sql-group"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "### 🖥️ Software Inventory"
+            },
+            "name": "software-inventory-header"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "ConfigurationData\r\n| where ConfigDataType == 'Software'\r\n| where isnotempty(SoftwareName)\r\n| where SoftwareName !contains 'Security Intelligence Update'\r\n| where SoftwareName !contains 'Security Update'\r\n| where SoftwareName !contains 'Definition Update'\r\n| where SoftwareName !contains 'Update for Windows'\r\n| where SoftwareName !contains 'Update for Microsoft'\r\n| where SoftwareName !startswith 'KB'\r\n| where SoftwareName !contains ' - KB'\r\n| where '{IncludeMicrosoft}' == 'Include' or (Publisher !contains 'Microsoft Corporation' and Publisher !contains 'Microsoft Corp.')\r\n| summarize arg_max(TimeGenerated, *) by Computer, SoftwareName, Publisher\r\n| extend MachineLower = tolower(Computer)\r\n| join kind=inner (\r\n    Heartbeat\r\n    | where TimeGenerated > ago(24h)\r\n    | where '{MachineType}' == 'all' or ('{MachineType}' == 'arc' and ComputerEnvironment == 'Non-Azure') or ('{MachineType}' == 'azure' and ComputerEnvironment == 'Azure')\r\n    | summarize arg_max(TimeGenerated, ComputerIP, OSType, OSMajorVersion, OSMinorVersion, ComputerEnvironment) by Computer\r\n    | extend MachineLower = tolower(Computer)\r\n) on MachineLower\r\n| summarize \r\n    MachineCount = dcount(Computer),\r\n    Versions = make_set(strcat(Publisher, ' - ', SoftwareName), 10),\r\n    Publishers = make_set(Publisher, 5),\r\n    SampleMachines = make_set(Computer, 10)\r\n    by SoftwareName\r\n| project \r\n    ['Software Name'] = SoftwareName,\r\n    ['Machines'] = MachineCount,\r\n    ['Publishers'] = Publishers,\r\n    ['Machine Details'] = SampleMachines\r\n| order by ['Machines'] desc\r\n| take 100",
+              "size": 3,
+              "title": "Installed Software Summary (Top 100 by Machine Count)",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspaces}"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Machines",
+                    "formatter": 4,
+                    "formatOptions": {
+                      "palette": "blue"
+                    }
+                  }
+                ],
+                "filter": true
+              }
+            },
+            "name": "software-inventory-summary"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "ConfigurationData\r\n| where ConfigDataType == 'Software'\r\n| where isnotempty(SoftwareName)\r\n| where SoftwareName !contains 'Security Intelligence Update'\r\n| where SoftwareName !contains 'Security Update'\r\n| where SoftwareName !contains 'Definition Update'\r\n| where SoftwareName !contains 'Update for Windows'\r\n| where SoftwareName !contains 'Update for Microsoft'\r\n| where SoftwareName !startswith 'KB'\r\n| where SoftwareName !contains ' - KB'\r\n| where '{IncludeMicrosoft}' == 'Include' or (Publisher !contains 'Microsoft Corporation' and Publisher !contains 'Microsoft Corp.')\r\n| summarize arg_max(TimeGenerated, *) by Computer, SoftwareName\r\n| extend MachineLower = tolower(Computer)\r\n| join kind=inner (\r\n    Heartbeat\r\n    | where TimeGenerated > ago(24h)\r\n    | where '{MachineType}' == 'all' or ('{MachineType}' == 'arc' and ComputerEnvironment == 'Non-Azure') or ('{MachineType}' == 'azure' and ComputerEnvironment == 'Azure')\r\n    | summarize arg_max(TimeGenerated, ComputerIP, OSType, ResourceGroup, ComputerEnvironment) by Computer\r\n    | extend MachineLower = tolower(Computer)\r\n) on MachineLower\r\n| project \r\n    ['Machine Name'] = Computer,\r\n    ['Software Name'] = SoftwareName,\r\n    ['Publisher'] = Publisher,\r\n    ['Version'] = CurrentVersion,\r\n    ['Software Type'] = SoftwareType,\r\n    ['OS'] = OSType,\r\n    ['Resource Group'] = ResourceGroup,\r\n    ['Last Seen'] = TimeGenerated\r\n| order by ['Machine Name'] asc, ['Software Name'] asc",
+              "size": 3,
+              "title": "Installed Software by Machine (Detailed View)",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspaces}"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Last Seen",
+                    "formatter": 6
+                  }
+                ],
+                "filter": true
+              }
+            },
+            "name": "software-by-machine"
+          }
+        ]
+      },
+      "name": "software-inventory-group"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "### 💻 Machine Details"
+            },
+            "name": "machine-details-title"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\r\n| where type in~ ('microsoft.hybridcompute/machines', 'microsoft.compute/virtualmachines')\r\n| where '{MachineType}' == 'all' or ('{MachineType}' == 'arc' and type =~ 'microsoft.hybridcompute/machines') or ('{MachineType}' == 'azure' and type =~ 'microsoft.compute/virtualmachines')\r\n| extend \r\n    machineType = iff(type =~ 'microsoft.hybridcompute/machines', 'Arc', 'Azure VM'),\r\n    coreCount = iff(\r\n        type =~ 'microsoft.hybridcompute/machines',\r\n        toint(properties.detectedProperties.coreCount),\r\n        0\r\n    ),\r\n    osType = iff(\r\n        type =~ 'microsoft.hybridcompute/machines',\r\n        tostring(properties.osName),\r\n        tostring(properties.storageProfile.osDisk.osType)\r\n    ),\r\n    osVersion = iff(\r\n        type =~ 'microsoft.hybridcompute/machines',\r\n        tostring(properties.osVersion),\r\n        ''\r\n    ),\r\n    vmSize = iff(\r\n        type =~ 'microsoft.compute/virtualmachines',\r\n        tostring(properties.hardwareProfile.vmSize),\r\n        'N/A'\r\n    ),\r\n    status = iff(\r\n        type =~ 'microsoft.hybridcompute/machines',\r\n        tostring(properties.status),\r\n        tostring(properties.provisioningState)\r\n    ),\r\n    manufacturer = iff(\r\n        type =~ 'microsoft.hybridcompute/machines',\r\n        tostring(properties.detectedProperties.manufacturer),\r\n        'Microsoft'\r\n    )\r\n| extend\r\n    model = iff(\r\n        type =~ 'microsoft.hybridcompute/machines',\r\n        tostring(properties.detectedProperties.model),\r\n        vmSize\r\n    )\r\n| project \r\n    ['Machine Name'] = name,\r\n    ['Type'] = machineType,\r\n    ['OS'] = osType,\r\n    ['OS Version'] = osVersion,\r\n    ['Cores'] = coreCount,\r\n    ['VM Size'] = vmSize,\r\n    ['Status'] = status,\r\n    ['Manufacturer'] = manufacturer,\r\n    ['Model'] = model,\r\n    ['Location'] = location,\r\n    ['Resource Group'] = resourceGroup,\r\n    ['Subscription'] = subscriptionId,\r\n    ['Tags'] = tags\r\n| order by ['Cores'] desc, ['Machine Name'] asc",
+              "size": 3,
+              "title": "All Machines with Core Details",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "value::all"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Type",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Arc",
+                          "representation": "server",
+                          "text": "{0}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Azure VM",
+                          "representation": "cloud",
+                          "text": "{0}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "unknown",
+                          "text": "{0}"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "Cores",
+                    "formatter": 4,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "blue"
+                    }
+                  },
+                  {
+                    "columnMatch": "Status",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "contains",
+                          "thresholdValue": "Connected",
+                          "representation": "success",
+                          "text": "{0}"
+                        },
+                        {
+                          "operator": "contains",
+                          "thresholdValue": "Succeeded",
+                          "representation": "success",
+                          "text": "{0}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "info",
+                          "text": "{0}"
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "filter": true
+              }
+            },
+            "name": "all-machines-detail"
+          }
+        ]
+      },
+      "name": "machine-details-group"
+    }
+  ],
+  "fallbackResourceIds": [
+    "azure monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
