@@ -52,6 +52,9 @@ Many organizations with Azure Arc don't fully utilize all the capabilities they'
 ### Workbook Features (v2.0)
 - **Windows Arc Capabilities** - 10 services (Update Manager, Defender, Monitoring, etc.)
 - **SQL Server Arc Capabilities** - 4 services (Defender for Cloud, BPA, Performance, Inventory)
+- **Friendly OS Names** - Display "Windows Server 2025" instead of "10.0.26100" across all service tabs
+- **SQL Host Type Detection** - Automatically determines Virtual Machine vs Physical Machine infrastructure
+- **Accurate Tag Counting** - Fixed tag count display in Resource Tagging view
 - **Cost Analysis Toggle** - Show/hide cost calculations and PotentialSavings column
 - **Radio Button Navigation** - Clean switching between Windows and SQL views
 - **Collapsible Notes** - Detailed benefit descriptions collapsed by default
@@ -131,8 +134,8 @@ This project is designed to be customized and extended. Feel free to:
 
 ---
 
-**Version**: 2.0.0  
-**Last Updated**: December 2025  
+**Version**: 2.0.1  
+**Last Updated**: January 2026  
 **Repository**: [github.com/wjpigott/ArcBenefitsDashboard](https://github.com/wjpigott/ArcBenefitsDashboard)
 
 ---
