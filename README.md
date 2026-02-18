@@ -59,7 +59,7 @@ Many organizations with Azure Arc don't fully utilize all the capabilities they'
 - **Radio Button Navigation** - Clean switching between Windows and SQL views
 - **Collapsible Notes** - Detailed benefit descriptions collapsed by default
 - **Real-time Queries** - Live data from Azure Resource Graph with security assessments
-- **Export to Excel** - Built-in export functionality
+- **Export to Excel** - All tables (summary and detail views) support Excel export
 
 ### Web App Features
 - **Interactive Dashboard** - Visual cards with status indicators
@@ -134,8 +134,8 @@ This project is designed to be customized and extended. Feel free to:
 
 ---
 
-**Version**: 2.0.1  
-**Last Updated**: January 2026  
+**Version**: 2.0.2  
+**Last Updated**: February 2026  
 **Repository**: [github.com/wjpigott/ArcBenefitsDashboard](https://github.com/wjpigott/ArcBenefitsDashboard)
 
 ---
