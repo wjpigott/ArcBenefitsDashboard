@@ -4,7 +4,8 @@ This folder contains an Azure Workbook template that provides a native Azure Por
 
 ## Version History
 
-- **v2.0 (Current)**: Includes SQL Server Arc capabilities, cost toggle, improved UI with radio button navigation, and collapsible notes sections
+- **v2.1 (Current)**: Bug fix — the SQL Server Arc capabilities summary now shows the estimated labor savings row only when Cost Analysis is **Enabled** and hides it when **Disabled** (the cost and no-cost queries had been swapped relative to their visibility conditions)
+- **v2.0**: Includes SQL Server Arc capabilities, cost toggle, improved UI with radio button navigation, and collapsible notes sections
 - **v1.0 (Archived)**: Original Windows Arc-only version available as `arc-benefits-workbook-v1-archive.json` and git tag `v1.0`
 
 ## Features
