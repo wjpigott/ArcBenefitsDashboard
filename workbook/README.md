@@ -13,6 +13,7 @@ This folder contains an Azure Workbook template that provides a native Azure Por
 ### Core Capabilities
 - 📊 Subscription filtering
 - 🔍 **Windows Arc server** detection across 10 capabilities
+- 🪪 **Windows Server Arc Benefits Enablement** tracking for Software Assurance and pay-as-you-go activation
 - 🗄️ **SQL Server Arc** tracking across 4 capabilities (Defender for Cloud, BPA, Performance, Inventory)
 - 📈 Configured vs. Unconfigured server counts
 - 💰 Optional cost analysis with customizable rates (toggle on/off)
@@ -21,17 +22,18 @@ This folder contains an Azure Workbook template that provides a native Azure Por
 - ⚙️ Easy cost editing via parameters at top of workbook
 - 📋 Collapsible notes sections under each tab with benefit analysis and labor cost formulas
 
-### Windows Arc Capabilities (10 tabs)
-1. Update Manager
-2. Microsoft Defender for Cloud
-3. Inventory & Tracking
-4. Guest Configuration
-5. Best Practice Assessment
-6. Resource Tagging
-7. Monitoring & Insights
-8. Windows Admin Center
-9. Hotpatching (WS2025)
-10. Overview
+### Windows Arc Capabilities (11 tabs)
+1. Licensing Benefits
+2. Update Manager
+3. Microsoft Defender for Cloud
+4. Inventory & Tracking
+5. Guest Configuration
+6. Best Practice Assessment
+7. Resource Tagging
+8. Monitoring & Insights
+9. Windows Admin Center
+10. Hotpatching (WS2025)
+11. Overview
 
 ### SQL Server Arc Capabilities (4 tabs)
 1. Defender for Cloud
