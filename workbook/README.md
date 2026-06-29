@@ -58,7 +58,8 @@ These notes help you understand the operational and financial impact of each Arc
 - ✅ **Optimized layout** - Controls consolidated into single row at top
 - ✅ **Security assessments** - Queries Azure Security Center for Defender for Cloud status detection
 
-<img width="1495" height="773" alt="image" src="https://github.com/user-attachments/assets/0b66b33b-d844-4bf1-8e57-086fc5cd121c" />
+<img width="1503" height="758" alt="image" src="https://github.com/user-attachments/assets/7ed888ef-8fdc-4914-9920-c1845031ffca" />
+
 
 ## Prerequisites
 
