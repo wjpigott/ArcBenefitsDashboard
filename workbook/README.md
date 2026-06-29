@@ -1,10 +1,11 @@
-# Azure Arc Benefits Dashboard v2
+# Azure Arc Benefits Dashboard v2.3
 
 This folder contains an Azure Workbook template that provides a native Azure Portal experience for tracking both **Azure Arc-enabled server** and **SQL Server Arc** benefits.
 
 ## Version History
 
-- **v2.1 (Current)**: Bug fix — the SQL Server Arc capabilities summary now shows the estimated labor savings row only when Cost Analysis is **Enabled** and hides it when **Disabled** (the cost and no-cost queries had been swapped relative to their visibility conditions)
+- **v2.3 (Current)**: Adds Windows Server Arc Benefits Enablement tracking, including activation status, pay-as-you-go detection, savings opportunity candidates only when Arc usage is detected, Linux/not-eligible messaging, and clearer license channel display for unlicensed machines
+- **v2.1**: Bug fix — the SQL Server Arc capabilities summary now shows the estimated labor savings row only when Cost Analysis is **Enabled** and hides it when **Disabled** (the cost and no-cost queries had been swapped relative to their visibility conditions)
 - **v2.0**: Includes SQL Server Arc capabilities, cost toggle, improved UI with radio button navigation, and collapsible notes sections
 - **v1.0 (Archived)**: Original Windows Arc-only version available as `arc-benefits-workbook-v1-archive.json` and git tag `v1.0`
 
