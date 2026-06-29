@@ -16,7 +16,7 @@ The **Azure Workbook** is the easiest and most powerful way to deploy this dashb
 ✅ **Easy Deployment** - Import JSON file in 2 minutes  
 
 **📋 Get started with the workbook:** [workbook/README.md](workbook/README.md)
-<img width="1495" height="773" alt="image" src="https://github.com/user-attachments/assets/b5b1c489-3c57-476d-88ab-f0ef68a41e8a" />
+<img width="1503" height="758" alt="image" src="https://github.com/user-attachments/assets/38796647-5a31-473e-a50f-8a618eb992cb" />
 
 ---
 
