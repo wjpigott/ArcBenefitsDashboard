@@ -295,7 +295,7 @@ Use the existing deployment scripts but update the workbook name:
 
 ```powershell
 # Deploy v2 workbook
-.\workbook\Deploy-Workbook.ps1 -WorkbookFilePath ".\workbook\arc-benefits-workbook-v2.json"
+.\workbook\Deploy-Workbook.ps1 -ResourceGroup "YourResourceGroup" -WorkbookFilePath ".\workbook\arc-benefits-workbook-v2.json"
 ```
 
 ### Option 2: Manual Import

@@ -1,10 +1,11 @@
-# Azure Arc Benefits Dashboard v2
+# Azure Arc Benefits Dashboard Workbooks
 
-This folder contains an Azure Workbook template that provides a native Azure Portal experience for tracking both **Azure Arc-enabled server** and **SQL Server Arc** benefits.
+This folder preserves two independently deployable Azure Workbook generations. Versioned filenames are authoritative; there is intentionally no unversioned workbook alias.
 
 ## Version History
 
-- **v2.1 (Current)**: Bug fix — the SQL Server Arc capabilities summary now shows the estimated labor savings row only when Cost Analysis is **Enabled** and hides it when **Disabled** (the cost and no-cost queries had been swapped relative to their visibility conditions)
+- **v2.3 (Current)**: Adds the Windows Server Arc licensing benefits enablement view and uses subscription status for Arc pay-as-you-go benefits. Stored as `arc-benefits-workbook-v2.json`.
+- **v2.1**: Bug fix — the SQL Server Arc capabilities summary shows the estimated labor savings row only when Cost Analysis is **Enabled** and hides it when **Disabled**
 - **v2.0**: Includes SQL Server Arc capabilities, cost toggle, improved UI with radio button navigation, and collapsible notes sections
 - **v1.0 (Archived)**: Original Windows Arc-only version available as `arc-benefits-workbook-v1-archive.json` and git tag `v1.0`
 
@@ -97,7 +98,7 @@ These notes help you understand the operational and financial impact of each Arc
 3. Click "New" or "Empty Workbook"
 4. Click the Advanced Editor button (</> icon in toolbar)
 5. Delete all content in the editor
-6. Copy and paste the entire contents of ***`arc-benefits-workbook.json`***
+6. Copy and paste the entire contents of ***`arc-benefits-workbook-v2.json`***
 7. Click "Apply"
 8. Click "Save" and choose:
    - **Title**: Arc Benefits Dashboard v2
@@ -110,6 +111,12 @@ These notes help you understand the operational and financial impact of each Arc
 
 ```powershell
 .\Deploy-Workbook.ps1 -ResourceGroup "YourResourceGroup" -Location "eastus"
+```
+
+The deployment scripts default to v2. To deploy v1 side by side, specify both the file and a distinct workbook name:
+
+```powershell
+.\Deploy-Workbook.ps1 -ResourceGroup "YourResourceGroup" -WorkbookFilePath ".\arc-benefits-workbook-v1-archive.json" -WorkbookName "Arc-Benefits-Dashboard-v1"
 ```
 
 ## Usage
@@ -362,7 +369,7 @@ The original v1 workbook is preserved as:
 
 ## Files
 
-- `arc-benefits-workbook.json` - **Current v2 workbook** (Windows Arc + SQL Arc)
+- `arc-benefits-workbook-v2.json` - **Current v2 workbook** (Windows Arc + SQL Arc + licensing benefits enablement)
 - `arc-benefits-workbook-v1-archive.json` - Original Windows Arc-only version
 - `Deploy-Workbook-AzPowerShell.ps1` - Azure PowerShell deployment script
 - `Deploy-Workbook.ps1` - PowerShell deployment script

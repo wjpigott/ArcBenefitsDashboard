@@ -49,8 +49,9 @@ Many organizations with Azure Arc don't fully utilize all the capabilities they'
 
 ## ✨ Key Features
 
-### Workbook Features (v2.0)
+### Workbook Features (v2.3)
 - **Windows Arc Capabilities** - 10 services (Update Manager, Defender, Monitoring, etc.)
+- **Licensing Benefits Enablement** - Identifies Windows Server Arc licensing activation and savings opportunities
 - **SQL Server Arc Capabilities** - 4 services (Defender for Cloud, BPA, Performance, Inventory)
 - **Friendly OS Names** - Display "Windows Server 2025" instead of "10.0.26100" across all service tabs
 - **SQL Host Type Detection** - Automatically determines Virtual Machine vs Physical Machine infrastructure
@@ -85,7 +86,7 @@ Many organizations with Azure Arc don't fully utilize all the capabilities they'
 ArcBenefitsDashboard/
 ├── README.md                  # This file - project overview
 ├── workbook/                  # Azure Workbook (Recommended)
-│   ├── arc-benefits-workbook.json              # Primary workbook (v2 with SQL Arc)
+│   ├── arc-benefits-workbook-v2.json           # Current v2 workbook with SQL Arc and licensing benefits
 │   ├── arc-benefits-workbook-v1-archive.json   # Original Windows Arc only version
 │   ├── Deploy-Workbook.ps1                     # Azure CLI deployment script
 │   ├── Deploy-Workbook-AzPowerShell.ps1       # Azure PowerShell deployment script
@@ -134,7 +135,7 @@ This project is designed to be customized and extended. Feel free to:
 
 ---
 
-**Version**: 2.0.2  
+**Version**: 2.3
 **Last Updated**: February 2026  
 **Repository**: [github.com/wjpigott/ArcBenefitsDashboard](https://github.com/wjpigott/ArcBenefitsDashboard)
 
