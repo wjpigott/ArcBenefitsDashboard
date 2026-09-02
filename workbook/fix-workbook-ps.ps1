@@ -1,4 +1,4 @@
-$file = "c:\repos\Arc\sa-benefits-dashboard\workbook\arc-benefits-workbook.json"
+$file = Join-Path $PSScriptRoot "arc-benefits-workbook-v2.json"
 $json = Get-Content $file -Raw -Encoding UTF8 | ConvertFrom-Json
 
 # Function to update items recursively

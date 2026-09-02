@@ -9,7 +9,10 @@ param(
     [string]$Location = "eastus",
     
     [Parameter(Mandatory=$false)]
-    [string]$WorkbookName = "Arc-Benefits-Dashboard"
+    [string]$WorkbookName = "Arc-Benefits-Dashboard-v2",
+
+    [Parameter(Mandatory=$false)]
+    [string]$WorkbookFilePath = (Join-Path $PSScriptRoot "arc-benefits-workbook-v2.json")
 )
 
 Write-Host "🚀 Deploying Arc Benefits Dashboard Workbook..." -ForegroundColor Cyan
@@ -41,8 +44,8 @@ if (-not $rg) {
 
 Write-Host ""
 
-# Read the workbook JSON
-$workbookPath = Join-Path $PSScriptRoot "arc-benefits-workbook.json"
+# Read the explicitly selected workbook version
+$workbookPath = $WorkbookFilePath
 if (-not (Test-Path $workbookPath)) {
     Write-Host "❌ Workbook template not found: $workbookPath" -ForegroundColor Red
     exit 1
