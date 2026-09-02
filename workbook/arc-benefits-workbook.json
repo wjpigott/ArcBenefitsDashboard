@@ -984,7 +984,7 @@
     {
       "type": 1,
       "content": {
-        "json": "---\n\n### �️ Update Manager - Server Details\n\nServers configured vs. unconfigured for Update Manager (automatic patch management)."
+       "json": "---\n\n### 🖥️ Update Manager - Server Details\n\nServers configured vs. unconfigured for Update Manager (automatic patch management)."
       },
       "name": "update-manager-header",
       "conditionalVisibilities": [
